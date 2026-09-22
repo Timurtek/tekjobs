@@ -192,13 +192,13 @@ export function getJob(id) {
   // A section runs to the next "## " heading or the true end of the note (not the end of a line: `$` is per-line under /m).
   const section = (h) => { const m = body.match(new RegExp(`^## ${h}\\s*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm')); return m ? m[1].trim() : ''; };
   // Where the note is, and a link Obsidian opens it from; `path=` works whatever the vault is called.
-  return { ...rowOf(fm), path: file, obsidianUrl: `obsidian://open?path=${encodeURIComponent(file)}`, body, sections: { why: section("Why it matched"), log: section('Status log'), notes: section(notesHeading(text)), application: section('Application'), coverLetter: section('Cover letter').replace(/^>.*\r?\n?/gm, '').trim(), description: section('Job description') } };
+  return { ...rowOf(fm), path: file, obsidianUrl: `obsidian://open?path=${encodeURIComponent(file)}`, body, sections: { why: section("Why it matched"), log: section('Status log'), notes: section(notesHeading(text)), application: section('Application'), coverLetter: section('Cover letter').replace(/^>.*\r?\n?/gm, '').trim(), description: section('Job description'), people: section('People') } };
 }
-function replaceFrontmatterLine(text, key, value) {
+export function replaceFrontmatterLine(text, key, value) {
   const re = new RegExp(`^${key}: .*$`, 'm');
   return re.test(text) ? text.replace(re, `${key}: ${value}`) : text.replace(/^---\r?\n/, `---\n${key}: ${value}\n`);
 }
-function appendUnderHeading(text, heading, line) {
+export function appendUnderHeading(text, heading, line) {
   // `[ \t]*\n` rather than `\s*\n`: a greedy \s would swallow the blank lines after the heading into the heading group.
   const re = new RegExp(`(^## ${heading}[ \\t]*\\n)([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm');
   if (!re.test(text)) return text.trimEnd() + `\n\n## ${heading}\n${line}\n`;

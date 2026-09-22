@@ -344,6 +344,63 @@
   color: var(--color-text-faint);
 }
 
+/* People: a hairline list on the job sheet, threads on the person sheet. */
+.people__list,
+.people__threads {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.people__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  padding: var(--spacing-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.people__row:last-child {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.people__row > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.people__row .reasons__detail {
+  flex-basis: 100%;
+}
+
+.people__threads li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.people__thread {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.people__thread:hover {
+  color: var(--color-primary);
+}
+
+.people__add {
+  display: grid;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-2);
+}
+
 /* Every number, date, amount and code is mono. */
 .num {
   font-family: var(--font-mono);

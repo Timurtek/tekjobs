@@ -14,6 +14,7 @@ import { writeJobNote } from '../../src/vault.mjs';
 import { scoreJob } from '../../src/score.mjs';
 import { htmlToText } from '../../src/sources.mjs';
 import * as store from './store.mjs';
+import * as people from './people.mjs';
 import { runLLM, runnerConfig } from './cover-letter.mjs';
 
 const FILE = path.join(DATA_DIR, 'mail-check.json');
@@ -44,7 +45,7 @@ Report every message that is about one of the person's job applications: confirm
 The person's own records show applications at these companies (others may exist): ${companies.join(', ')}.` : ''}
 
 Output ONLY a JSON array, no prose, no code fence, one object per message:
-{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "sender address", "messageId": "gmail message id", "subject": "subject line"}
+{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "sender address", "fromName": "the sender's display name, or the name a person signed with if you read the message; empty for automated senders", "messageId": "gmail message id", "subject": "subject line"}
 
 If nothing matches, output [].`;
 }
@@ -59,7 +60,7 @@ export function parseOutput(text) {
   return arr.filter((m) => m && typeof m === 'object' && m.company && m.messageId).map((m) => ({
     company: String(m.company).trim(), role: String(m.role || '').trim(), kind: KINDS.includes(m.kind) ? m.kind : 'other',
     date: /^\d{4}-\d{2}-\d{2}$/.test(String(m.date || '')) ? m.date : '', gist: String(m.gist || '').trim().slice(0, 300),
-    from: String(m.from || '').trim(), messageId: String(m.messageId).trim(), subject: String(m.subject || '').trim().slice(0, 200),
+    from: String(m.from || '').trim(), fromName: String(m.fromName || '').trim().slice(0, 80), messageId: String(m.messageId).trim(), subject: String(m.subject || '').trim().slice(0, 200),
   }));
 }
 
@@ -101,6 +102,8 @@ export function reconcile(mails, notes) {
       noteId: best ? best.id : '', noteTitle: best ? best.title : '', noteStatus: best ? best.status : '',
       candidates: byRank.slice(0, 6).map((n) => ({ id: n.id, title: n.title, status: n.status })),
       suggestion: suggestionFor(m.kind, best ? best.status : '', m.date),
+      // The human who wrote, if one did; confirming puts them on the note and in People.
+      person: people.fromMail(m),
       state: 'pending',
     };
   });
@@ -127,6 +130,7 @@ export function groupItems(items) {
       kind: rep.kind, kinds: [...new Set(sorted.map((m) => m.kind))], date: sorted.map((m) => m.date).sort().pop() || '',
       first: sorted.map((m) => m.date).filter(Boolean).sort()[0] || '',
       gist: rep.gist, subject: rep.subject, from: rep.from,
+      person: rep.person || sorted.find((m) => m.person)?.person || null,
       match: rep.match, noteId: rep.noteId, noteTitle: rep.noteTitle, noteStatus: rep.noteStatus, candidates: rep.candidates, suggestion: rep.suggestion,
     };
   }).sort((a, b) => (STRENGTH[b.kind] - STRENGTH[a.kind]) || b.date.localeCompare(a.date));
@@ -198,8 +202,10 @@ export function confirm(id, { noteId } = {}) {
   if (appliedOn && members.some((m) => m.kind === 'confirmation') && appliedOnEmpty(target)) store.saveApplicationDraft(target, { field: 'Applied on', value: appliedOn });
   // Oldest first, so the note's Notes read in the order the mail arrived.
   for (const m of [...members].sort((a, b) => (a.date || '').localeCompare(b.date || ''))) store.addNote(target, mailLine(m), 'app');
+  // The humans who wrote go on the note's People and get the mail on their own Log; machines do not.
+  const persons = [...new Set(members.map((m) => { try { return people.recordFromMail(target, m, gmailLink(m.messageId)); } catch { return null; } }).filter(Boolean))];
   const at = new Date().toISOString();
-  for (const m of members) { m.state = 'confirmed'; m.noteId = target; m.resolved = { at, action: s.action, status: s.status || '' }; }
+  for (const m of members) { m.state = 'confirmed'; m.noteId = target; m.resolved = { at, action: s.action, status: s.status || '', persons }; }
   persist(d);
   return items();
 }

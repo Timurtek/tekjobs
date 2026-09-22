@@ -101,6 +101,7 @@ function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; onChang
                       <div className="who__text">
                         {i.company}
                         <small>{i.role || "role not stated"}</small>
+                        {i.person && <small title={`${i.person.email}. Confirming adds them to People and to the note.`}>from {i.person.name}</small>}
                       </div>
                     </Table.Cell>
                     <Table.Cell>

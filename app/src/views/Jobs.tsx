@@ -1,6 +1,7 @@
 import { Badge, Button, Card, Combobox, Dialog, Icon, Markdown, Menu, Popover, Select, Sheet, Skeleton, Switch, Table, Tabs, TextArea, TextField, toast } from "@/components/ui";
 import { useEffect, useMemo, useState } from "react";
 import { CoverLetter } from "./CoverLetter";
+import { JobPeople } from "./People";
 import { TailoredResume } from "./TailoredResume";
 import { api, BAND_LABEL, BAND_TONE, daysAgo, money, PASS_REASONS, shortPay, STATUS_TONE, STATUSES, type Facets, type ImportResult, type Job, type JobQuery, type JobRow, type Kind, type Packet, type PassReason, type PayBand, type SavedView, type Status } from "../api";
 
@@ -213,6 +214,20 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
 
   useEffect(() => { if (initialQuery) set("q", initialQuery); }, [initialQuery]);
   useEffect(() => { writeFilters(f, sort, dir); }, [f, sort, dir]);
+  // The sidebar's Jobs link, a view chip elsewhere, or a pasted link change the hash from outside: follow it.
+  // Our own writes use replaceState and fire no event, so this only ever reacts to someone else's navigation.
+  useEffect(() => {
+    const on = () => {
+      if (window.location.hash.replace(/^#\/?/, "").split("?")[0] !== "jobs") return;
+      const next = readFilters();
+      const nextSort = (hashParams().get("sort") as keyof JobRow | null) || "score";
+      const nextDir = hashParams().get("dir") === "asc" ? "asc" : "desc";
+      if (paramsFor(next, nextSort, nextDir) === paramsFor(f, sort, dir)) return;
+      setF(next); setSort(nextSort); setDir(nextDir); setPage(0);
+    };
+    window.addEventListener("hashchange", on);
+    return () => window.removeEventListener("hashchange", on);
+  }, [f, sort, dir]);
   useEffect(() => {
     let live = true;
     api
@@ -592,6 +607,7 @@ export function JobSheet({ id, onClose, onChanged }: { id: string | null; onClos
                 <Tabs.Trigger value="application">Application packet</Tabs.Trigger>
                 <Tabs.Trigger value="resume">Tailored resume</Tabs.Trigger>
                 <Tabs.Trigger value="letter">Cover letter</Tabs.Trigger>
+                <Tabs.Trigger value="people">People</Tabs.Trigger>
                 <Tabs.Trigger value="notes">Notes</Tabs.Trigger>
               </Tabs.List>
               <Tabs.Content value="why">
@@ -645,6 +661,9 @@ export function JobSheet({ id, onClose, onChanged }: { id: string | null; onClos
               </Tabs.Content>
               <Tabs.Content value="letter">
                 <CoverLetter job={job} />
+              </Tabs.Content>
+              <Tabs.Content value="people">
+                <JobPeople job={job} />
               </Tabs.Content>
               <Tabs.Content value="notes">
                 <div className="detail">

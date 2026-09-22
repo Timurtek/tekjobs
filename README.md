@@ -19,7 +19,7 @@ Nothing personal lives in this repository. Your profile folder (profile, resume,
 - **A profile folder** (default `~/.tekjobs/profile`): your profile, your resume as text, the scoring criteria, the board watchlist, one note per matched job, and scan logs. Plain markdown, readable in Obsidian or anything else.
 - **A daily scan** over Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold boards, the Atlassian, GitHub, Spotify and Amazon career APIs, the Google and Apple career pages (keyword-searched; they have no API), and eleven aggregator feeds including Wellfound's and Built In's remote listing pages. All public, all key-free. Two optional feeds need a free key: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, which is every federal posting in the United States. Job alert emails saved into `Inbox/` are read too, which is how LinkedIn and Indeed listings get in without anything contacting those sites. Around 25,000 postings a run, deduplicated, scored, and cut to the ones that fit you.
 - **An app** (Zengin UI): overview, filterable jobs table with a detail sheet, drag-and-drop pipeline, watchlist, criteria editor, scan history with a run button, and the agent setup page.
-- **An MCP server** with 33 tools, so Claude Code, Claude Desktop, ChatGPT or Cursor can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans.
+- **An MCP server** with 38 tools, so Claude Code, Claude Desktop, ChatGPT or Cursor can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans.
 
 ## Getting started
 
@@ -60,6 +60,10 @@ The scan watches boards. For the posting you saw on LinkedIn, in a newsletter, o
 ## What the mailbox says
 
 Applications come back as email: a confirmation, a rejection, an interview request. "Check mail" on Today reads those through the same local CLI that writes the letters, using the Gmail connector already attached to it, and with the run boxed: only the Gmail read tools are allowed and every write tool is denied by name, so a run can read and nothing else. The model only extracts (company, role, kind, date, one-line gist, message id); matching each email to a note and everything that changes a note is ordinary code, and nothing changes until you confirm an item. A confirmation on a note you had not marked applied marks it applied as of the mail's date; a rejection marks it rejected; an interview request marks it interviewing; an email about a job with no note offers to create one. Every confirmed item writes a dated line with the gist and a link to the message into the note, and fills the packet's Applied on when it is empty, which is what makes the response numbers on Overview real. Also `tekjobs mail [--days N]`, and `mail_check` / `mail_items` over MCP (read and start only; confirming is yours).
+
+## People
+
+The recruiters, hiring managers, interviewers and referrals a search meets: one note each under `People/` (role, company, email, links, a line of context, the job notes they are on, a dated log of contacts), and a `## People` section on each job note naming who is on that thread. Most arrive from the mail check: when the email a person confirms was written by a human rather than a no-reply address, that human is added, put on the note, and gets the email on their log. The rest are added on the People page or from a job sheet's People tab. Nothing is enriched or looked up anywhere; the record is who actually wrote to you and who you actually met. Over MCP: `list_people`, `get_person`, `add_person`, `attach_person`, `log_contact`.
 
 ## Applying
 

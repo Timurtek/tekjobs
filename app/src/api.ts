@@ -76,7 +76,7 @@ export interface Job extends JobRow {
   path: string;
   obsidianUrl: string;
   body: string;
-  sections: { why: string; log: string; notes: string; application: string; description: string };
+  sections: { why: string; log: string; notes: string; application: string; description: string; people: string };
 }
 export interface Summary {
   open: number;
@@ -157,7 +157,8 @@ export interface CriteriaPreview {
 /** One application email, matched to a note, with what confirming it would do. */
 export interface MailItem {
   id: string; company: string; role: string; kind: "confirmation" | "rejection" | "advance" | "scheduling" | "info-request" | "other";
-  date: string; gist: string; from: string; messageId: string; subject: string;
+  date: string; gist: string; from: string; fromName?: string; messageId: string; subject: string;
+  person?: MailPerson | null;
   /** exact: same title. company: no role named, best note of that company. company-other-role: a role the vault lacks, default is a new note. none: nothing. */
   match: "exact" | "company" | "company-other-role" | "none"; noteId: string; noteTitle: string; noteStatus: string;
   candidates: { id: string; title: string; status: string }[];
@@ -168,13 +169,30 @@ export interface MailItem {
 /** Pending emails about one application (company + role), the strongest kind speaking for the group. */
 export interface MailGroup {
   id: string; ids: string[]; count: number; company: string; role: string; kind: MailItem["kind"]; kinds: MailItem["kind"][];
-  date: string; first: string; gist: string; subject: string; from: string;
+  date: string; first: string; gist: string; subject: string; from: string; person: MailPerson | null;
   match: MailItem["match"]; noteId: string; noteTitle: string; noteStatus: string; candidates: MailItem["candidates"]; suggestion: MailItem["suggestion"];
 }
+/** The human who wrote a mail item, when one did; confirming puts them on the note and in People. */
+export interface MailPerson { name: string; email: string; role: PersonRole; company: string }
 export interface MailState {
   running: boolean; startedAt: string | null; finishedAt: string | null; error: string; errorKind: string; sinceDays: number | null;
   runner: string; lastRun: string | null; lastSinceDays: number | null; items: MailItem[]; groups: MailGroup[];
 }
+
+export const PERSON_ROLES = ["recruiter", "hiring-manager", "interviewer", "referral", "other"] as const;
+export type PersonRole = (typeof PERSON_ROLES)[number];
+/** One person note under People/: who, where, how to reach them, and the job notes they are on. */
+export interface Person {
+  id: string; name: string; role: PersonRole; company: string; email: string; links: string;
+  created: string; lastContact: string;
+  threads: { id: string; role: string; title: string; status: string }[];
+  /** Threads whose note is in flight (applying through offer). */
+  live: number;
+  path: string; obsidianUrl: string;
+}
+export interface PersonDetail extends Person { about: string; log: string }
+/** A person as a job note's People section lists them. */
+export interface JobPerson { id: string; name: string; role: string; email: string; context: string }
 
 /** What the search is producing, read from the notes. */
 export interface Outcomes {
@@ -308,6 +326,12 @@ export const api = {
   activateCriteriaPreset: (name: string) => request<Criteria>(`/api/criteria/presets/${encodeURIComponent(name)}/activate`, { method: "POST" }),
   profileNotes: () => request<ProfileNotes>("/api/profile"),
   saveProfileNote: (note: string, markdown: string) => request<{ saved: string }>("/api/profile", { method: "PUT", body: JSON.stringify({ note, markdown }) }),
+  people: () => request<Person[]>("/api/people"),
+  person: (id: string) => request<PersonDetail>(`/api/people/${encodeURIComponent(id)}`),
+  addPerson: (p: { name: string; role: PersonRole; company?: string; email?: string; links?: string; about?: string; jobId?: string; context?: string }) => request<PersonDetail>("/api/people", { method: "POST", body: JSON.stringify(p) }),
+  attachPerson: (personId: string, jobId: string, role?: PersonRole, context?: string) => request<Job>(`/api/people/${encodeURIComponent(personId)}/attach`, { method: "POST", body: JSON.stringify({ jobId, role, context }) }),
+  logContact: (personId: string, text: string, date?: string) => request<PersonDetail>(`/api/people/${encodeURIComponent(personId)}/log`, { method: "POST", body: JSON.stringify({ text, date }) }),
+  jobPeople: (id: string) => request<JobPerson[]>(`/api/jobs/${encodeURIComponent(id)}/people`),
   companies: () => request<Company[]>("/api/companies"),
   addCompany: (c: Omit<Company, "status">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
   onboarding: () => request<Onboarding>("/api/onboarding"),

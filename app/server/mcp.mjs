@@ -6,8 +6,14 @@ import * as store from './store.mjs';
 import * as letter from './cover-letter.mjs';
 import * as tailored from './tailored-resume.mjs';
 import * as mail from './mail-check.mjs';
+import * as people from './people.mjs';
 
 const TOOLS = [
+  { name: 'list_people', description: 'The people in the search: recruiters, hiring managers, interviewers and referrals, one note each under People/, with role, company, email, last contact and the job notes they are on. Newest contact first.', inputSchema: { type: 'object', properties: {} } },
+  { name: 'get_person', description: 'One person in full: the row plus their About text and dated Log of contacts.', inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] } },
+  { name: 'add_person', description: 'Add a person (or recognise one already there, by email or name and company) and optionally put them on a job note. role: recruiter | hiring-manager | interviewer | referral | other. Give jobId to attach; context is a few words on the thread.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string', enum: people.ROLES }, company: { type: 'string' }, email: { type: 'string' }, links: { type: 'string' }, about: { type: 'string' }, jobId: { type: 'string' }, context: { type: 'string' } }, required: ['name'] } },
+  { name: 'attach_person', description: 'Put an existing person on a job note (a line under its People section) and the job on their Threads. Idempotent.', inputSchema: { type: 'object', properties: { jobId: { type: 'string' }, personId: { type: 'string' }, role: { type: 'string', enum: people.ROLES }, context: { type: 'string' } }, required: ['jobId', 'personId'] } },
+  { name: 'log_contact', description: "Append a dated line to a person's Log (a call, a reply, a note to self) and move their last contact forward. Nothing is sent.", inputSchema: { type: 'object', properties: { personId: { type: 'string' }, text: { type: 'string' }, date: { type: 'string', description: 'YYYY-MM-DD, default today.' } }, required: ['personId', 'text'] } },
   { name: 'tailored_resume_materials', description: 'Everything needed to tailor the resume to one posting: the posting, the resume of record (the only source of facts), the binding rules and the exact Markdown structure to output. Tailoring means reorder, prune, tighten and re-summarise; never add a bullet, title, date or number. Write it from the returned prompt, then call save_tailored_resume. emphasis: auto | design-systems | ai-product.', inputSchema: { type: 'object', properties: { id: { type: 'string' }, emphasis: { type: 'string' }, extra: { type: 'string' } }, required: ['id'] } },
   { name: 'save_tailored_resume', description: 'Save a tailored resume (Markdown in the required structure) into the job note. Returns warnings: bullets that do not trace to the resume of record, figures or date ranges or job headers that are not on it. Fix every warning and save again; a person will upload this. The print view is /api/jobs/<id>/resume.html on the local server.', inputSchema: { type: 'object', properties: { id: { type: 'string' }, text: { type: 'string' } }, required: ['id', 'text'] } },
   { name: 'cover_letter_materials', description: 'Everything needed to write a cover letter for one job: the posting, the resume (the only source of facts), the profile, positioning, what the packet has already decided, and the binding rules. Write the letter yourself from the returned prompt, then call save_cover_letter. emphasis: auto | design-systems | ai-product. length: short | standard. extra: anything the person asked you to include.', inputSchema: { type: 'object', properties: { id: { type: 'string' }, emphasis: { type: 'string' }, length: { type: 'string' }, extra: { type: 'string' } }, required: ['id'] } },
@@ -78,6 +84,11 @@ async function call(name, a = {}) {
     case 'add_company': return store.addCompany(a);
     case 'add_job': return store.importLinks(a.urls);
     case 'attach_posting': return store.attachPosting(a.id, a.url);
+    case 'list_people': return people.listPeople();
+    case 'get_person': return people.getPerson(a.id);
+    case 'add_person': { const p = people.createPerson(a); if (a.jobId) people.attachPerson(a.jobId, p.id, { role: a.role, context: a.context }); return people.getPerson(p.id); }
+    case 'attach_person': return people.attachPerson(a.jobId, a.personId, { role: a.role, context: a.context });
+    case 'log_contact': return people.logContact(a.personId, { date: a.date, via: 'mcp', text: a.text });
     default: throw Object.assign(new Error(`unknown tool ${name}`), { code: -32601 });
   }
 }

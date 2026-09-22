@@ -2,7 +2,7 @@ import { Button, Icon, Sheet, TextField, Tooltip } from "@/components/ui";
 import { useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import { BrandMark } from "./brand-mark";
 
-export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "companies" | "criteria" | "profile" | "runs" | "agent";
+export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "people" | "companies" | "criteria" | "profile" | "runs" | "agent";
 
 const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "onboarding", label: "Get started", icon: Icon.Sparkles },
@@ -10,6 +10,7 @@ const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "overview", label: "Overview", icon: Icon.Home },
   { page: "jobs", label: "Jobs", icon: Icon.Inbox },
   { page: "pipeline", label: "Pipeline", icon: Icon.Layers },
+  { page: "people", label: "People", icon: Icon.Users },
   { page: "companies", label: "Companies", icon: Icon.Globe },
   { page: "criteria", label: "Criteria", icon: Icon.Filter },
   { page: "profile", label: "Profile", icon: Icon.User },
@@ -17,11 +18,11 @@ const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "agent", label: "Agent access", icon: Icon.Terminal },
 ];
 
-const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", companies: "Companies", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access" };
+const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", people: "People", companies: "Companies", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access" };
 
 /** Sidebar groups, by intent: the work, the numbers, the setup, the machinery. */
 const GROUPS: { title: string; pages: Page[] }[] = [
-  { title: "Work", pages: ["today", "jobs", "pipeline"] },
+  { title: "Work", pages: ["today", "jobs", "pipeline", "people"] },
   { title: "Insights", pages: ["overview"] },
   { title: "Setup", pages: ["profile", "criteria", "companies"] },
   { title: "System", pages: ["runs", "agent", "onboarding"] },

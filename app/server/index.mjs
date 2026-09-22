@@ -8,6 +8,7 @@ import * as store from './store.mjs';
 import * as letter from './cover-letter.mjs';
 import * as tailored from './tailored-resume.mjs';
 import * as mail from './mail-check.mjs';
+import * as people from './people.mjs';
 
 const PORT = Number(process.env.PORT || 8787);
 const DIST = fileURLToPath(new URL('../dist', import.meta.url));
@@ -30,7 +31,14 @@ const routes = [
   ['POST', /^\/api\/jobs\/([^/]+)\/resume$/, async (m, _, req) => tailored.start(decodeURIComponent(m[1]), await readBody(req))],
   ['PUT', /^\/api\/jobs\/([^/]+)\/resume$/, async (m, _, req) => { const b = await readBody(req); tailored.save(decodeURIComponent(m[1]), b.text, 'app · edited by hand'); return tailored.state(decodeURIComponent(m[1])); }],
   ['PUT', /^\/api\/jobs\/([^/]+)\/cover-letter$/, async (m, _, req) => { const b = await readBody(req); letter.save(decodeURIComponent(m[1]), b.text, 'app · edited by hand'); return letter.state(decodeURIComponent(m[1])); }],
+  ['GET', /^\/api\/jobs\/([^/]+)\/people$/, (m) => people.peopleOf(decodeURIComponent(m[1]))],
   ['GET', /^\/api\/jobs\/([^/]+)$/, (m) => store.getJob(decodeURIComponent(m[1]))],
+  // People: one note per person under People/, linked from the job notes they are on.
+  ['GET', /^\/api\/people$/, () => people.listPeople()],
+  ['POST', /^\/api\/people$/, async (_, __, req) => { const b = await readBody(req); const p = people.createPerson(b); if (b.jobId) people.attachPerson(b.jobId, p.id, { role: b.role, context: b.context }); return people.getPerson(p.id); }],
+  ['GET', /^\/api\/people\/([^/]+)$/, (m) => people.getPerson(decodeURIComponent(m[1]))],
+  ['POST', /^\/api\/people\/([^/]+)\/attach$/, async (m, _, req) => { const b = await readBody(req); return people.attachPerson(b.jobId, decodeURIComponent(m[1]), { role: b.role, context: b.context }); }],
+  ['POST', /^\/api\/people\/([^/]+)\/log$/, async (m, _, req) => { const b = await readBody(req); return people.logContact(decodeURIComponent(m[1]), { date: b.date, via: 'app', text: b.text }); }],
   ['PATCH', /^\/api\/jobs\/([^/]+)$/, async (m, _, req) => { const b = await readBody(req); let job; if (b.status) job = store.setStatus(decodeURIComponent(m[1]), b.status, 'app', b.reason || ''); if (b.note) job = store.addNote(decodeURIComponent(m[1]), b.note, 'app'); if (b.application) job = store.saveApplicationDraft(decodeURIComponent(m[1]), b.application); return job || store.getJob(decodeURIComponent(m[1])); }],
   ['GET', /^\/api\/runs$/, () => store.runs()],
   ['GET', /^\/api\/scan$/, () => store.scanStatus()],
