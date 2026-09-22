@@ -407,6 +407,32 @@ function applicationField(id, label) {
 
 const IN_FLIGHT = ['applying', 'applied', 'interviewing', 'offer'];
 
+/** The lines under a job note's "## People": "- [[People/Jane Doe (Vanta)|Jane Doe]] · recruiter · jane@x.com · context". */
+export const PERSON_ROLES = ['recruiter', 'hiring-manager', 'interviewer', 'referral', 'other'];
+export function parsePeopleLines(section = '') {
+  return String(section).split('\n').map((l) => l.trim()).filter((l) => l.startsWith('- ')).map((l) => {
+    const link = l.match(/\[\[People\/([^\]|]+)(?:\|([^\]]*))?\]\]/);
+    const rest = l.replace(/^- /, '').replace(/\[\[[^\]]*\]\]/, '').split('·').map((s) => s.trim()).filter(Boolean);
+    // A hand-written line has no link, so its first part is the name.
+    const name = link ? (link[2] || link[1]).trim() : rest[0] || '';
+    const parts = link ? rest : rest.slice(1);
+    const email = parts.find((s) => s.includes('@')) || '';
+    const role = parts.find((s) => PERSON_ROLES.includes(s)) || '';
+    const context = parts.filter((s) => s !== email && s !== role).join(' · ');
+    return { id: link ? link[1].trim() : '', name, role, email, context };
+  }).filter((p) => p.name);
+}
+/** Who to write to about a note: the recruiter if one is named, else the hiring manager, else whoever is first. */
+function contactOf(text) {
+  const all = parsePeopleLines((text.match(/^## People\r?\n([\s\S]*?)(?=^## |(?![\s\S]))/m) || [, ''])[1]);
+  const pick = all.find((p) => p.role === 'recruiter') || all.find((p) => p.role === 'hiring-manager') || all[0] || null;
+  return pick ? { id: pick.id, name: pick.name, email: pick.email, role: pick.role, others: all.length - 1 } : null;
+}
+/** When an application went out: the packet's Applied on, else the status log's move to applied. */
+function appliedOnOf(text) {
+  return (text.match(/^- \*\*Applied on:\*\*\s*(\d{4}-\d{2}-\d{2})/m) || [])[1] || (text.match(/^- (\d{4}-\d{2}-\d{2}) — .*?→ \*\*applied\*\*/m) || [])[1] || '';
+}
+
 /**
  * The short list of things that actually want a decision today, as opposed to the whole inventory.
  *
@@ -417,7 +443,7 @@ const IN_FLIGHT = ['applying', 'applied', 'interviewing', 'offer'];
  * Sections three to five read the pipeline, which is empty until the pipeline is used. They return empty
  * arrays rather than being hidden, so the page shows the shape of the work even before there is any.
  */
-export function today({ cap = 7, agingDays = 2 } = {}) {
+export function today({ cap = 7, agingDays = 2, waitingDays = 14 } = {}) {
   const rows = listJobs();
   const criteria = safe(() => loadCriteria(), {});
   const ceiling = fitCeiling(criteria);
@@ -455,19 +481,26 @@ export function today({ cap = 7, agingDays = 2 } = {}) {
     .map((r) => ({ ...withFit(r), packet: r.packet, closed: r.listing.startsWith('closed') ? r.listing.replace('closed ', '') : '' }));
 
   const inFlight = rows.filter((r) => IN_FLIGHT.includes(r.status));
-  const preparing = inFlight.filter((r) => r.status === 'applying').map((r) => ({ ...withFit(r), since: daysSince(r.found) }));
+  // Whoever is on the thread rides along with every in-flight row, so a nudge names the person to write to.
+  const noteText = (id) => { try { return fs.readFileSync(notePath(id), 'utf8'); } catch { return ''; } };
+  const withContact = (r) => { const text = noteText(r.id); return { ...withFit(r), contact: contactOf(text), appliedOn: appliedOnOf(text) }; };
+  const preparing = inFlight.filter((r) => r.status === 'applying').map((r) => ({ ...withContact(r), since: daysSince(r.found) }));
   const followUps = inFlight
-    .map((r) => ({ ...withFit(r), due: applicationField(r.id, 'Follow-up due') }))
+    .map((r) => ({ ...withContact(r), due: applicationField(r.id, 'Follow-up due') }))
     .filter((r) => r.due)
     .sort((a, b) => a.due.localeCompare(b.due));
-  const interviewing = inFlight.filter((r) => r.status === 'interviewing' || r.status === 'offer').map(withFit);
+  const interviewing = inFlight.filter((r) => r.status === 'interviewing' || r.status === 'offer').map(withContact);
+  // Applied, nothing back, past the point where silence is the answer unless someone is asked. The row names
+  // the person to ask; a row with no one on it is the nudge to find one.
+  const waitingAll = inFlight.filter((r) => r.status === 'applied').map(withContact).map((r) => ({ ...r, days: daysSince(r.appliedOn) })).filter((r) => r.days !== null && r.days >= waitingDays).sort((a, b) => b.days - a.days);
+  const waiting = waitingAll.slice(0, cap);
 
   return {
     generated: new Date().toISOString(),
     ceiling,
     // Real totals, not the capped section lengths: the point of the page is that the pile is bigger than the list.
-    counts: { open: open.length, unreviewed: unreviewed.length, inFlight: inFlight.length, closedUnreviewed: missedAll.length, aging: unreviewed.filter((r) => (daysSince(r.found) ?? 0) >= agingDays).length, started: rows.filter((r) => r.packet > 0 && !DONE.includes(r.status)).length },
-    sections: { triage, started, aging, missed, preparing, followUps, interviewing },
+    counts: { open: open.length, unreviewed: unreviewed.length, inFlight: inFlight.length, closedUnreviewed: missedAll.length, aging: unreviewed.filter((r) => (daysSince(r.found) ?? 0) >= agingDays).length, started: rows.filter((r) => r.packet > 0 && !DONE.includes(r.status)).length, waiting: waitingAll.length, waitingDays },
+    sections: { triage, started, aging, missed, preparing, followUps, interviewing, waiting },
   };
 }
 

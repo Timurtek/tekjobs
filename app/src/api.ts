@@ -41,11 +41,14 @@ export interface TodayRow extends JobRow {
   due?: string;
   /** How many application fields have something in them. Only set on the `started` section. */
   packet?: number;
+  /** Who to write to about this thread, from the note's People section. In-flight sections only. */
+  contact?: { id: string; name: string; email: string; role: string; others: number } | null;
+  appliedOn?: string;
 }
 export interface Today {
   generated: string;
   ceiling: number;
-  counts: { open: number; unreviewed: number; inFlight: number; closedUnreviewed: number; aging: number; started: number };
+  counts: { open: number; unreviewed: number; inFlight: number; closedUnreviewed: number; aging: number; started: number; waiting: number; waitingDays: number };
   sections: {
     triage: TodayRow[];
     started: TodayRow[];
@@ -54,6 +57,8 @@ export interface Today {
     preparing: TodayRow[];
     followUps: TodayRow[];
     interviewing: TodayRow[];
+    /** Applied, nothing back for `waitingDays` or more, oldest first. */
+    waiting: TodayRow[];
   };
 }
 export interface ApplicationField {

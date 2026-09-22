@@ -19,7 +19,7 @@ const readBody = (req) => new Promise((resolve, reject) => { let s = ''; req.on(
 
 const routes = [
   ['GET', /^\/api\/summary$/, () => store.summary()],
-  ['GET', /^\/api\/today$/, (_, q) => store.today({ cap: Number(q.get('cap') || 7) })],
+  ['GET', /^\/api\/today$/, (_, q) => store.today({ cap: Number(q.get('cap') || 7), waitingDays: Number(q.get('waitingDays') || 14) })],
   ['GET', /^\/api\/jobs$/, (_, q) => store.searchJobs({ ...store.filtersFromParams(q), sort: q.get('sort') || 'score', dir: q.get('dir') || 'desc', limit: Number(q.get('limit') || 500), offset: Number(q.get('offset') || 0) })],
   ['GET', /^\/api\/jobs\/facets$/, (_, q) => store.jobFacets(store.filtersFromParams(q))],
   ['GET', /^\/api\/jobs\/([^/]+)\/packet$/, (m) => store.applicationPacket(decodeURIComponent(m[1]))],

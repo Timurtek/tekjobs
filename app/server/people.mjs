@@ -47,20 +47,8 @@ export function fromMail(item = {}) {
   return { name, email, role: 'recruiter', company: item.company || '' };
 }
 
-/** The lines under a job note's "## People": "- [[People/Jane Doe (Vanta)|Jane Doe]] · recruiter · jane@x.com · context". */
-export function parsePeopleLines(section = '') {
-  return String(section).split('\n').map((l) => l.trim()).filter((l) => l.startsWith('- ')).map((l) => {
-    const link = l.match(/\[\[People\/([^\]|]+)(?:\|([^\]]*))?\]\]/);
-    const rest = l.replace(/^- /, '').replace(/\[\[[^\]]*\]\]/, '').split('·').map((s) => s.trim()).filter(Boolean);
-    // A hand-written line has no link, so its first part is the name.
-    const name = link ? (link[2] || link[1]).trim() : rest[0] || '';
-    const parts = link ? rest : rest.slice(1);
-    const email = parts.find((s) => s.includes('@')) || '';
-    const role = parts.find((s) => ROLES.includes(s)) || '';
-    const context = parts.filter((s) => s !== email && s !== role).join(' · ');
-    return { id: link ? link[1].trim() : '', name, role, email, context };
-  }).filter((p) => p.name);
-}
+// The People-line parser lives in store.mjs, which Today reads through; it is the same function here.
+export { parsePeopleLines } from './store.mjs';
 
 const wikiJobs = (section = '') => [...String(section).matchAll(/\[\[Jobs\/([^\]|]+)(?:\|[^\]]*)?\]\]\s*(?:·\s*([^\n]*))?/g)].map((m) => ({ id: m[1].trim(), role: (m[2] || '').trim() }));
 
@@ -158,7 +146,7 @@ export function logContact(personId_, { date = '', via = 'app', text = '' } = {}
 
 /** The people on one job note, as the note lists them. */
 export function peopleOf(jobId) {
-  return parsePeopleLines(store.getJob(jobId).sections.people);
+  return store.parsePeopleLines(store.getJob(jobId).sections.people);
 }
 
 /**

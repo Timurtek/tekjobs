@@ -389,6 +389,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
                   <Table.HeadCell>Role</Table.HeadCell>
                   <Table.HeadCell>Status</Table.HeadCell>
                   <Table.HeadCell>Due</Table.HeadCell>
+                  <Table.HeadCell>Write to</Table.HeadCell>
                 </Table.Row>
               </Table.Head>
               <Table.Body>
@@ -399,6 +400,42 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
                     <Table.Cell>{r.title}</Table.Cell>
                     <Table.Cell><Badge size="sm" tone="primary">{r.status}</Badge></Table.Cell>
                     <Table.Cell>{r.due || <span className="muted">—</span>}</Table.Cell>
+                    <Table.Cell><WriteTo contact={r.contact} /></Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          )}
+        </Card>
+      </section>
+
+      <section className="today__section">
+        <div className="today__section-head">
+          <h2 className="today__heading">Waiting on a reply</h2>
+          <span className="today__hint">applied {counts.waitingDays}d+ ago, nothing back · {counts.waiting} in all</span>
+        </div>
+        <Card padding={sections.waiting.length === 0 ? "md" : "none"}>
+          {sections.waiting.length === 0 ? (
+            <EmptyState size="sm" title="Nothing has gone quiet" description={`Applications with no answer after ${counts.waitingDays} days land here, with the person to ask.`} />
+          ) : (
+            <Table aria-label="Applications waiting on a reply" density="md">
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeadCell align="end" numeric>Days</Table.HeadCell>
+                  <Table.HeadCell>Company</Table.HeadCell>
+                  <Table.HeadCell>Role</Table.HeadCell>
+                  <Table.HeadCell>Applied</Table.HeadCell>
+                  <Table.HeadCell>Write to</Table.HeadCell>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {sections.waiting.map((r) => (
+                  <Table.Row key={r.id} interactive onClick={() => setSelected(r.id)}>
+                    <Table.Cell align="end" numeric><span className="num" data-tone={(r.days ?? 0) >= 21 ? "danger" : undefined}>{r.days}</span></Table.Cell>
+                    <Table.Cell>{r.company}</Table.Cell>
+                    <Table.Cell>{r.title}</Table.Cell>
+                    <Table.Cell><span className="num muted">{r.appliedOn}</span></Table.Cell>
+                    <Table.Cell><WriteTo contact={r.contact} /></Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>
@@ -424,6 +461,17 @@ const summarise = (company: string, title: string, max = 64) => {
   const line = `${company} — ${title}`.replace(/\s+/g, " ").trim();
   return line.length > max ? `${line.slice(0, max - 1).trimEnd()}…` : line;
 };
+
+/** The person to write to about a thread, or the nudge to find one. A mailto opens the mail client; nothing is sent here. */
+function WriteTo({ contact }: { contact?: TodayRow["contact"] }) {
+  if (!contact) return <span className="muted" title="Open the sheet's People tab to add someone.">no one on the thread</span>;
+  return (
+    <span className="who__text">
+      {contact.email ? <a className="people__thread" href={`mailto:${contact.email}`} onClick={(e) => e.stopPropagation()}>{contact.name} ↗</a> : contact.name}
+      <small>{contact.role || "contact"}{contact.others > 0 ? ` · +${contact.others}` : ""}</small>
+    </span>
+  );
+}
 
 /** Fit reads as a share of what was available, so the number needs a scale beside it, not just a colour. */
 function Fit({ value }: { value: number }) {
