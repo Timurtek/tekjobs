@@ -109,6 +109,13 @@
   color: var(--color-text);
 }
 
+/* Condensed: the summary is the whole toolbar, so its first span carries the button that brings the filters back. */
+.filters__summary > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
 /* A chip: a bordered pill holding a label button, an optional value, and a remove button. The dot is lime while
    the filter is on. A view chip is the same pill, filled when it is the view in use. */
 .chip {

@@ -197,8 +197,10 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   const [views, setViews] = useState<SavedView[]>([]);
   const [defaults, setDefaults] = useState<(SavedView & { hint: string })[]>([]);
   const [viewName, setViewName] = useState<string | null>(null);
-  const [dense, setDense] = useState(() => { try { return localStorage.getItem("tekjobs.jobs.dense") === "1"; } catch { return false; } });
-  const toggleDense = () => setDense((d) => { try { localStorage.setItem("tekjobs.jobs.dense", d ? "0" : "1"); } catch { /* fine */ } return !d; });
+  // Condensed folds the views row and the filter chips away and leaves the one-line summary, with a button to
+  // bring them back; the choice is this browser's own. The table's density does not change.
+  const [condensed, setCondensed] = useState(() => { try { return localStorage.getItem("tekjobs.jobs.condensed") === "1"; } catch { return false; } });
+  const toggleCondensed = () => setCondensed((d) => { try { localStorage.setItem("tekjobs.jobs.condensed", d ? "0" : "1"); } catch { /* fine */ } return !d; });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
   useEffect(() => {
@@ -346,7 +348,7 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
 
   return (
     <>
-      <div className="views">
+      {!condensed && (<div className="views">
         <span className="views__label">Views</span>
         {defaults.map((v) => (
           <div key={`d:${v.name}`} className={`chip chip--default${v.query === qs ? " chip--current" : ""}`}>
@@ -361,10 +363,10 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
         ))}
         <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.Plus />} disabled={!qs} onClick={() => setViewName("")}>Save current filters as a view</Button>
         <div className="toolbar__spacer" />
-        <Button size="sm" variant={dense ? "soft" : "ghost"} tone="neutral" leadingIcon={<Icon.Layers />} onClick={toggleDense}>{dense ? "Comfortable" : "Condense"}</Button>
-      </div>
+        <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.ChevronUp />} onClick={toggleCondensed}>Condense</Button>
+      </div>)}
 
-      <div className="filters">
+      {!condensed && (<div className="filters">
         <TextField className="filters__search" size="sm" label="Search" placeholder="company or role" value={f.q} onChange={(e) => set("q", e.target.value)} />
         {shown.map((d) => {
           const on = isActive(f, d.key);
@@ -403,10 +405,15 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
         ) : null}
         <div className="toolbar__spacer" />
         <AddByLink onAdded={(id) => { setReload((n) => n + 1); if (id) setSelectedId(id); }} onOpen={(id) => setSelectedId(id)} />
-      </div>
+      </div>)}
 
       <div className="filters__summary">
         <span>
+          {condensed && (
+            <Button size="sm" variant="soft" tone="neutral" leadingIcon={<Icon.ChevronDown />} onClick={toggleCondensed}>
+              Filters{shown.filter((d) => isActive(f, d.key)).length + (f.q ? 1 : 0) > 0 ? <span className="num"> · {shown.filter((d) => isActive(f, d.key)).length + (f.q ? 1 : 0)}</span> : null}
+            </Button>
+          )}
           <b className="num">{total}</b> of <span className="num">{allTotal ?? "…"}</span> matches
           {pay && pay.stated > 0 && <> · pay stated on <span className="num">{pay.stated}</span>, median top of range <span className="num">{money(pay.median)}</span></>}
         </span>
@@ -431,7 +438,7 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
         {rows === null ? (
           <div className="loading"><Skeleton lines={8} /></div>
         ) : (
-          <Table aria-label="Job matches" density={dense ? "sm" : "md"} stickyHeader>
+          <Table aria-label="Job matches" density="md" stickyHeader>
             <Table.Head>
               <Table.Row>
                 {head("score", "Score", { align: "end", numeric: true })}
