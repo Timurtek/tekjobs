@@ -1,4 +1,4 @@
-import { Badge, Button, Card, Combobox, Dialog, Icon, Markdown, Menu, Popover, Select, Sheet, Skeleton, Switch, Table, Tabs, TextArea, TextField, toast } from "@/components/ui";
+import { Badge, Button, Card, Combobox, Dialog, Icon, Markdown, Menu, Popover, Select, Sheet, Skeleton, Switch, Table, Tabs, TextArea, TextField, toast, Tooltip } from "@/components/ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CoverLetter } from "./CoverLetter";
 import { JobPeople } from "./People";
@@ -371,6 +371,9 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   return (
     <>
       {!condensed && (<div className="views">
+        <Tooltip content="Hide the views and filters">
+          <Button size="sm" variant="ghost" tone="neutral" aria-label="Hide the views and filters" leadingIcon={<Icon.ChevronUp />} onClick={toggleCondensed} />
+        </Tooltip>
         <span className="views__label">Views</span>
         {defaults.map((v) => (
           <div key={`d:${v.name}`} className={`chip chip--default${v.query === qs ? " chip--current" : ""}`}>
@@ -385,7 +388,6 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
         ))}
         <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.Plus />} disabled={!qs} onClick={() => setViewName("")}>Save current filters as a view</Button>
         <div className="toolbar__spacer" />
-        <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.ChevronUp />} onClick={toggleCondensed}>Condense</Button>
       </div>)}
 
       {!condensed && (<div className="filters">
@@ -432,9 +434,9 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
       <div className="filters__summary">
         <span>
           {condensed && (
-            <Button size="sm" variant="soft" tone="neutral" leadingIcon={<Icon.ChevronDown />} onClick={toggleCondensed}>
-              Filters{shown.filter((d) => isActive(f, d.key)).length + (f.q ? 1 : 0) > 0 ? <span className="num"> · {shown.filter((d) => isActive(f, d.key)).length + (f.q ? 1 : 0)}</span> : null}
-            </Button>
+            <Tooltip content={`Show the views and filters (${shown.filter((d) => isActive(f, d.key)).length + (f.q ? 1 : 0)} active)`}>
+              <Button size="sm" variant="soft" tone="neutral" aria-label="Show the views and filters" leadingIcon={<Icon.ChevronDown />} onClick={toggleCondensed} />
+            </Tooltip>
           )}
           <b className="num">{total}</b> of <span className="num">{allTotal ?? "…"}</span> matches
           {pay && pay.stated > 0 && <> · pay stated on <span className="num">{pay.stated}</span>, median top of range <span className="num">{money(pay.median)}</span></>}
