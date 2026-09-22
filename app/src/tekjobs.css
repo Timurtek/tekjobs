@@ -401,6 +401,79 @@
   padding-top: var(--spacing-2);
 }
 
+/* The copy panel: a search, grouped one-click rows, a foot with Customize. */
+.copy {
+  display: grid;
+  gap: var(--spacing-3);
+  width: 22rem;
+  max-width: calc(100vw - 2rem);
+}
+
+.copy__groups {
+  display: grid;
+  gap: var(--spacing-3);
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.copy__group {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+/* A row is a ghost Button laid out start-aligned; the value takes the rest and truncates. */
+.copy__row {
+  width: 100%;
+}
+
+.copy__label {
+  flex-shrink: 0;
+  font-weight: var(--font-weight-regular);
+}
+
+.copy__value {
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+.copy__empty {
+  margin: 0;
+  padding: var(--spacing-2);
+}
+
+.copy__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-2);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+}
+
+.copy__rows {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.copy__edit {
+  display: grid;
+  gap: var(--spacing-2);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.copy__edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-1);
+}
+
 /* Every number, date, amount and code is mono. */
 .num {
   font-family: var(--font-mono);

@@ -65,6 +65,8 @@ const routes = [
   ['POST', /^\/api\/jobs\/import$/, async (_, __, req) => { const b = await readBody(req); return store.importLinks(b.urls ?? b.url); }],
   ['POST', /^\/api\/jobs\/([^/]+)\/reveal$/, (m) => store.revealJob(decodeURIComponent(m[1]))],
   ['POST', /^\/api\/jobs\/([^/]+)\/attach$/, async (m, _, req) => { const b = await readBody(req); return store.attachPosting(decodeURIComponent(m[1]), b.url); }],
+  ['GET', /^\/api\/snippets$/, () => store.getSnippets()],
+  ['PUT', /^\/api\/snippets$/, async (_, __, req) => { const b = await readBody(req); return store.saveSnippets(b.items); }],
   ['GET', /^\/api\/profile$/, () => store.profile()],
   ['PUT', /^\/api\/profile$/, async (_, __, req) => { const b = await readBody(req); return store.saveProfileNote(b.note || 'profile', b.markdown); }],
   ['GET', /^\/api\/onboarding$/, () => store.onboardingStatus()],

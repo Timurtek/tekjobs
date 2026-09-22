@@ -599,6 +599,47 @@ export function outcomes({ agingDays = [7, 14, 21] } = {}) {
   };
 }
 
+// ---------- snippets ----------
+// The copy panel: the lines applications keep asking for (email, phone, links, availability, the salary
+// answer), kept in Profile/Snippets.md as a json block so they are the person's to edit, here or in Obsidian.
+// Until that note exists the panel offers a set read from the profile's Basics, and writes nothing.
+const SNIPPETS_FILE = path.join(VAULT, 'Profile', 'Snippets.md');
+function defaultSnippets() {
+  const text = safe(() => fs.readFileSync(P.profile, 'utf8'), '');
+  const basic = (label) => { const m = text.match(new RegExp(`\\*\\*${label}:\\*\\*\\s*([^\\n·]*)`)); return m ? m[1].replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/\(".*?"\)/g, '').trim() : ''; };
+  const link = (host) => { const m = text.match(new RegExp(`\\((https?://[^)\\s]*${host}[^)\\s]*)\\)`)); return m ? m[1] : ''; };
+  const criteria = safe(() => loadCriteria(), {});
+  const floor = criteria.salary?.minAnnual ? `$${Number(criteria.salary.minAnnual).toLocaleString('en-US')} base` : '';
+  return [
+    { group: 'Identity', label: 'Full name', value: basic('Name').replace(/\s*\(.*\)$/, '') },
+    { group: 'Identity', label: 'Email', value: basic('Email') },
+    { group: 'Identity', label: 'Phone', value: basic('Phone') },
+    { group: 'Identity', label: 'Location', value: basic('Location') },
+    { group: 'Links', label: 'Portfolio', value: link('') && !/linkedin|github/.test(link('')) ? link('') : '' },
+    { group: 'Links', label: 'LinkedIn', value: link('linkedin.com') },
+    { group: 'Links', label: 'GitHub', value: link('github.com') },
+    { group: 'Answers', label: 'Available from', value: basic('Available from') },
+    { group: 'Answers', label: 'Salary expectation', value: floor },
+    { group: 'Answers', label: 'Work authorization', value: '' },
+    { group: 'Answers', label: 'Remote', value: 'Remote only.' },
+  ].filter((s) => s.label);
+}
+export function getSnippets() {
+  const exists = fs.existsSync(SNIPPETS_FILE);
+  if (!exists) return { items: defaultSnippets(), exists, path: SNIPPETS_FILE };
+  const m = fs.readFileSync(SNIPPETS_FILE, 'utf8').match(JSON_BLOCK);
+  const items = m ? safe(() => JSON.parse(m[1]), []) : [];
+  return { items: Array.isArray(items) ? items.filter((s) => s && typeof s === 'object').map((s) => ({ group: String(s.group || ''), label: String(s.label || ''), value: String(s.value ?? '') })) : [], exists, path: SNIPPETS_FILE };
+}
+export function saveSnippets(list) {
+  if (!Array.isArray(list)) throw Object.assign(new Error('snippets must be a list'), { status: 400 });
+  const items = list.map((s) => ({ group: String(s?.group || '').trim(), label: String(s?.label || '').trim(), value: String(s?.value ?? '') })).filter((s) => s.label);
+  fs.mkdirSync(path.dirname(SNIPPETS_FILE), { recursive: true });
+  const body = `---\ntype: snippets\nupdated: ${isoDay()}\n---\n# Copy panel\n\nWhat the copy panel in the app offers, one click each. Edit here or in the app; \`group\` is the heading, \`label\` the button, \`value\` what lands on the clipboard. Multi-line values are fine.\n\n\`\`\`json\n${JSON.stringify(items, null, 2)}\n\`\`\`\n`;
+  fs.writeFileSync(SNIPPETS_FILE, body);
+  return getSnippets();
+}
+
 // ---------- criteria presets ----------
 // Named criteria sets under Targets/Criteria/, one note each, same ```json shape as Search Criteria.md.
 // The daily scan uses the active note; a preset is for a different kind of search (a wider net, a different

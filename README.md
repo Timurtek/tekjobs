@@ -19,7 +19,7 @@ Nothing personal lives in this repository. Your profile folder (profile, resume,
 - **A profile folder** (default `~/.tekjobs/profile`): your profile, your resume as text, the scoring criteria, the board watchlist, one note per matched job, and scan logs. Plain markdown, readable in Obsidian or anything else.
 - **A daily scan** over Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold boards, the Atlassian, GitHub, Spotify and Amazon career APIs, the Google and Apple career pages (keyword-searched; they have no API), and eleven aggregator feeds including Wellfound's and Built In's remote listing pages. All public, all key-free. Two optional feeds need a free key: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, which is every federal posting in the United States. Job alert emails saved into `Inbox/` are read too, which is how LinkedIn and Indeed listings get in without anything contacting those sites. Around 25,000 postings a run, deduplicated, scored, and cut to the ones that fit you.
 - **An app** (Zengin UI): overview, filterable jobs table with a detail sheet, drag-and-drop pipeline, watchlist, criteria editor, scan history with a run button, and the agent setup page.
-- **An MCP server** with 38 tools, so Claude Code, Claude Desktop, ChatGPT or Cursor can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans.
+- **An MCP server** with 39 tools, so Claude Code, Claude Desktop, ChatGPT or Cursor can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans.
 
 ## Getting started
 
@@ -64,6 +64,10 @@ Applications come back as email: a confirmation, a rejection, an interview reque
 ## People
 
 The recruiters, hiring managers, interviewers and referrals a search meets: one note each under `People/` (role, company, email, links, a line of context, the job notes they are on, a dated log of contacts), and a `## People` section on each job note naming who is on that thread. Most arrive from the mail check: when the email a person confirms was written by a human rather than a no-reply address, that human is added, put on the note, and gets the email on their log. The rest are added on the People page or from a job sheet's People tab. Nothing is enriched or looked up anywhere; the record is who actually wrote to you and who you actually met. Over MCP: `list_people`, `get_person`, `add_person`, `attach_person`, `log_contact`.
+
+## The copy panel
+
+Application forms ask for the same dozen things. The clipboard icon in the top bar opens a panel of one-click snippets: name, email, phone, location, links, availability, the salary answer, and anything you add (a work-authorization line, a standard "why this role" opener, a multi-line blurb). Type a few letters and Enter copies the first match. The list is yours: Customize edits labels, groups, values and order, and it is stored in `Profile/Snippets.md` as a json block, so Obsidian can edit it too. Until you save once, the panel offers a set read from your profile's Basics. Over MCP, `list_snippets` gives an agent the same answers verbatim.
 
 ## Applying
 

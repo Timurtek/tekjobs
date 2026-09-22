@@ -9,6 +9,7 @@ import * as mail from './mail-check.mjs';
 import * as people from './people.mjs';
 
 const TOOLS = [
+  { name: 'list_snippets', description: 'The copy panel: the person\'s standard answers for application forms (name, email, phone, links, availability, salary answer, anything they added), grouped, from Profile/Snippets.md. Use these verbatim when drafting form answers; never invent a value that is empty here.', inputSchema: { type: 'object', properties: {} } },
   { name: 'list_people', description: 'The people in the search: recruiters, hiring managers, interviewers and referrals, one note each under People/, with role, company, email, last contact and the job notes they are on. Newest contact first.', inputSchema: { type: 'object', properties: {} } },
   { name: 'get_person', description: 'One person in full: the row plus their About text and dated Log of contacts.', inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] } },
   { name: 'add_person', description: 'Add a person (or recognise one already there, by email or name and company) and optionally put them on a job note. role: recruiter | hiring-manager | interviewer | referral | other. Give jobId to attach; context is a few words on the thread.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, role: { type: 'string', enum: people.ROLES }, company: { type: 'string' }, email: { type: 'string' }, links: { type: 'string' }, about: { type: 'string' }, jobId: { type: 'string' }, context: { type: 'string' } }, required: ['name'] } },
@@ -84,6 +85,7 @@ async function call(name, a = {}) {
     case 'add_company': return store.addCompany(a);
     case 'add_job': return store.importLinks(a.urls);
     case 'attach_posting': return store.attachPosting(a.id, a.url);
+    case 'list_snippets': return store.getSnippets();
     case 'list_people': return people.listPeople();
     case 'get_person': return people.getPerson(a.id);
     case 'add_person': { const p = people.createPerson(a); if (a.jobId) people.attachPerson(a.jobId, p.id, { role: a.role, context: a.context }); return people.getPerson(p.id); }

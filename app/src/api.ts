@@ -184,7 +184,11 @@ export interface MailState {
   runner: string; lastRun: string | null; lastSinceDays: number | null; items: MailItem[]; groups: MailGroup[];
 }
 
-export const PERSON_ROLES = ["recruiter", "hiring-manager", "interviewer", "referral", "other"] as const;
+/** One line the copy panel offers: the label is the button, the value lands on the clipboard. */
+export interface Snippet { group: string; label: string; value: string }
+export interface Snippets { items: Snippet[]; /** False until Profile/Snippets.md has been saved once; the items are then read from the profile. */ exists: boolean; path: string }
+
+export const PERSON_ROLES =["recruiter", "hiring-manager", "interviewer", "referral", "other"] as const;
 export type PersonRole = (typeof PERSON_ROLES)[number];
 /** One person note under People/: who, where, how to reach them, and the job notes they are on. */
 export interface Person {
@@ -331,6 +335,8 @@ export const api = {
   activateCriteriaPreset: (name: string) => request<Criteria>(`/api/criteria/presets/${encodeURIComponent(name)}/activate`, { method: "POST" }),
   profileNotes: () => request<ProfileNotes>("/api/profile"),
   saveProfileNote: (note: string, markdown: string) => request<{ saved: string }>("/api/profile", { method: "PUT", body: JSON.stringify({ note, markdown }) }),
+  snippets: () => request<Snippets>("/api/snippets"),
+  saveSnippets: (items: Snippet[]) => request<Snippets>("/api/snippets", { method: "PUT", body: JSON.stringify({ items }) }),
   people: () => request<Person[]>("/api/people"),
   person: (id: string) => request<PersonDetail>(`/api/people/${encodeURIComponent(id)}`),
   addPerson: (p: { name: string; role: PersonRole; company?: string; email?: string; links?: string; about?: string; jobId?: string; context?: string }) => request<PersonDetail>("/api/people", { method: "POST", body: JSON.stringify(p) }),
