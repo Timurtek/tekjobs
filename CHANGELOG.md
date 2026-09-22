@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.6.1 (2026-09-22)</small>
+
+* fix(shell): drop the mail button from the top bar ([9fc1fb1](https://github.com/Timurtek/tekjobs/commit/9fc1fb1))
+
 ## 0.6.0 (2026-09-22)
 
 * feat(jobs): remember the last filter set between visits ([1a45e7d](https://github.com/Timurtek/tekjobs/commit/1a45e7d))
