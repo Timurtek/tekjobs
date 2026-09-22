@@ -141,6 +141,7 @@ function Navigation({ page, onNavigate, onboarded, counts, lastScan, collapsed, 
           <div>
             Notes are the record.
             {lastScan && <><br /><span className="num">{lastScan}</span></>}
+            <br /><span className="num">v{__APP_VERSION__}</span>
           </div>
         </div>
       )}

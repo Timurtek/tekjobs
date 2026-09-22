@@ -112,6 +112,10 @@ app/                    Zengin UI front end, API server, MCP server
 tools/                  board and source discovery scripts
 ```
 
+## Releases
+
+Versions come from the commit messages, by [semantic-release](https://semantic-release.gitbook.io/) on every push to `main` (`.github/workflows/release.yml`): tests, the app's type check and `zengin check` run first; then `feat:` commits make a minor release, `fix:` and `perf:` a patch, a `BREAKING CHANGE:` footer or a `!` after the type a major. The release bumps `package.json`, writes `CHANGELOG.md`, tags `vX.Y.Z` and publishes the notes on GitHub. Nothing is published to npm. Commit messages are checked locally by commitlint through a husky hook (`npm install` at the root sets it up), in the [Conventional Commits](https://www.conventionalcommits.org/) shape: `type(scope): summary`, scope optional, and a prose body is welcome. The app's sidebar footer shows the running version.
+
 ## Contributing data
 
 The two things that compound are data files: the board registry (`src/starter/companies-table.md`, platform + slug per company) and, soon, criteria presets per role. Pull requests to either are the most useful contribution.
