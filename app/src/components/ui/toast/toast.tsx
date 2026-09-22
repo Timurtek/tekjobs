@@ -24,16 +24,21 @@ interface ToastRecord extends ToastOptions {
 // A module-level store: `toast()` can be called from anywhere, and every mounted Provider renders the queue.
 let nextId = 1;
 let queue: ToastRecord[] = [];
+let maxVisible = 3;
 const listeners = new Set<(items: ToastRecord[]) => void>();
 
 function emit(): void {
   for (const l of listeners) l(queue);
 }
 
-/** Shows a toast. Returns its id, for `toast.dismiss`. */
+/**
+ * Shows a toast. Returns its id, for `toast.dismiss`. The queue holds at most the Provider's `max` (default 3):
+ * a fourth arriving pushes the oldest out, so a burst of confirmations never walls off the page.
+ */
 export function toast(options: ToastOptions): number {
   const id = nextId++;
-  queue = [...queue, { id, tone: "neutral", ...options }];
+  const record: ToastRecord = { id, tone: "neutral", ...options };
+  queue = [...queue, record].slice(-maxVisible);
   emit();
   return id;
 }
@@ -48,6 +53,8 @@ export interface ToastProviderProps {
   position?: ToastPosition;
   /** Default duration for toasts that do not set one. */
   duration?: number;
+  /** How many toasts show at once; older ones leave as new ones arrive. Default 3. */
+  max?: number;
   className?: string;
   children?: ReactNode;
 }
@@ -56,7 +63,7 @@ export interface ToastProviderProps {
  * Mount one `Toast.Provider` near the root; call `toast({ title })` from anywhere. Toasts announce
  * politely, pause on hover, swipe to dismiss, and stack in the corner the provider chooses.
  */
-function Provider({ position = "bottom-right", duration = 5000, className, children }: ToastProviderProps) {
+function Provider({ position = "bottom-right", duration = 5000, max = 3, className, children }: ToastProviderProps) {
   const [items, setItems] = useState<ToastRecord[]>(queue);
   useEffect(() => {
     listeners.add(setItems);
@@ -64,11 +71,21 @@ function Provider({ position = "bottom-right", duration = 5000, className, child
       listeners.delete(setItems);
     };
   }, []);
+  useEffect(() => {
+    maxVisible = Math.max(1, max);
+  }, [max]);
   const swipe = position.endsWith("right") ? "right" : "left";
 
   return (
     <RadixToast.Provider swipeDirection={swipe} duration={duration}>
       {children}
+      {items.length > 1 && (
+        <RadixToast.Root className="z-toast z-toast--clear" duration={Infinity} onOpenChange={() => undefined}>
+          <RadixToast.Close className="z-toast__clear z-focusable" aria-label="Dismiss all notifications" onClick={() => toast.dismiss()}>
+            Dismiss all ({items.length})
+          </RadixToast.Close>
+        </RadixToast.Root>
+      )}
       {items.map((t) => (
         <RadixToast.Root
           key={t.id}

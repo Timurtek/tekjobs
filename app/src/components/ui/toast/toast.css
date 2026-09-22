@@ -93,6 +93,29 @@
   background-color: var(--color-neutral-soft-hover);
 }
 
+/* The "Dismiss all" row above a stack of two or more: one small control, no body. */
+.z-toast--clear {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.z-toast__clear {
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--color-neutral-soft);
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-neutral-soft-foreground);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  cursor: pointer;
+}
+
 .z-toast__close {
   display: inline-flex;
   align-items: center;

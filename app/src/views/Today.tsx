@@ -56,7 +56,7 @@ function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; onChang
     finally { setBusy(null); }
   };
   return (
-    <section className="today__section">
+    <section className="today__section" id="mail-says">
       <div className="panel__head">
         <h2 className="today__heading">Mail says</h2>
         <div className="pager__buttons">
