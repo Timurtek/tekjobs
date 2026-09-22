@@ -2,7 +2,6 @@ import { Button, Icon, Sheet, TextField, Tooltip } from "@/components/ui";
 import { useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import { BrandMark } from "./brand-mark";
 import { CopyPanel } from "./CopyPanel";
-import { MailButton } from "./MailButton";
 
 export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "mail" | "people" | "companies" | "criteria" | "profile" | "runs" | "agent";
 
@@ -85,7 +84,6 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
             <TextField size="sm" placeholder="Search company or role" aria-label="Search jobs" leadingIcon={<Icon.Search />} trailingIcon={<span className="num">⌘K</span>} value={q} onChange={(e) => setQ(e.target.value)} />
           </form>
           <div className="topbar__actions">
-            <MailButton onOpenMail={() => go("mail")} />
             <CopyPanel />
             <Tooltip content={theme === "light" ? "Switch to dark" : "Switch to light"}>
               <Button variant="ghost" size="sm" onClick={onToggleTheme} aria-label="Toggle theme" leadingIcon={theme === "light" ? <Icon.Moon /> : <Icon.Sun />} />
