@@ -1,5 +1,5 @@
 import { Badge, Button, Card, Combobox, Dialog, Icon, Markdown, Menu, Popover, Select, Sheet, Skeleton, Switch, Table, Tabs, TextArea, TextField, toast } from "@/components/ui";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CoverLetter } from "./CoverLetter";
 import { JobPeople } from "./People";
 import { TailoredResume } from "./TailoredResume";
@@ -187,6 +187,11 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   const [facets, setFacets] = useState<Facets | null>(null);
   const [allTotal, setAllTotal] = useState<number | null>(null);
   const [openKey, setOpenKey] = useState<DimKey | null>(null);
+  // A dimension picked from the "+ Filter" menu opens its editor at once, and the menu is told not to hand focus
+  // back to its trigger when it finishes closing. Without that, the menu's exit (a moment later, after its
+  // animation) moved focus out of the freshly opened popover, which closed on focus-outside, and the chip
+  // (shown only while active or open) vanished with it: "it disappears right away".
+  const pendingDim = useRef<DimKey | null>(null);
   const [views, setViews] = useState<SavedView[]>([]);
   const [defaults, setDefaults] = useState<(SavedView & { hint: string })[]>([]);
   const [viewName, setViewName] = useState<string | null>(null);
@@ -383,9 +388,9 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
             <Menu.Trigger asChild>
               <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.Plus />} trailingIcon={<Icon.ChevronDown />}>Filter</Button>
             </Menu.Trigger>
-            <Menu.Content align="start">
+            <Menu.Content align="start" onCloseAutoFocus={(e) => { if (!pendingDim.current) return; pendingDim.current = null; e.preventDefault(); }}>
               {addable.map((d) => (
-                <Menu.Item key={d.key} onSelect={() => addDim(d.key)}>{d.label}</Menu.Item>
+                <Menu.Item key={d.key} onSelect={() => { pendingDim.current = d.key; addDim(d.key); }}>{d.label}</Menu.Item>
               ))}
             </Menu.Content>
           </Menu>
