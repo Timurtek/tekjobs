@@ -2,6 +2,11 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.7.1 (2026-09-22)</small>
+
+* fix(import): keep a URL's slash out of the note filename ([746ade0](https://github.com/Timurtek/tekjobs/commit/746ade0))
+* fix(jobs): put the collapse control first, icon only ([b55b2da](https://github.com/Timurtek/tekjobs/commit/b55b2da))
+
 ## 0.7.0 (2026-09-22)
 
 * feat(profile): resume variants, note previews, a settings page, and link-only attach ([bf770b3](https://github.com/Timurtek/tekjobs/commit/bf770b3))
