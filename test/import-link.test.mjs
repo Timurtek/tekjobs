@@ -2,7 +2,35 @@
 // are not tested here; the decisions and parsers are, because they are where a wrong guess writes a wrong note.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanUrl, classify, jobPostingFromJsonLd, jobFromJsonLd, linkedInApplyUrl } from '../src/import-link.mjs';
+import { cleanUrl, classify, jobPostingFromJsonLd, jobFromJsonLd, linkedInApplyUrl, pageTitle, siteName } from '../src/import-link.mjs';
+import { parseGoogleJobPage } from '../src/sources-sites.mjs';
+
+test('classify: Google and Apple job pages get their own readers', () => {
+  assert.deepEqual(classify('https://www.google.com/about/careers/applications/jobs/results/87805489504494278-senior-ux-engineer'), { kind: 'google', id: '87805489504494278' });
+  assert.deepEqual(classify('https://jobs.apple.com/en-us/details/200680033/product-designer-design-systems'), { kind: 'apple', id: '200680033' });
+});
+
+test('a plain page: the h1 unless it is a label, the site name from og or the domain', () => {
+  const html = '<html><head><title>Senior UX Engineer, Knowledge Engine — Acme Careers</title><meta property="og:site_name" content="Acme Careers"></head><body><h1>Job details</h1></body></html>';
+  assert.equal(pageTitle(html), 'Senior UX Engineer, Knowledge Engine');
+  assert.equal(siteName(html, 'https://careers.acme.com/x'), 'Acme');
+  assert.equal(pageTitle('<h1>Design Engineer</h1><title>Careers | Beta</title>'), 'Design Engineer');
+  assert.equal(siteName('<html></html>', 'https://www.google.com/about/careers/x'), 'Google');
+  assert.equal(siteName('<html></html>', 'https://jobs.example.co.uk/x'), 'Example');
+});
+
+test('a Google job page parses to a job: title from the tab title, employer and place from the icons', () => {
+  const html = '<html><head><title>Senior UX Engineer, AI Systems — Google Careers</title></head><body><h2>job details</h2><span>corporate_fare</span><span>Google</span><span>place</span><span>Mountain View, CA, USA</span><span>; </span><span>Seattle, WA, USA</span><span>bar_chart</span><span>Advanced</span><h3>Minimum qualifications</h3><p>Bachelor\'s degree.</p><h3>About the job</h3><p>Prototype it.</p><p>Google is proud to be an equal opportunity workplace.</p></body></html>';
+  const j = parseGoogleJobPage(html, 'https://www.google.com/about/careers/applications/jobs/results/87805489504494278-senior-ux-engineer');
+  assert.equal(j.title, 'Senior UX Engineer, AI Systems');
+  assert.equal(j.company, 'Google');
+  assert.equal(j.id, 'goog:87805489504494278');
+  assert.match(j.location, /Mountain View/);
+  assert.match(j.location, /Seattle/);
+  assert.equal(j.department, 'Level: Advanced');
+  assert.match(j.descriptionHtml, /Prototype it/);
+  assert.doesNotMatch(j.descriptionHtml, /equal opportunity/);
+});
 
 test('cleanUrl strips tracking and keeps the parts that identify the posting', () => {
   assert.equal(cleanUrl('https://jobs.ashbyhq.com/elevenlabs/5494be31?utm_source=linkedin&ref=x&gh_src=abc#top'), 'https://jobs.ashbyhq.com/elevenlabs/5494be31');

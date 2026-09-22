@@ -62,6 +62,21 @@ export function parseGoogleDetail(html) {
   const body = seg.slice(start, end < 0 ? start + 80 : end).filter((s) => !GOOGLE_ICONS.has(s) && !/^(Apply|Share .*|Copy link|Email a friend)$/.test(s));
   return paragraphs(body);
 }
+/** One Google job page (jobs/results/<id>-<slug>) as a job: for a pasted link. */
+export function parseGoogleJobPage(html, url = '') {
+  const seg = segments(html);
+  const after = (icon, max = 3) => {
+    const i = seg.indexOf(icon); if (i < 0) return '';
+    const out = [];
+    for (const s of seg.slice(i + 1, i + 1 + max)) { if (GOOGLE_ICONS.has(s) || /^Minimum qualifications/i.test(s)) break; out.push(s); }
+    return out.join(' ').replace(/\s+;\s*/g, '; ').trim();
+  };
+  const title = decodeEntities((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [, ''])[1]).replace(/\s*[—|-]\s*Google Careers.*$/i, '').replace(/\s+/g, ' ').trim();
+  if (!title) return null;
+  const id = (url.match(/jobs\/results\/(\d{9,})/) || [])[1] || '';
+  const location = after('place');
+  return job({ id: `goog:${id || title}`, source: 'google', company: after('corporate_fare', 1) || 'Google', title, url, location, remote: /Remote eligible/i.test(html) || isRemoteText(location), descriptionHtml: parseGoogleDetail(html), department: after('bar_chart', 1) ? `Level: ${after('bar_chart', 1)}` : '' });
+}
 export async function fetchGoogle(titleFilter = () => true, { pages = 5, maxDetails = 40, location = 'United States' } = {}) {
   const found = new Map();
   for (const q of GOOGLE_QUERIES) {
@@ -109,6 +124,14 @@ export function appleDescription(hydration) {
     d.preferredQualifications ? `<h3>Preferred qualifications</h3><p>${d.preferredQualifications}</p>` : '',
     footers.length ? `<h3>Pay</h3>${footers.map((f) => `<p>${f}</p>`).join('')}` : '',
   ].join('');
+}
+/** One Apple job page (en-us/details/<id>/<slug>) as a job, from its hydration data: for a pasted link. */
+export function parseAppleJobPage(html, url = '') {
+  const h = parseAppleHydration(html);
+  const d = h?.loaderData?.jobDetails?.jobsData;
+  if (!d) return null;
+  const loc = (d.locations || []).map((l) => l.name).filter(Boolean).join('; ');
+  return job({ id: `ap:${d.positionId || d.id || (url.match(/details\/(\d+)/) || [])[1] || ''}`, source: 'apple', company: 'Apple', title: d.postingTitle || '', url, location: loc, remote: !!d.homeOffice || isRemoteText(loc), posted: iso(d.postDateInGMT || d.postingDate), descriptionHtml: appleDescription(h), department: d.team?.teamName || '', employmentType: d.standardWeeklyHours ? `${d.standardWeeklyHours} h/week` : '' });
 }
 export async function fetchApple(titleFilter = () => true, { pages = 3, maxDetails = 40, country = 'postLocation-USA' } = {}) {
   const t = await req('https://jobs.apple.com/api/v1/csrfToken');

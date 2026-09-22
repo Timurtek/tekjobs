@@ -52,6 +52,9 @@ export function classify(url) {
     return { kind: 'unsupported', why: 'a LinkedIn link without a job id (open the posting itself and copy that link)' };
   }
   if (/(^|\.)indeed\.com$/.test(host)) return { kind: 'unsupported', why: 'Indeed blocks signed-out reads; open the posting and paste the company\'s own apply link instead' };
+  // Two career sites the scan already reads from their pages; a pasted job page goes through the same parser.
+  if ((m = u.href.match(/google\.com\/about\/careers\/applications\/jobs\/results\/(\d{9,})/))) return { kind: 'google', id: m[1] };
+  if ((m = u.href.match(/jobs\.apple\.com\/[^/]+\/details\/(\d+)/))) return { kind: 'apple', id: m[1] };
   return { kind: 'page' };
 }
 
@@ -183,20 +186,58 @@ async function fromLinkedIn({ id }, seenAt) {
   return { ok: true, job: j };
 }
 
+const meta = (html, name) => decodeEntities((html.match(new RegExp(`<meta[^>]+(?:property|name)="${name}"[^>]+content="([^"]*)"`, 'i')) || html.match(new RegExp(`<meta[^>]+content="([^"]*)"[^>]+(?:property|name)="${name}"`, 'i')) || [, ''])[1]).trim();
+const GENERIC_HEADING = /^(job details?|job description|job opening|careers?|jobs?|open positions?|apply(?: now)?|position details?|overview)$/i;
+
+/**
+ * The best title a plain page offers: the h1 unless it is a label like "Job details", then og:title, then the
+ * <title>, each cut at the site suffix (" | Acme Careers", " — Google Careers").
+ */
+export function pageTitle(html) {
+  const h1 = decodeEntities((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [, ''])[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
+  const candidates = [h1, meta(html, 'og:title'), decodeEntities((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [, ''])[1]).replace(/\s+/g, ' ').trim()];
+  const pick = candidates.find((t) => t && !GENERIC_HEADING.test(t)) || '';
+  return pick.split(/\s+[|–—-]\s+/)[0].trim();
+}
+/** The employer a plain page belongs to: og:site_name, else the domain's own name ("careers.example.com" is Example). */
+export function siteName(html, url) {
+  const og = meta(html, 'og:site_name').replace(/\s*(careers?|jobs)\s*$/i, '').trim();
+  if (og) return og;
+  const host = new URL(url).hostname.replace(/^www\./, '').split('.');
+  // The registrable label: skip a country's second level ("co.uk", "com.au") the way a reader would.
+  const second = host.length >= 3 && /^(co|com|org|net|ac|gov|edu)$/.test(host[host.length - 2]) ? 3 : 2;
+  const label = host.length >= second ? host[host.length - second] : host[0];
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 async function fromPage(_, url) {
   const r = await get(url);
   if (!r.ok) return fail(r.error || `the page says ${r.status}`);
   const p = jobPostingFromJsonLd(r.text);
   if (p) return { ok: true, job: jobFromJsonLd(p, url) };
-  // No structured data: title tag and the page text. Enough to score on the title and read later.
-  const title = decodeEntities((r.text.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || r.text.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [, ''])[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
+  // No structured data: the best title on the page and its text. Enough to score on the title and read later.
+  const title = pageTitle(r.text);
   if (!title) return fail('the page has no job posting data and no title');
-  const site = decodeEntities((r.text.match(/property="og:site_name"\s+content="([^"]+)"/i) || r.text.match(/content="([^"]+)"\s+property="og:site_name"/i) || [, ''])[1]) || new URL(url).hostname.replace(/^www\./, '');
   const body = r.text.replace(/<(header|nav|footer|aside)[\s\S]*?<\/\1>/gi, '');
-  return { ok: true, job: job({ id: `link:${url.slice(-80)}`, source: 'page', company: site, title: title.split(/\s[|–-]\s/)[0].trim(), url, location: '', remote: isRemoteText(title), descriptionHtml: `<p>${htmlToText(body).slice(0, 8000).replace(/\n\n/g, '</p><p>')}</p>` }) };
+  return { ok: true, job: job({ id: `link:${url.slice(-80)}`, source: 'page', company: siteName(r.text, url), title, url, location: '', remote: isRemoteText(title), descriptionHtml: `<p>${htmlToText(body).slice(0, 8000).replace(/\n\n/g, '</p><p>')}</p>` }) };
 }
 
-const READERS = { greenhouse: fromGreenhouse, lever: fromLever, ashby: fromAshby, linkedin: fromLinkedIn, page: fromPage };
+async function fromGoogle(_, url) {
+  const r = await get(url);
+  if (!r.ok) return fail(r.error || `Google says ${r.status}`);
+  const { parseGoogleJobPage } = await import('./sources-sites.mjs');
+  const j = parseGoogleJobPage(r.text, url);
+  return j ? { ok: true, job: j } : fail('Google returned a page without the job on it');
+}
+async function fromApple(_, url) {
+  const r = await get(url);
+  if (!r.ok) return fail(r.error || `Apple says ${r.status}`);
+  const { parseAppleJobPage } = await import('./sources-sites.mjs');
+  const j = parseAppleJobPage(r.text, url);
+  return j ? { ok: true, job: j } : fail('Apple returned a page without the job data in it');
+}
+
+const READERS = { greenhouse: fromGreenhouse, lever: fromLever, ashby: fromAshby, linkedin: fromLinkedIn, google: fromGoogle, apple: fromApple, page: fromPage };
 
 const norm = (s) => (s || '').toLowerCase().replace(/\(.*?\)|\[.*?\]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 
