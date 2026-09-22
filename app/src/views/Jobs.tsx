@@ -177,7 +177,21 @@ const toQuery = (f: Filters): JobQuery => ({
 const withCount = (values: string[], counts: Record<string, number> | undefined, label: (v: string) => string) =>
   values.map((v) => ({ value: v, label: label(v), hint: counts ? String(counts[v] ?? 0) : undefined }));
 
+/**
+ * The last filter set this browser used, so coming back to Jobs picks up where it left off. A hash with its
+ * own query (a pasted link, a view chip, the top search) always wins; a bare #/jobs restores the last one.
+ */
+const LAST_KEY = "tekjobs.jobs.last";
+const rememberLast = (qs: string) => { try { localStorage.setItem(LAST_KEY, qs); } catch { /* fine */ } };
+const restoreLastIntoHash = () => {
+  const [p, q] = window.location.hash.replace(/^#\/?/, "").split("?");
+  if (p !== "jobs" || q) return;
+  let last = ""; try { last = localStorage.getItem(LAST_KEY) ?? ""; } catch { /* fine */ }
+  if (last) window.history.replaceState(null, "", `#/jobs?${last}`);
+};
+
 export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
+  if (!initialQuery) restoreLastIntoHash();
   const [f, setF] = useState<Filters>(() => { const r = readFilters(); return initialQuery ? { ...r, q: initialQuery } : r; });
   const [sort, setSort] = useState<keyof JobRow>(() => (hashParams().get("sort") as keyof JobRow | null) || "score");
   const [dir, setDir] = useState<"asc" | "desc">(() => (hashParams().get("dir") === "asc" ? "asc" : "desc"));
@@ -222,12 +236,14 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   const remoteOnly = f.remote;
 
   useEffect(() => { if (initialQuery) set("q", initialQuery); }, [initialQuery]);
-  useEffect(() => { writeFilters(f, sort, dir); }, [f, sort, dir]);
+  useEffect(() => { writeFilters(f, sort, dir); rememberLast(paramsFor(f, sort, dir)); }, [f, sort, dir]);
   // The sidebar's Jobs link, a view chip elsewhere, or a pasted link change the hash from outside: follow it.
   // Our own writes use replaceState and fire no event, so this only ever reacts to someone else's navigation.
+  // A bare #/jobs (the sidebar link) means "the last set I was using", not "nothing".
   useEffect(() => {
     const on = () => {
       if (window.location.hash.replace(/^#\/?/, "").split("?")[0] !== "jobs") return;
+      restoreLastIntoHash();
       const next = readFilters();
       const nextSort = (hashParams().get("sort") as keyof JobRow | null) || "score";
       const nextDir = hashParams().get("dir") === "asc" ? "asc" : "desc";
