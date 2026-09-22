@@ -6,7 +6,9 @@ import { weightsFingerprint } from './rescore.mjs';
 const today = () => new Date().toISOString().slice(0, 10);
 const yaml = (v) => JSON.stringify(v ?? '');
 const safe = (s) => (s || '').replace(/[<>:"/\\|?*\x00-\x1f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
-const shortId = (id) => id.split(':').pop().toString().slice(-8);
+// The tail of the id becomes part of the filename, so only word characters may reach it. A link id ends in a
+// URL, and a URL's trailing slash became a path separator on Windows: "Meta - … (2149585\).md" did not exist.
+const shortId = (id) => String(id).split(':').pop().replace(/[^A-Za-z0-9_-]+/g, '').slice(-8) || 'link';
 
 export function loadSeen() {
   try { return JSON.parse(fs.readFileSync(P.seen, 'utf8')); } catch { return {}; }
