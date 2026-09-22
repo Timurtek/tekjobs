@@ -402,17 +402,17 @@
 }
 
 /* The copy panel: a search, grouped one-click rows, a foot with Customize. */
+/* The popover's size owns the width; the panel fills it and never sets its own. */
 .copy {
   display: grid;
   gap: var(--spacing-3);
-  width: 22rem;
-  max-width: calc(100vw - 2rem);
+  min-width: 0;
 }
 
 .copy__groups {
   display: grid;
   gap: var(--spacing-3);
-  max-height: 24rem;
+  max-height: min(24rem, calc(100vh - 14rem));
   overflow: auto;
 }
 

@@ -38,7 +38,7 @@ export function CopyPanel() {
 
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen} size="md">
+      <Popover open={open} onOpenChange={setOpen} size="lg">
         <Tooltip content="Copy panel">
           <Popover.Trigger asChild>
             <Button variant="ghost" size="sm" aria-label="Copy panel" leadingIcon={<Icon.Copy />} />
