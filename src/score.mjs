@@ -16,8 +16,12 @@ export function parseSalary(text = '') {
 }
 const wordHit = (hay, term) => new RegExp(`(^|[^a-z0-9])${esc(term)}([^a-z0-9]|$)`, 'i').test(hay);
 
-/** Returns { score, reasons[], excluded } for one normalized job against the criteria JSON. */
-export function scoreJob(job, c) {
+/**
+ * Returns { score, reasons[], excluded } for one normalized job against the criteria JSON.
+ * `now` is the moment recency is judged from: the scan passes nothing (today); a rescore of an existing note
+ * passes the day the note was found, so the posting keeps the freshness it had when it was scored.
+ */
+export function scoreJob(job, c, { now = Date.now() } = {}) {
   const title = (job.title || '').toLowerCase();
   const desc = (job.descriptionText || '').toLowerCase();
   const loc = (job.location || '').toLowerCase();
@@ -89,7 +93,7 @@ export function scoreJob(job, c) {
   job.payBand = payBand;
 
   if (job.posted) {
-    const days = (Date.now() - new Date(job.posted).getTime()) / 86400000;
+    const days = (now - new Date(job.posted).getTime()) / 86400000;
     if (Number.isFinite(days)) {
       // Measured on a real vault: every listing that closed did so within seven days of being found, median
       // two. A posting is perishable, so the fresh end of this scale needs more resolution than the stale

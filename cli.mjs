@@ -26,6 +26,9 @@ const HELP = `tekjobs — a local job-search machine
                                          each link is read once, scored, and written as a note unless one exists
   tekjobs rescore --from <old.json>      apply changed scoring weights to notes that already exist (--dry to preview)
   tekjobs rescore --stamp-only           record the current weights on every note without changing a score
+  tekjobs rescore --full [--dry]         score every note again from the note itself under the current criteria
+                                         (for location, description or seniority rule changes); notes already
+                                         at these weights are left alone
   tekjobs serve                          the app + API on http://127.0.0.1:8787
   tekjobs mcp                            the MCP server on stdio (for Claude Code, Claude Desktop, ChatGPT, Cursor)
 
@@ -103,8 +106,18 @@ async function main() {
     return;
   }
   if (cmd === 'rescore') {
-    const { rescore } = await import('./src/rescore.mjs');
+    const { rescore, rescoreFull } = await import('./src/rescore.mjs');
     const dry = rest.includes('--dry');
+    if (rest.includes('--full')) {
+      const r = rescoreFull({ dry });
+      const bar = (await import('./src/config.mjs')).loadCriteria().minScore || 0;
+      const crossed = r.changes.filter((c) => (c.stored >= bar) !== (c.updated >= bar));
+      console.log(`${r.changed} of ${r.considered} notes ${dry ? 'would change' : 'updated'} under weights ${r.fingerprint}; ${r.alreadyCurrent} already carried them.`);
+      console.log(`${crossed.filter((c) => c.updated >= bar).length} rise above the bar (${bar}), ${crossed.filter((c) => c.updated < bar).length} fall below it.`);
+      for (const c of r.changes.slice(0, 15)) console.log(`  ${String(c.stored).padStart(4)} -> ${String(c.updated).padStart(4)}  ${c.company} — ${c.title.trim().slice(0, 50)}${c.status && c.status !== 'new' ? `  [${c.status}]` : ''}`);
+      if (dry) console.log('\nNothing written. Run without --dry to apply.');
+      return;
+    }
     if (rest.includes('--stamp-only')) {
       const r = rescore({ dry, stampOnly: true });
       console.log(`${r.changed} of ${r.total} notes ${dry ? 'would be' : ''} stamped with weights ${r.fingerprint}.`);

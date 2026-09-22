@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { P, loadCriteria } from './config.mjs';
+import { scoreJob } from './score.mjs';
 
 /**
  * A short fingerprint of every criteria key the scorer reads.
@@ -150,6 +151,81 @@ export function rescore({ dry = false, before = null, stampOnly = false, now: pr
     }
   }
   return { total: files.length, changed: changes.length, changes, fingerprint };
+}
+
+/**
+ * Score every note again from what the note holds, under the current criteria (or a proposed set).
+ *
+ * This is the rescore for a rule change the delta method cannot express: location terms, penalties,
+ * description keywords, seniority words. The job is rebuilt from the note's frontmatter and its Job description
+ * section and put through scoreJob with recency judged at the day the note was found. One component is
+ * carried over rather than recomputed: description points on a note whose description was truncated at
+ * write time, because the scan saw more text than the note keeps and re-reading the shorter text would lower
+ * the score for no change in the rules. Notes already stamped with the target weights are left alone.
+ *
+ * Writes, when not dry: `score:`, `pay_band:`, `weights:`, the "Why it matched" section, and a Status log line
+ * on every note whose score moved. Nothing else in the note is touched.
+ */
+export function rescoreFull({ dry = false, now: proposed = null } = {}) {
+  const criteria = proposed || loadCriteria();
+  const fingerprint = weightsFingerprint(criteria);
+  const files = fs.readdirSync(P.jobs).filter((f) => f.endsWith('.md'));
+  const changes = [];
+  let seen = 0, skipped = 0;
+  for (const f of files) {
+    const file = path.join(P.jobs, f);
+    let text = fs.readFileSync(file, 'utf8');
+    const fm = (k) => (text.match(new RegExp('^' + k + ': (.*)$', 'm')) || [, ''])[1].replace(/^"|"$/g, '').trim();
+    if (fm('weights') === fingerprint) { skipped++; continue; }
+    if (!/^score: /m.test(text)) continue;
+    seen++;
+    const section = (h) => (text.match(new RegExp(`^## ${h}[ \\t]*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm')) || [, ''])[1];
+    const descRaw = section('Job description');
+    const truncated = /^>.*truncated/m.test(descRaw);
+    const description = descRaw.replace(/^>.*$/gm, '').trim();
+    const stored = num(fm('score'));
+    const found = fm('found');
+    const job = {
+      title: fm('title'), company: fm('company'), location: fm('location'), remote: fm('remote') === 'true',
+      descriptionText: description, salary: fm('salary'), salaryMax: num(fm('salary_max')), posted: fm('posted') || null, department: fm('department'),
+    };
+    // The scan runs in the morning; a date-only `found` would put it at midnight and shift a two-day-old
+    // posting into the fresher tier, so the scan's own hour is assumed.
+    const scored = scoreJob(job, criteria, { now: found ? Date.parse(found) + 14.5 * 3600e3 : Date.now() });
+    let score = scored.score;
+    let reasons = scored.reasons;
+    // A note that holds less than the scan read (truncated, or no description at all, as some boards give
+    // none through their API) keeps the description points the scan awarded.
+    if ((truncated || !description) && !scored.excluded) {
+      const oldLine = (section('Why it matched').match(/^- (description \+(\d+):.*)$/m) || []);
+      const newLine = reasons.findIndex((r) => r.startsWith('description +'));
+      const newPts = newLine >= 0 ? num((reasons[newLine].match(/\+(\d+)/) || [])[1]) : 0;
+      if (oldLine[1]) {
+        score = Math.round(score - newPts + num(oldLine[2]));
+        const kept = `${oldLine[1]} (kept from the scan; the note holds part of the posting)`;
+        if (newLine >= 0) reasons[newLine] = kept; else reasons.splice(Math.min(3, reasons.length), 0, kept);
+      }
+    }
+    const delta = score - stored;
+    if (delta) changes.push({ file: f, company: job.company, title: job.title, stored, updated: score, delta, status: fm('status') });
+    if (!dry) {
+      text = text.replace(/^score: .*$/m, `score: ${score}`);
+      if (/^pay_band: /m.test(text)) text = text.replace(/^pay_band: .*$/m, `pay_band: ${scored.payBand || 'unknown'}`);
+      text = stampWeights(text, fingerprint);
+      const why = `## Why it matched\n${reasons.map((r) => `- ${r}`).join('\n')}\n\n`;
+      text = /^## Why it matched[ \t]*\n/m.test(text) ? text.replace(/^## Why it matched[ \t]*\n[\s\S]*?(?=^## |(?![\s\S]))/m, () => why) : text;
+      if (delta) text = appendUnder(text, 'Status log', `- ${new Date().toISOString().slice(0, 10)} — rescored ${stored} → **${score}** with criteria ${fingerprint} (via cli)`);
+      fs.writeFileSync(file, text);
+    }
+  }
+  changes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+  return { total: files.length, considered: seen, alreadyCurrent: skipped, changed: changes.length, changes, fingerprint, full: true };
+}
+
+function appendUnder(text, heading, line) {
+  const re = new RegExp(`(^## ${heading}[ \\t]*\\n)([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm');
+  if (!re.test(text)) return text.trimEnd() + `\n\n## ${heading}\n${line}\n`;
+  return text.replace(re, (all, h, content) => { const body = content.trim(); return `${h}${body ? body + '\n' : ''}${line}\n\n`; });
 }
 
 /** Set or replace the `weights:` frontmatter line, without disturbing anything else. */
