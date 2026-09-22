@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.7.0 (2026-09-22)
+
+* feat(profile): resume variants, note previews, a settings page, and link-only attach ([bf770b3](https://github.com/Timurtek/tekjobs/commit/bf770b3))
+
 ## <small>0.6.1 (2026-09-22)</small>
 
 * fix(shell): drop the mail button from the top bar ([9fc1fb1](https://github.com/Timurtek/tekjobs/commit/9fc1fb1))
