@@ -14,6 +14,7 @@ import { Today } from "./views/Today";
 import { Pipeline } from "./views/Pipeline";
 import { Profile } from "./views/Profile";
 import { Runs } from "./views/Runs";
+import { Settings } from "./views/Settings";
 
 type Theme = "light" | "dark";
 
@@ -34,7 +35,7 @@ function useTheme(): [Theme, () => void] {
 function useRoute(): [Page, string, (page: Page, q?: string) => void] {
   const parse = () => {
     const [p, qs] = window.location.hash.replace(/^#\/?/, "").split("?");
-    const page = (["onboarding", "today", "overview", "jobs", "pipeline", "mail", "people", "companies", "criteria", "profile", "runs", "agent"].includes(p ?? "") ? p : "today") as Page;
+    const page = (["onboarding", "today", "overview", "jobs", "pipeline", "mail", "people", "companies", "criteria", "profile", "runs", "agent", "settings"].includes(p ?? "") ? p : "today") as Page;
     return { page, q: new URLSearchParams(qs).get("q") ?? "" };
   };
   const [route, setRoute] = useState(parse);
@@ -86,6 +87,7 @@ export function App() {
             {page === "profile" && <Profile />}
             {page === "runs" && <Runs />}
             {page === "agent" && <Agent />}
+            {page === "settings" && <Settings />}
           </div>
         </Shell>
       </Toast.Provider>

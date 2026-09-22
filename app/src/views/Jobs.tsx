@@ -85,9 +85,14 @@ function AttachPosting({ job, onAttached }: { job: Job; onAttached: (j: Job) => 
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const thin = job.source === "mail" || job.source === "page" || !job.url || /mail\.google\.com/.test(job.url);
-  const submit = async () => {
+  const submit = async (linkOnly = false) => {
     setBusy(true);
-    try { const j = await api.attachPosting(job.id, url.trim()); onAttached(j); setOpen(false); setUrl(""); toast({ title: `${j.company}: posting attached`, description: `Scored ${j.score} from the posting. Status, notes and drafts kept.`, tone: "success" }); }
+    try {
+      const j = await api.attachPosting(job.id, url.trim(), linkOnly);
+      onAttached(j); setOpen(false); setUrl("");
+      if (j.linkOnly) toast({ title: `${j.company}: link saved`, description: j.warning ? `The posting itself could not be read (${j.warning}), so only the link is on the note. Open posting now goes there.` : "Only the link is on the note; nothing else changed.", tone: "neutral" });
+      else toast({ title: `${j.company}: posting attached`, description: `Scored ${j.score} from the posting. Status, notes and drafts kept.`, tone: "success" });
+    }
     catch (e) { toast({ title: "Could not attach", description: (e as Error).message, tone: "danger" }); }
     finally { setBusy(false); }
   };
@@ -99,12 +104,13 @@ function AttachPosting({ job, onAttached }: { job: Job; onAttached: (j: Job) => 
       <Dialog.Content>
         <Dialog.Title>{thin ? "Attach the posting" : "Replace the posting"}</Dialog.Title>
         <Dialog.Description>
-          {thin ? "This note was created without the posting itself. " : ""}Paste the job's link. The posting's facts, score and description replace the note's; status, notes, packet and drafts stay. The note keeps its name.
+          {thin ? "This note was created without the posting itself. " : ""}Paste the job's link. Attach reads the posting and replaces the note's facts, score and description; status, notes, packet and drafts stay. Link only just records the link, for a page that cannot be read (LinkedIn, a login wall) or when the note's facts are already right.
         </Dialog.Description>
         <TextField label="Posting link" placeholder="https://jobs.ashbyhq.com/… or the company careers page" value={url} onChange={(e) => setUrl(e.target.value)} disabled={busy} />
         <Dialog.Footer>
           <Dialog.Close asChild><Button variant="ghost" size="sm" disabled={busy}>Cancel</Button></Dialog.Close>
-          <Button size="sm" tone="primary" disabled={busy || !/^https?:\/\//i.test(url.trim())} loading={busy} onClick={submit}>Attach</Button>
+          <Button size="sm" variant="soft" tone="neutral" disabled={busy || !/^https?:\/\//i.test(url.trim())} onClick={() => submit(true)}>Link only</Button>
+          <Button size="sm" tone="primary" disabled={busy || !/^https?:\/\//i.test(url.trim())} loading={busy} onClick={() => submit(false)}>Attach</Button>
         </Dialog.Footer>
       </Dialog.Content>
     </Dialog>
@@ -724,9 +730,18 @@ function ApplicationPacket({ job, onStatus, busy }: { job: Job; onStatus: (s: St
   const [packet, setPacket] = useState<Packet | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState("");
+  // The resume variants folder, offered under the Resume variant field so the answer is a click, not typing.
+  const [variants, setVariants] = useState<string[]>([]);
 
   const load = () => api.packet(job.id).then((p) => { setPacket(p); setDraft(p.values); }).catch((e: Error) => toast({ title: "Could not read the packet", description: e.message, tone: "danger" }));
-  useEffect(() => { load(); }, [job.id]);
+  useEffect(() => { load(); api.resumes().then((r) => setVariants(r.files.map((f) => f.name))).catch(() => {}); }, [job.id]);
+  const pick = async (field: string, value: string) => {
+    setDraft((d) => ({ ...d, [field]: value }));
+    setSaving(field);
+    try { await api.saveApplication(job.id, field, value); await load(); toast({ title: `${field} saved`, description: value, tone: "success" }); }
+    catch (e) { toast({ title: `${field} not saved`, description: (e as Error).message, tone: "danger" }); }
+    finally { setSaving(""); }
+  };
 
   const save = async (field: string) => {
     if (!packet || draft[field] === packet.values[field]) return;
@@ -775,6 +790,13 @@ function ApplicationPacket({ job, onStatus, busy }: { job: Job; onStatus: (s: St
             onBlur={() => save(field)}
             placeholder={required ? "Required before this is ready." : ""}
           />
+          {field === "Resume variant" && variants.length > 0 && (
+            <div className="chips">
+              {variants.map((v) => (
+                <Button key={v} size="sm" variant={draft[field] === v ? "soft" : "ghost"} tone={draft[field] === v ? "primary" : "neutral"} onClick={() => pick(field, v)}>{v}</Button>
+              ))}
+            </div>
+          )}
           {saving === field && <span className="muted">Saving…</span>}
         </div>
       ))}

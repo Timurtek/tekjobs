@@ -408,6 +408,25 @@
   padding-top: var(--spacing-2);
 }
 
+/* A rendered note on the Profile page: reading width, not the editor's full width. */
+.preview-doc {
+  max-width: 46rem;
+  padding: var(--spacing-2) 0;
+}
+
+.variants__foot {
+  margin: 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-xs);
+}
+
+.settings__h {
+  margin: 0 0 var(--spacing-1);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
 /* Today's mail strip: one line and a button. */
 .mailstrip {
   display: flex;

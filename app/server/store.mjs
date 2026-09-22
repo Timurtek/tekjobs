@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { P, VAULT, loadCriteria, loadCompanies, criteriaPresetFile } from '../../src/config.mjs';
+import { P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../src/config.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../src/vault.mjs';
 import { weightsFingerprint, titlePoints, recencyPoints, payPoints } from '../../src/rescore.mjs';
 import { RESUME_NOTE, LEGACY_RESUME_NOTES } from '../../src/resume-sync.mjs';
@@ -599,6 +599,93 @@ export function outcomes({ agingDays = [7, 14, 21] } = {}) {
   };
 }
 
+// ---------- settings ----------
+// The few things that live outside the profile folder because they say where it is: ~/.tekjobs/config.json.
+// The profile folder itself is read once at start (every module holds its paths), so changing it here takes a
+// server restart; the other settings are read when used.
+function readConfigFile() { try { return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8')); } catch { return {}; } }
+function writeConfigFile(patch) {
+  fs.mkdirSync(HOME_DIR, { recursive: true });
+  const next = { ...readConfigFile(), ...patch };
+  for (const k of Object.keys(next)) if (next[k] === '' || next[k] === null || next[k] === undefined) delete next[k];
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(next, null, 2));
+  return next;
+}
+export function resumeDir() {
+  const cfg = readConfigFile();
+  return cfg.resumeDir ? path.resolve(cfg.resumeDir) : path.join(VAULT, 'Templates', 'Resume');
+}
+export function settings() {
+  const cfg = readConfigFile();
+  return {
+    configFile: CONFIG_FILE,
+    profile: { active: VAULT, configured: cfg.profile || '', fromEnv: !!(process.env.TEKJOBS_PROFILE || process.env.TEKJOBS_VAULT), exists: fs.existsSync(VAULT) },
+    resumeDir: { path: resumeDir(), configured: cfg.resumeDir || '', exists: fs.existsSync(resumeDir()) },
+    resumeSource: cfg.resumeSource || '',
+    llm: { command: cfg.llm?.command || 'claude', args: (cfg.llm?.args || ['-p', '--output-format', 'text']).join(' '), configured: !!cfg.llm },
+    contact: cfg.contact || '',
+  };
+}
+export function saveSettings({ profile, resumeDir: rd, llmCommand, llmArgs, contact } = {}) {
+  const patch = {};
+  let restart = false;
+  if (profile !== undefined) {
+    const dir = String(profile).trim();
+    if (dir) {
+      const abs = path.resolve(dir);
+      if (!fs.existsSync(abs)) throw Object.assign(new Error(`${abs} does not exist. Create the folder first, or run tekjobs init <dir> to start a new profile there.`), { status: 400 });
+      if (!fs.statSync(abs).isDirectory()) throw Object.assign(new Error(`${abs} is not a folder.`), { status: 400 });
+      patch.profile = abs;
+      restart = abs !== VAULT;
+    } else patch.profile = '';
+  }
+  if (rd !== undefined) {
+    const dir = String(rd).trim();
+    if (dir && !fs.existsSync(path.resolve(dir))) throw Object.assign(new Error(`${path.resolve(dir)} does not exist.`), { status: 400 });
+    patch.resumeDir = dir ? path.resolve(dir) : '';
+  }
+  if (llmCommand !== undefined || llmArgs !== undefined) {
+    const command = String(llmCommand ?? 'claude').trim() || 'claude';
+    const args = String(llmArgs ?? '').split(/\s+/).filter(Boolean);
+    patch.llm = command === 'claude' && args.join(' ') === '-p --output-format text' ? '' : { command, args };
+  }
+  if (contact !== undefined) patch.contact = String(contact).trim();
+  writeConfigFile(patch);
+  return { ...settings(), restart };
+}
+
+// ---------- resume variants ----------
+// A folder of resume files (the master, the design-systems one, the AI one), each usable as the resume of
+// record with one click: `syncResume` reads it into Profile/Resume.md and remembers it as the source.
+const RESUME_EXT = new Set(['.pdf', '.docx', '.md', '.txt']);
+export function listResumes() {
+  const dir = resumeDir();
+  const current = readConfigFile().resumeSource || '';
+  const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => RESUME_EXT.has(path.extname(f).toLowerCase())) : [];
+  const rows = files.map((f) => {
+    const p = path.join(dir, f);
+    const st = fs.statSync(p);
+    return { name: f, path: p, size: st.size, modified: st.mtime.toISOString().slice(0, 10), current: path.resolve(current) === path.resolve(p) };
+  }).sort((a, b) => b.modified.localeCompare(a.modified) || a.name.localeCompare(b.name));
+  return { dir, exists: fs.existsSync(dir), files: rows };
+}
+function resumePath(name) {
+  const p = path.join(resumeDir(), path.basename(String(name)));
+  if (!fs.existsSync(p)) throw Object.assign(new Error(`No resume file named "${name}" in ${resumeDir()}`), { status: 404 });
+  return p;
+}
+export async function useResume(name) {
+  const { syncResume } = await import('../../src/resume-sync.mjs');
+  const r = await syncResume({ source: resumePath(name) });
+  return { ...r, files: listResumes().files };
+}
+export function openResume(name) {
+  const file = resumePath(name);
+  const [bin, args] = process.platform === 'win32' ? ['explorer', [file]] : process.platform === 'darwin' ? ['open', [file]] : ['xdg-open', [file]];
+  spawn(bin, args, { detached: true, stdio: 'ignore' }).unref();
+  return { ok: true, path: file };
+}
+
 // ---------- snippets ----------
 // The copy panel: the lines applications keep asking for (email, phone, links, availability, the salary
 // answer), kept in Profile/Snippets.md as a json block so they are the person's to edit, here or in Obsidian.
@@ -745,14 +832,17 @@ export function revealJob(id) {
  * replace the frontmatter's, the score is recomputed from the posting, and the description section is
  * replaced. A person asks for this on a specific note, so it is the one place the app rewrites what it wrote.
  */
-export async function attachPosting(id, href) {
+export async function attachPosting(id, href, { linkOnly = false } = {}) {
   const file = notePath(id);
+  if (!/^https?:\/\//i.test(String(href || ''))) throw Object.assign(new Error('Give an http(s) link.'), { status: 400 });
   const { readLink } = await import('../../src/import-link.mjs');
   const { weightsFingerprint: fp } = await import('../../src/rescore.mjs');
   const { loadSeen, saveSeen } = await import('../../src/vault.mjs');
   const criteria = loadCriteria();
-  const r = await readLink(href, { criteria });
-  if (!r.ok) throw Object.assign(new Error(r.error), { status: 400 });
+  const r = linkOnly ? { ok: false, error: '' } : await readLink(href, { criteria });
+  // A link the reader cannot turn into a posting (a page behind a login, a board with no API, an odd site)
+  // still belongs on the note: Open posting then goes somewhere real. Only the link and a log line are written.
+  if (!r.ok) return attachLinkOnly(file, id, String(href).trim(), r.error);
   const { url, job: j, scored } = r;
   let text = fs.readFileSync(file, 'utf8');
   const y = (v) => JSON.stringify(v ?? '');
@@ -774,6 +864,19 @@ export async function attachPosting(id, href) {
   saveSeen(seen);
   cache.key = '';
   return getJob(id);
+}
+
+function attachLinkOnly(file, id, href, why) {
+  let text = fs.readFileSync(file, 'utf8');
+  const before = (text.match(/^url: (.*)$/m) || [, ''])[1];
+  text = replaceFrontmatterLine(text, 'url', JSON.stringify(href));
+  text = /^\*\*\[Open posting\]\(.*?\)\*\*/m.test(text)
+    ? text.replace(/^\*\*\[Open posting\]\(.*?\)\*\*/m, () => `**[Open posting](${href})**`)
+    : text.replace(/^(# .*\n)/m, (m) => `${m}\n**[Open posting](${href})**\n`);
+  text = appendUnderHeading(text, 'Status log', `- ${isoDay()} — posting link set to ${href}${why ? ` (the posting itself could not be read: ${why})` : ' (link only, by request)'}${before && !/mail\.google\.com/.test(before) ? `; was ${before.replace(/^"|"$/g, '')}` : ''}`);
+  fs.writeFileSync(file, text);
+  cache.key = '';
+  return { ...getJob(id), linkOnly: true, warning: why || '' };
 }
 
 /** Add postings from links the person pasted. One result per link, in order; a failure on one does not stop the rest. */

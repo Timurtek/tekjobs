@@ -184,6 +184,18 @@ export interface MailState {
   runner: string; lastRun: string | null; lastSinceDays: number | null; items: MailItem[]; groups: MailGroup[];
 }
 
+/** ~/.tekjobs/config.json as the app shows it: where the profile folder is, the resume folder, the LLM command. */
+export interface Settings {
+  configFile: string;
+  profile: { active: string; configured: string; fromEnv: boolean; exists: boolean };
+  resumeDir: { path: string; configured: string; exists: boolean };
+  resumeSource: string;
+  llm: { command: string; args: string; configured: boolean };
+  contact: string;
+}
+export interface ResumeFile { name: string; path: string; size: number; modified: string; current: boolean }
+export interface Resumes { dir: string; exists: boolean; files: ResumeFile[] }
+
 /** One line the copy panel offers: the label is the button, the value lands on the clipboard. */
 export interface Snippet { group: string; label: string; value: string }
 export interface Snippets { items: Snippet[]; /** False until Profile/Snippets.md has been saved once; the items are then read from the profile. */ exists: boolean; path: string }
@@ -298,7 +310,12 @@ export const api = {
     return request<Facets>(`/api/jobs/facets?${p}`);
   },
   job: (id: string) => request<Job>(`/api/jobs/${encodeURIComponent(id)}`),
-  attachPosting: (id: string, url: string) => request<Job>(`/api/jobs/${encodeURIComponent(id)}/attach`, { method: "POST", body: JSON.stringify({ url }) }),
+  attachPosting: (id: string, url: string, linkOnly = false) => request<Job & { linkOnly?: boolean; warning?: string }>(`/api/jobs/${encodeURIComponent(id)}/attach`, { method: "POST", body: JSON.stringify({ url, linkOnly }) }),
+  settings: () => request<Settings>("/api/settings"),
+  saveSettings: (s: { profile?: string; resumeDir?: string; llmCommand?: string; llmArgs?: string; contact?: string }) => request<Settings & { restart: boolean }>("/api/settings", { method: "PUT", body: JSON.stringify(s) }),
+  resumes: () => request<Resumes>("/api/resumes"),
+  useResume: (name: string) => request<{ source: string; chars: number; removed: string[]; added: string[]; stale: unknown[]; files: ResumeFile[] }>("/api/resumes/use", { method: "POST", body: JSON.stringify({ name }) }),
+  openResume: (name: string) => request<{ ok: boolean; path: string }>("/api/resumes/open", { method: "POST", body: JSON.stringify({ name }) }),
   revealJob: (id: string) => request<{ ok: boolean; path: string }>(`/api/jobs/${encodeURIComponent(id)}/reveal`, { method: "POST" }),
   importLinks: (urls: string[]) => request<ImportResult[]>("/api/jobs/import", { method: "POST", body: JSON.stringify({ urls }) }),
   today: (cap = 7) => request<Today>(`/api/today?cap=${cap}`),

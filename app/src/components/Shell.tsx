@@ -3,7 +3,7 @@ import { useState, type ComponentType, type FormEvent, type ReactNode } from "re
 import { BrandMark } from "./brand-mark";
 import { CopyPanel } from "./CopyPanel";
 
-export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "mail" | "people" | "companies" | "criteria" | "profile" | "runs" | "agent";
+export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "mail" | "people" | "companies" | "criteria" | "profile" | "runs" | "agent" | "settings";
 
 const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "onboarding", label: "Get started", icon: Icon.Sparkles },
@@ -18,16 +18,17 @@ const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "profile", label: "Profile", icon: Icon.User },
   { page: "runs", label: "Runs", icon: Icon.Refresh },
   { page: "agent", label: "Agent access", icon: Icon.Terminal },
+  { page: "settings", label: "Settings", icon: Icon.Settings },
 ];
 
-const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", mail: "Mail", people: "People", companies: "Companies", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access" };
+const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", mail: "Mail", people: "People", companies: "Companies", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access", settings: "Settings" };
 
 /** Sidebar groups, by intent: the work, the numbers, the setup, the machinery. */
 const GROUPS: { title: string; pages: Page[] }[] = [
   { title: "Work", pages: ["today", "jobs", "pipeline", "mail", "people"] },
   { title: "Insights", pages: ["overview"] },
   { title: "Setup", pages: ["profile", "criteria", "companies"] },
-  { title: "System", pages: ["runs", "agent", "onboarding"] },
+  { title: "System", pages: ["runs", "agent", "settings", "onboarding"] },
 ];
 
 interface ShellProps {
