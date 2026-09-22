@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.5.1 (2026-09-22)</small>
+
+* fix(jobs): condense folds the filters away, not the table rows ([0ba2eeb](https://github.com/Timurtek/tekjobs/commit/0ba2eeb))
+
 ## 0.5.0 (2026-09-22)
 
 * feat(mail): give Mail its own page in the navigation ([8d364c7](https://github.com/Timurtek/tekjobs/commit/8d364c7))
