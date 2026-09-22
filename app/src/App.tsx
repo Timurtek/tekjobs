@@ -6,6 +6,7 @@ import { Agent } from "./views/Agent";
 import { Companies } from "./views/Companies";
 import { Criteria } from "./views/Criteria";
 import { Jobs } from "./views/Jobs";
+import { Mail } from "./views/Mail";
 import { Onboarding } from "./views/Onboarding";
 import { Overview } from "./views/Overview";
 import { People } from "./views/People";
@@ -33,7 +34,7 @@ function useTheme(): [Theme, () => void] {
 function useRoute(): [Page, string, (page: Page, q?: string) => void] {
   const parse = () => {
     const [p, qs] = window.location.hash.replace(/^#\/?/, "").split("?");
-    const page = (["onboarding", "today", "overview", "jobs", "pipeline", "people", "companies", "criteria", "profile", "runs", "agent"].includes(p ?? "") ? p : "today") as Page;
+    const page = (["onboarding", "today", "overview", "jobs", "pipeline", "mail", "people", "companies", "criteria", "profile", "runs", "agent"].includes(p ?? "") ? p : "today") as Page;
     return { page, q: new URLSearchParams(qs).get("q") ?? "" };
   };
   const [route, setRoute] = useState(parse);
@@ -66,6 +67,7 @@ export function App() {
       if (s.lastRun) setLastScan(`Last scan ${s.lastRun.when.slice(11, 16)} · ${s.lastRun.boardsOk}/${s.lastRun.boardsTotal} boards`);
     }).catch(() => {});
     api.today().then((t) => setCounts((c) => ({ ...c, today: t.sections.triage.length }))).catch(() => {});
+    api.mail().then((m) => setCounts((c) => ({ ...c, mail: m.groups.length }))).catch(() => {});
   }, [page]);
   return (
     <Tooltip.Provider>
@@ -77,6 +79,7 @@ export function App() {
             {page === "overview" && <Overview onNavigate={go} />}
             {page === "jobs" && <Jobs initialQuery={q} />}
             {page === "pipeline" && <Pipeline />}
+            {page === "mail" && <Mail />}
             {page === "people" && <People />}
             {page === "companies" && <Companies />}
             {page === "criteria" && <Criteria />}

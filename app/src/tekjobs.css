@@ -401,6 +401,21 @@
   padding-top: var(--spacing-2);
 }
 
+/* Today's mail strip: one line and a button. */
+.mailstrip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.mailstrip > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
 /* The mail button: a count beside the envelope, a short status popover. */
 .mailbtn__count {
   min-width: 1.25rem;
