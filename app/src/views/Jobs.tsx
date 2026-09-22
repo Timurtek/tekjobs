@@ -192,6 +192,8 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   // animation) moved focus out of the freshly opened popover, which closed on focus-outside, and the chip
   // (shown only while active or open) vanished with it: "it disappears right away".
   const pendingDim = useRef<DimKey | null>(null);
+  // A dimension the person added but has not filled in yet keeps its chip, editor open or not, until its ×.
+  const [added, setAdded] = useState<DimKey[]>([]);
   const [views, setViews] = useState<SavedView[]>([]);
   const [defaults, setDefaults] = useState<(SavedView & { hint: string })[]>([]);
   const [viewName, setViewName] = useState<string | null>(null);
@@ -317,17 +319,18 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
     if (key === "postedDays" || key === "foundDays") return v ? `${v} days` : "";
     return v;
   };
-  const clearDim = (key: DimKey) => { const d = DEFAULTS[key]; set(key, (key === "minScore" ? "0" : Array.isArray(d) ? [] : d) as Filters[DimKey]); setOpenKey(null); };
+  const clearDim = (key: DimKey) => { const d = DEFAULTS[key]; set(key, (key === "minScore" ? "0" : Array.isArray(d) ? [] : d) as Filters[DimKey]); setOpenKey(null); setAdded((a) => a.filter((k) => k !== key)); };
   const addDim = (key: DimKey) => {
     // Switches turn on when picked; everything else opens its editor with an empty value.
     if (key === "remote" || key === "payKnown") set(key, true);
     else if (key === "kind") set(key, "design-eng");
     else if (key === "postedDays") set(key, "7");
     else if (key === "minScore" && (!f.minScore || f.minScore === "0")) set(key, "45");
+    setAdded((a) => (a.includes(key) ? a : [...a, key]));
     setOpenKey(key);
   };
-  const shown = DIMS.filter((d) => isActive(f, d.key) || openKey === d.key);
-  const addable = DIMS.filter((d) => !isActive(f, d.key));
+  const shown = DIMS.filter((d) => isActive(f, d.key) || openKey === d.key || added.includes(d.key));
+  const addable = DIMS.filter((d) => !isActive(f, d.key) && !added.includes(d.key));
   const qs = paramsFor(f, sort, dir);
   const applyView = (v: SavedView) => { setF(readFilters(v.query)); setPage(0); };
   const saveView = async () => {
