@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.8.0 (2026-09-22)
+
+* feat(import): read Google and Apple job pages, and name plain pages properly ([10e91d4](https://github.com/Timurtek/tekjobs/commit/10e91d4))
+
 ## <small>0.7.1 (2026-09-22)</small>
 
 * fix(import): keep a URL's slash out of the note filename ([746ade0](https://github.com/Timurtek/tekjobs/commit/746ade0))
