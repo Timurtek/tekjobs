@@ -1,0 +1,129 @@
+/* zengin-owned TextField, forked from @zenginui/ui@0.2.0, sha 4079c91934a3 */
+.z-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  color: var(--color-text);
+}
+
+.z-field__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+}
+
+.z-field__required {
+  color: var(--color-danger);
+}
+
+.z-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.z-field__input {
+  width: 100%;
+  min-width: 0;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-family: inherit;
+  line-height: var(--leading-normal);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.z-field__input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+/* Size owns padding and type. Icon slots widen the padding on their side. */
+.z-field[data-size="sm"] .z-field__input {
+  min-height: 2rem;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--text-sm);
+}
+.z-field[data-size="md"] .z-field__input {
+  min-height: 2.5rem;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-sm);
+}
+.z-field[data-size="lg"] .z-field__input {
+  min-height: 3rem;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-base);
+}
+
+.z-field__icon {
+  position: absolute;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.z-field__icon:first-child { left: var(--spacing-3); }
+.z-field__icon:last-child { right: var(--spacing-3); }
+
+.z-field__control:has(> .z-field__icon:first-child) > .z-field__input { padding-left: var(--spacing-8); }
+.z-field__control:has(> .z-field__icon:last-child) > .z-field__input { padding-right: var(--spacing-8); }
+
+/* States. */
+.z-field__input:hover:not(:disabled):not(:read-only) {
+  border-color: var(--color-text-muted);
+}
+
+.z-field__input:focus-visible {
+  border-color: var(--color-focus);
+  outline-offset: 0;
+}
+
+.z-field[data-invalid] .z-field__input {
+  border-color: var(--color-danger);
+}
+
+.z-field[data-invalid] .z-field__input:focus-visible {
+  outline-color: var(--color-danger);
+}
+
+.z-field[data-readonly] .z-field__input {
+  background-color: var(--color-surface-sunken);
+}
+
+.z-field[data-disabled] {
+  color: var(--color-text-subtle);
+}
+
+.z-field__input:disabled {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+.z-field__description,
+.z-field__error {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+.z-field__description {
+  color: var(--color-text-muted);
+}
+
+.z-field__error {
+  color: var(--color-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-field__input {
+    transition-duration: 0ms;
+  }
+}
+
+/* A control holding code or data rather than prose. The face is the system's mono token, so `zengin fonts`
+   moves it with everything else; only the family changes, because size and rhythm stay the control's. */
+.z-field[data-font="mono"] .z-field__input {
+  font-family: var(--font-mono);
+}

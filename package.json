@@ -1,0 +1,27 @@
+{
+  "name": "tekjobs",
+  "version": "0.2.0",
+  "description": "A local-first job-search machine: watches hundreds of company job boards, scores every posting against your profile, and files matches into a folder of markdown notes you own. Bring your own LLM through MCP.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "tekjobs": "./cli.mjs"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "init": "node cli.mjs init",
+    "status": "node cli.mjs status",
+    "scan": "node run.mjs",
+    "dry": "node run.mjs --dry",
+    "check": "node run.mjs --dry --check-slugs",
+    "serve": "node app/server/index.mjs",
+    "mcp": "node app/server/mcp.mjs"
+  },
+  "dependencies": {
+    "pdf-parse": "^2.4.5"
+  }
+}

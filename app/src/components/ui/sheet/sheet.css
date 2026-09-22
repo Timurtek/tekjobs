@@ -1,0 +1,125 @@
+/* zengin-owned Sheet, forked from @zenginui/ui@0.1.0, sha 7fd1a73350e1 */
+.z-sheet__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: var(--color-surface-overlay);
+  animation: z-sheet-fade-in var(--duration-slow) var(--ease-standard);
+}
+
+.z-sheet__overlay[data-state="closed"] {
+  animation: z-sheet-fade-out var(--duration-normal) var(--ease-exit);
+}
+
+.z-sheet {
+  position: fixed;
+  z-index: 51;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-6);
+  overflow: auto;
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-emphasized);
+}
+
+.z-sheet:focus {
+  outline: none;
+}
+
+/* Side owns the edge and the motion. */
+.z-sheet[data-side="right"] { top: 0; right: 0; bottom: 0; border-left: var(--border-width) solid var(--color-border); animation-name: z-sheet-from-right; }
+.z-sheet[data-side="left"] { top: 0; left: 0; bottom: 0; border-right: var(--border-width) solid var(--color-border); animation-name: z-sheet-from-left; }
+.z-sheet[data-side="top"] { top: 0; left: 0; right: 0; border-bottom: var(--border-width) solid var(--color-border); animation-name: z-sheet-from-top; }
+.z-sheet[data-side="bottom"] { left: 0; right: 0; bottom: 0; border-top: var(--border-width) solid var(--color-border); animation-name: z-sheet-from-bottom; }
+
+.z-sheet[data-state="closed"] {
+  animation-duration: var(--duration-normal);
+  animation-timing-function: var(--ease-exit);
+  animation-direction: reverse;
+}
+
+/* Size owns width (left, right) or height (top, bottom). */
+.z-sheet[data-side="right"][data-size="sm"], .z-sheet[data-side="left"][data-size="sm"] { width: min(100vw, 20rem); }
+.z-sheet[data-side="right"][data-size="md"], .z-sheet[data-side="left"][data-size="md"] { width: min(100vw, 28rem); }
+.z-sheet[data-side="right"][data-size="lg"], .z-sheet[data-side="left"][data-size="lg"] { width: min(100vw, 40rem); }
+.z-sheet[data-side="top"][data-size="sm"], .z-sheet[data-side="bottom"][data-size="sm"] { max-height: 40vh; }
+.z-sheet[data-side="top"][data-size="md"], .z-sheet[data-side="bottom"][data-size="md"] { max-height: 60vh; }
+.z-sheet[data-side="top"][data-size="lg"], .z-sheet[data-side="bottom"][data-size="lg"] { max-height: 85vh; }
+
+.z-sheet__title {
+  margin: 0;
+  padding-right: var(--spacing-8);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.z-sheet__description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.z-sheet__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  margin-top: auto;
+  padding-top: var(--spacing-4);
+}
+
+.z-sheet__close {
+  position: absolute;
+  top: var(--spacing-3);
+  right: var(--spacing-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.z-sheet__close > svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.z-sheet__close:hover {
+  background-color: var(--color-neutral-soft);
+  color: var(--color-text);
+}
+
+@keyframes z-sheet-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes z-sheet-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes z-sheet-from-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes z-sheet-from-left { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes z-sheet-from-top { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+@keyframes z-sheet-from-bottom { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* Reduced motion: fade only. */
+@media (prefers-reduced-motion: reduce) {
+  .z-sheet {
+    animation-name: z-sheet-fade-in;
+    animation-duration: var(--duration-normal);
+  }
+  .z-sheet[data-state="closed"] {
+    animation-name: z-sheet-fade-out;
+    animation-direction: normal;
+  }
+  .z-sheet__close {
+    transition-duration: 0ms;
+  }
+}

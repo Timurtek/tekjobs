@@ -1,0 +1,27 @@
+/* zengin-owned Sparkline, forked from @zenginui/ui@0.1.0, sha 747ca97b45f9 */
+.z-sparkline {
+  display: inline-block;
+  width: 100%;
+  min-width: 3rem;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+.z-sparkline__svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.z-sparkline__line {
+  stroke-width: 1.5;
+}
+
+/* Tone owns the color; the chart foundation maps data-tone to the tokens. */
+.z-sparkline[data-tone="primary"],
+.z-sparkline[data-tone="success"],
+.z-sparkline[data-tone="warning"],
+.z-sparkline[data-tone="danger"],
+.z-sparkline[data-tone="neutral"] {
+  color: var(--color-text);
+}

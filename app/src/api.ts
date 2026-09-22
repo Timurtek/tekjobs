@@ -1,0 +1,327 @@
+/** Typed client for the local server (server/index.mjs). Every call goes through /api, which Vite proxies in dev. */
+
+export type Status = "new" | "reviewing" | "applying" | "ready" | "applied" | "interviewing" | "offer" | "rejected" | "passed";
+export type PayBand = "floor" | "stretch" | "below" | "unknown";
+export type Kind = "design-eng" | "adjacent";
+
+export const STATUSES: Status[] = ["new", "reviewing", "applying", "ready", "applied", "interviewing", "offer", "rejected", "passed"];
+export const ACTIVE: Status[] = ["applying", "ready", "applied", "interviewing", "offer"];
+
+export interface JobRow {
+  id: string;
+  company: string;
+  title: string;
+  location: string;
+  remote: boolean;
+  source: string;
+  url: string;
+  score: number;
+  posted: string;
+  found: string;
+  salary: string;
+  salaryMax: number;
+  payBand: PayBand;
+  status: Status;
+  listing: string;
+  kind: Kind;
+  department: string;
+  passedReason?: string;
+  /** "link" when the person pasted it (Add by link); "scan" otherwise. */
+  addedBy: "scan" | "link";
+}
+export const PASS_REASONS = ["wrong role shape", "weak evidence match", "compensation", "location or authorisation", "too managerial", "too visual", "too engineering", "stale or duplicate", "company"] as const;
+export type PassReason = (typeof PASS_REASONS)[number];
+
+/** A job row with its raw score expressed as a 0-100 fit against what this criteria set can award. */
+export interface TodayRow extends JobRow {
+  fit: number;
+  days?: number;
+  closed?: string;
+  since?: number;
+  due?: string;
+  /** How many application fields have something in them. Only set on the `started` section. */
+  packet?: number;
+}
+export interface Today {
+  generated: string;
+  ceiling: number;
+  counts: { open: number; unreviewed: number; inFlight: number; closedUnreviewed: number; aging: number; started: number };
+  sections: {
+    triage: TodayRow[];
+    started: TodayRow[];
+    aging: TodayRow[];
+    missed: TodayRow[];
+    preparing: TodayRow[];
+    followUps: TodayRow[];
+    interviewing: TodayRow[];
+  };
+}
+export interface ApplicationField {
+  field: string;
+  hint: string;
+  required: boolean;
+}
+/** The packet as the server sees it. `ready` means the required fields are filled — nothing more. */
+export interface Packet {
+  id: string;
+  fields: ApplicationField[];
+  values: Record<string, string>;
+  missing: string[];
+  ready: boolean;
+  filled: number;
+  total: number;
+}
+export interface Job extends JobRow {
+  /** The note on disk, and an obsidian:// link that opens it there. */
+  path: string;
+  obsidianUrl: string;
+  body: string;
+  sections: { why: string; log: string; notes: string; application: string; description: string };
+}
+export interface Summary {
+  open: number;
+  byStatus: Partial<Record<Status, number>>;
+  byBand: Partial<Record<PayBand, number>>;
+  byKind: Partial<Record<Kind, number>>;
+  bySource: Record<string, number>;
+  designEng: { total: number; floor: number; stretch: number; unknown: number };
+  active: number;
+  lastRun: RunEntry | null;
+  floor: number | null;
+  stretch: number | null;
+  minScore: number | null;
+  /** The best raw score this criteria set can award; fit is score over this. */
+  ceiling: number;
+  companies: number;
+  vault: string;
+}
+export interface RunEntry {
+  date?: string;
+  when: string;
+  boardsOk: number;
+  boardsTotal: number;
+  scanned: number;
+  matched: number;
+  newMatches: number;
+  closed: number;
+  seconds: number;
+  failed: string;
+  /** "Search Criteria (fingerprint)" or the preset the run scored with. */
+  criteria?: string;
+}
+export interface RunDay { date: string; runs: RunEntry[] }
+export interface ScanState { running: boolean; startedAt: string | null; finishedAt: string | null; exitCode: number | null; output: string[]; criteria?: string }
+export interface Company { name: string; ats: string; slug: string; tier: string; status: string; notes: string }
+export interface Criteria { raw: string; parsed: Record<string, unknown> | null; fingerprint?: string; path?: string }
+/** A named criteria set under Targets/Criteria/. `active` means it is byte-for-byte the current Search Criteria weights. */
+export interface CriteriaPreset { name: string; file: string; valid: boolean; minScore: number | null; floor: number | null; titles: number; fingerprint: string; active: boolean; updated: string }
+export interface CriteriaPresetDoc { name: string; file: string; raw: string; parsed: Record<string, unknown> | null; fingerprint: string }
+export interface ProfileNote { key: string; title: string; rel: string; path: string; markdown: string; editable: boolean; hint: string; exists: boolean }
+export interface ProfileNotes { profile: string; positioning: string; voice: string; resume: string; notes: ProfileNote[] }
+
+export type CoverLetterEmphasis = "auto" | "design-systems" | "ai-product";
+export interface CoverLetterOptions { emphasis: CoverLetterEmphasis; length: "short" | "standard"; extra: string }
+export interface CoverLetterWarning { kind: "claim" | "style" | "placeholder" | "specific" | "length"; text: string }
+/** `saved` is the letter in the note, checked against the resume. `running`/`error` describe the local CLI run. */
+export interface CoverLetterState {
+  running: boolean;
+  startedAt: string | null;
+  finishedAt: string | null;
+  error: string;
+  errorKind: "" | "auth" | "missing" | "outdated" | "failed";
+  runner: string;
+  saved: { text: string; words: number; warnings: CoverLetterWarning[] } | null;
+}
+
+export interface TailoredResumeWarning { kind: "trace" | "claim" | "header" | "date" | "style" | "length"; text: string }
+export interface TailoredResumeState {
+  running: boolean;
+  startedAt: string | null;
+  finishedAt: string | null;
+  error: string;
+  errorKind: "" | "auth" | "missing" | "outdated" | "failed";
+  runner: string;
+  saved: { text: string; words: number; bullets: number; warnings: TailoredResumeWarning[] } | null;
+}
+
+export interface OnboardingStep { id: string; label: string; done: boolean; how: string }
+export interface Onboarding { dir: string; steps: OnboardingStep[]; complete: boolean; jobs: number; profilePath: string }
+
+/** One note in a criteria preview: its stored score and what the proposed set would make it. */
+export interface PreviewRow { id: string; company: string; title: string; status: Status; before: number; after: number; delta: number }
+export interface CriteriaPreview {
+  openNotes: number; changed: number; barBefore: number; barAfter: number; aboveBefore: number; aboveAfter: number;
+  rise: PreviewRow[]; fall: PreviewRow[]; enterTop20: PreviewRow[]; leaveTop20: PreviewRow[]; up: PreviewRow[]; down: PreviewRow[];
+  covers: string;
+}
+/** One application email, matched to a note, with what confirming it would do. */
+export interface MailItem {
+  id: string; company: string; role: string; kind: "confirmation" | "rejection" | "advance" | "scheduling" | "info-request" | "other";
+  date: string; gist: string; from: string; messageId: string; subject: string;
+  /** exact: same title. company: no role named, best note of that company. company-other-role: a role the vault lacks, default is a new note. none: nothing. */
+  match: "exact" | "company" | "company-other-role" | "none"; noteId: string; noteTitle: string; noteStatus: string;
+  candidates: { id: string; title: string; status: string }[];
+  suggestion: { action: "status" | "record" | "create"; status?: string; appliedOn?: string };
+  state: "pending" | "confirmed" | "dismissed";
+  resolved?: { at: string; action: string; status?: string };
+}
+/** Pending emails about one application (company + role), the strongest kind speaking for the group. */
+export interface MailGroup {
+  id: string; ids: string[]; count: number; company: string; role: string; kind: MailItem["kind"]; kinds: MailItem["kind"][];
+  date: string; first: string; gist: string; subject: string; from: string;
+  match: MailItem["match"]; noteId: string; noteTitle: string; noteStatus: string; candidates: MailItem["candidates"]; suggestion: MailItem["suggestion"];
+}
+export interface MailState {
+  running: boolean; startedAt: string | null; finishedAt: string | null; error: string; errorKind: string; sinceDays: number | null;
+  runner: string; lastRun: string | null; lastSinceDays: number | null; items: MailItem[]; groups: MailGroup[];
+}
+
+/** What the search is producing, read from the notes. */
+export interface Outcomes {
+  funnel: { found: number; reviewed: number; shortlisted: number; applied: number; interviewing: number; offer: number };
+  responded: number;
+  responseRate: number | null;
+  medianDaysToApply: number | null;
+  waiting: { total: number; buckets: Record<string, number>; oldest: { id: string; company: string; title: string; appliedOn: string; days: number; source: string }[] };
+  bySource: { source: string; applied: number; responded: number; rate: number }[];
+  appliedPerWeek: { week: string; n: number }[];
+  passed: number;
+  rejected: number;
+}
+
+/** A named filter set for the Jobs page; `query` is the page's own query string. Kept in Targets/Job Views.md. */
+export interface SavedView { name: string; query: string }
+
+/** Counts per filter value under the current filters, each dimension counted with its own filter lifted. */
+export interface Facets {
+  total: number;
+  status: Record<string, number>;
+  band: Record<string, number>;
+  kind: Record<string, number>;
+  source: Record<string, number>;
+  company: Record<string, number>;
+  remote: { remote: number; onsite: number };
+  pay: { stated: number; unstated: number; min: number; max: number; median: number };
+}
+
+/** One pasted link, after the import read it. */
+export interface ImportResult {
+  url: string;
+  /** The posting's canonical link (the board's page when the pasted link was a company page or LinkedIn). */
+  link?: string;
+  ok: boolean;
+  added?: boolean;
+  id?: string;
+  company?: string;
+  title?: string;
+  location?: string;
+  score?: number;
+  reason?: string;
+  belowMin?: boolean;
+  error?: string;
+}
+
+export interface JobQuery {
+  q?: string;
+  /** Comma-separated any-of list matched against the posting's location text. */
+  location?: string;
+  /** 1 keeps only rows the scan marked remote. */
+  remote?: 1;
+  /** One status, or several comma-separated; empty or "all" means every status. */
+  status?: string;
+  /** One pay band or several comma-separated. */
+  band?: string;
+  kind?: Kind | "all";
+  /** One source or several comma-separated; "link" means every job added by pasting a link. */
+  source?: string;
+  /** One company or several comma-separated, exact names. */
+  company?: string;
+  /** Annual pay bounds, judged on the top of the stated range. */
+  payMin?: number;
+  payMax?: number;
+  /** 1 keeps only postings that state pay. */
+  payKnown?: 1;
+  postedDays?: number;
+  foundDays?: number;
+  maxScore?: number;
+  minScore?: number;
+  sort?: keyof JobRow;
+  dir?: "asc" | "desc";
+  limit?: number;
+  offset?: number;
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(path, { headers: { "content-type": "application/json" }, ...init });
+  const body = (await res.json().catch(() => ({}))) as T & { error?: string };
+  if (!res.ok) throw new Error(body.error || `${res.status} ${res.statusText}`);
+  return body;
+}
+
+export const api = {
+  summary: () => request<Summary>("/api/summary"),
+  jobs: (q: JobQuery) => {
+    const p = new URLSearchParams();
+    for (const [k, v] of Object.entries(q)) if (v !== undefined && v !== "" && v !== null) p.set(k, String(v));
+    return request<{ total: number; rows: JobRow[] }>(`/api/jobs?${p}`);
+  },
+  facets: (q: JobQuery) => {
+    const p = new URLSearchParams();
+    for (const [k, v] of Object.entries(q)) if (v !== undefined && v !== "" && v !== null) p.set(k, String(v));
+    return request<Facets>(`/api/jobs/facets?${p}`);
+  },
+  job: (id: string) => request<Job>(`/api/jobs/${encodeURIComponent(id)}`),
+  attachPosting: (id: string, url: string) => request<Job>(`/api/jobs/${encodeURIComponent(id)}/attach`, { method: "POST", body: JSON.stringify({ url }) }),
+  revealJob: (id: string) => request<{ ok: boolean; path: string }>(`/api/jobs/${encodeURIComponent(id)}/reveal`, { method: "POST" }),
+  importLinks: (urls: string[]) => request<ImportResult[]>("/api/jobs/import", { method: "POST", body: JSON.stringify({ urls }) }),
+  today: (cap = 7) => request<Today>(`/api/today?cap=${cap}`),
+  setStatus: (id: string, status: Status, reason?: PassReason) => request<Job>(`/api/jobs/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ status, reason }) }),
+  addNote: (id: string, note: string) => request<Job>(`/api/jobs/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ note }) }),
+  packet: (id: string) => request<Packet>(`/api/jobs/${encodeURIComponent(id)}/packet`),
+  coverLetter: (id: string) => request<CoverLetterState>(`/api/jobs/${encodeURIComponent(id)}/cover-letter`),
+  writeCoverLetter: (id: string, opts: CoverLetterOptions) => request<CoverLetterState>(`/api/jobs/${encodeURIComponent(id)}/cover-letter`, { method: "POST", body: JSON.stringify(opts) }),
+  tailoredResume: (id: string) => request<TailoredResumeState>(`/api/jobs/${encodeURIComponent(id)}/resume`),
+  writeTailoredResume: (id: string, opts: { emphasis: CoverLetterEmphasis; extra: string }) => request<TailoredResumeState>(`/api/jobs/${encodeURIComponent(id)}/resume`, { method: "POST", body: JSON.stringify(opts) }),
+  saveTailoredResume: (id: string, text: string) => request<TailoredResumeState>(`/api/jobs/${encodeURIComponent(id)}/resume`, { method: "PUT", body: JSON.stringify({ text }) }),
+  resumePrintUrl: (id: string) => `/api/jobs/${encodeURIComponent(id)}/resume.html`,
+  saveCoverLetter: (id: string, text: string) => request<CoverLetterState>(`/api/jobs/${encodeURIComponent(id)}/cover-letter`, { method: "PUT", body: JSON.stringify({ text }) }),
+  saveApplication: (id: string, field: string, value: string) => request<Job>(`/api/jobs/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ application: { field, value } }) }),
+  runs: () => request<RunDay[]>("/api/runs"),
+  scan: () => request<ScanState>("/api/scan"),
+  startScan: (dry = false, criteria?: string) => request<ScanState>("/api/scan", { method: "POST", body: JSON.stringify({ dry, criteria: criteria || "" }) }),
+  criteria: () => request<Criteria>("/api/criteria"),
+  saveCriteria: (raw: string) => request<Criteria>("/api/criteria", { method: "PUT", body: JSON.stringify({ raw }) }),
+  outcomes: () => request<Outcomes>("/api/outcomes"),
+  views: () => request<SavedView[]>("/api/views"),
+  defaultViews: () => request<(SavedView & { hint: string })[]>("/api/views/defaults"),
+  saveViews: (views: SavedView[]) => request<SavedView[]>("/api/views", { method: "PUT", body: JSON.stringify({ views }) }),
+  mail: () => request<MailState>("/api/mail"),
+  mailCheck: (sinceDays?: number) => request<MailState>("/api/mail/check", { method: "POST", body: JSON.stringify({ sinceDays }) }),
+  mailConfirm: (id: string, noteId?: string) => request<MailState>(`/api/mail/${encodeURIComponent(id)}/confirm`, { method: "POST", body: JSON.stringify({ noteId }) }),
+  mailConfirmSafe: () => request<MailState & { confirmed: number }>("/api/mail/confirm-safe", { method: "POST" }),
+  mailDismiss: (id: string) => request<MailState>(`/api/mail/${encodeURIComponent(id)}/dismiss`, { method: "POST" }),
+  previewCriteria: (raw: string) => request<CriteriaPreview>("/api/criteria/preview", { method: "POST", body: JSON.stringify({ raw }) }),
+  criteriaPresets: () => request<CriteriaPreset[]>("/api/criteria/presets"),
+  criteriaPreset: (name: string) => request<CriteriaPresetDoc>(`/api/criteria/presets/${encodeURIComponent(name)}`),
+  saveCriteriaPreset: (name: string, raw: string) => request<CriteriaPresetDoc>(`/api/criteria/presets/${encodeURIComponent(name)}`, { method: "PUT", body: JSON.stringify({ raw }) }),
+  deleteCriteriaPreset: (name: string) => request<CriteriaPreset[]>(`/api/criteria/presets/${encodeURIComponent(name)}`, { method: "DELETE" }),
+  activateCriteriaPreset: (name: string) => request<Criteria>(`/api/criteria/presets/${encodeURIComponent(name)}/activate`, { method: "POST" }),
+  profileNotes: () => request<ProfileNotes>("/api/profile"),
+  saveProfileNote: (note: string, markdown: string) => request<{ saved: string }>("/api/profile", { method: "PUT", body: JSON.stringify({ note, markdown }) }),
+  companies: () => request<Company[]>("/api/companies"),
+  addCompany: (c: Omit<Company, "status">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
+  onboarding: () => request<Onboarding>("/api/onboarding"),
+  initProfile: () => request<{ dir: string; made: string[] }>("/api/onboarding/init", { method: "POST", body: "{}" }),
+  importResume: (path: string) => request<{ original: string; source: string; chars: number }>("/api/onboarding/resume", { method: "POST", body: JSON.stringify({ path }) }),
+};
+
+export const money = (n: number) => `$${Math.round(n / 1000)}k`;
+export const shortPay = (s: string) => s.replace(/\s*[•·].*$/, "").replace(/\s+/g, " ").trim();
+export const daysAgo = (iso: string) => {
+  if (!iso) return "";
+  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 864e5);
+  return Number.isFinite(d) ? (d <= 0 ? "today" : `${d}d ago`) : "";
+};
+export const BAND_LABEL: Record<PayBand, string> = { floor: "Floor", stretch: "Stretch", below: "Below", unknown: "Not stated" };
+export const BAND_TONE: Record<PayBand, "success" | "warning" | "neutral" | "primary"> = { floor: "success", stretch: "warning", below: "neutral", unknown: "neutral" };
+export const STATUS_TONE: Record<Status, "neutral" | "primary" | "success" | "warning" | "danger"> = { new: "neutral", reviewing: "primary", applying: "primary", ready: "warning", applied: "primary", interviewing: "warning", offer: "success", rejected: "danger", passed: "neutral" };

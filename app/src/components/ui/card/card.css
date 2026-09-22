@@ -1,0 +1,94 @@
+/* zengin-owned Card, forked from @zenginui/ui@0.1.0, sha 9c9ebe68192a */
+.z-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-outline);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-normal) var(--ease-standard);
+}
+
+.z-card[data-variant="outlined"] {
+  border-color: var(--color-border);
+}
+
+.z-card[data-variant="elevated"] {
+  box-shadow: var(--shadow-md);
+}
+
+.z-card[data-variant="sunken"] {
+  background-color: var(--color-surface-sunken);
+}
+
+/* Padding applies to the card when it has no parts, and to each part when it does. */
+.z-card[data-padding="none"] { padding: var(--spacing-0); }
+.z-card[data-padding="sm"] { padding: var(--spacing-3); }
+.z-card[data-padding="md"] { padding: var(--spacing-4); }
+.z-card[data-padding="lg"] { padding: var(--spacing-6); }
+
+.z-card:has(> .z-card__header, > .z-card__body, > .z-card__footer) {
+  padding: 0;
+}
+
+.z-card[data-padding="sm"] > .z-card__header,
+.z-card[data-padding="sm"] > .z-card__body,
+.z-card[data-padding="sm"] > .z-card__footer { padding: var(--spacing-3); }
+
+.z-card[data-padding="md"] > .z-card__header,
+.z-card[data-padding="md"] > .z-card__body,
+.z-card[data-padding="md"] > .z-card__footer { padding: var(--spacing-4); }
+
+.z-card[data-padding="lg"] > .z-card__header,
+.z-card[data-padding="lg"] > .z-card__body,
+.z-card[data-padding="lg"] > .z-card__footer { padding: var(--spacing-6); }
+
+.z-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+  font-weight: var(--font-weight-semibold);
+}
+
+.z-card__body {
+  flex: 1;
+}
+
+.z-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  border-top: var(--border-width) solid var(--color-border);
+  background-color: var(--color-surface-raised);
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+/* Interactive cards lift on hover. */
+.z-card[data-interactive] {
+  cursor: pointer;
+}
+
+.z-card[data-interactive]:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.z-card[data-interactive][data-variant="elevated"]:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-card {
+    transition-duration: 0ms;
+  }
+  .z-card[data-interactive]:hover {
+    transform: none;
+  }
+}

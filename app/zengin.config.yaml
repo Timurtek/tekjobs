@@ -1,0 +1,20 @@
+# The components in src/components/ui are this project's design system. The definitions the engine
+# enforces against live in zengin/. Every rule is on; relax one here rather than around it.
+system:
+  package: "@/components/ui"
+  version: "0.2.2"           # the Zengin UI version the components were copied from
+  definitions: ./zengin
+
+scope:
+  include: ["src/**/*.{ts,tsx,css}"]
+  foundations: ["src/theme/**", "src/styles/**"]   # literals live here and nowhere else
+  ownership: ["src/components/ui/**", "src/lib/**"]   # yours; the foundation rules still apply inside
+
+rules:
+  color-literal: { severity: error, allow: semantic }
+  spacing-literal: error
+  token-reference: error
+  unknown-prop: error
+  unknown-prop-value: error
+  classname-policy: error
+  component-substitution: error

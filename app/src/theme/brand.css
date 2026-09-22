@@ -1,0 +1,203 @@
+/*
+ * The TekJobs brand. This is the one file in the project that may hold literals; every component wears
+ * whatever it says, and the engine checks everything else against these tokens.
+ *
+ * Source: the TekJobs Design System handed over on 2026-09-22 (tokens/colors.css, typography.css, shape.css).
+ * Forest-green surfaces, one lime accent used sparingly, no shadows or gradients, hairlines for structure,
+ * Bricolage Grotesque for headings, Hanken Grotesk for body at 13px, Azeret Mono for every number.
+ * Dark is the brand's default; light is the same system in pale mint with a deep green accent.
+ *
+ * Mapping from the system's names to Zengin's semantic tokens:
+ *   --bg0 → surface-sunken, --bg → surface, --bg1 → surface-raised, --bg2 → primary-soft / neutral-soft-hover
+ *   --text → text, --text2 → text-muted, --text3 → text-subtle (--text4 is used in a few app-level rules)
+ *   --line → border, --line2 → border-strong, --accent → primary, --ok → success, --warn → danger
+ * The system has no amber; warning is a restrained one chosen to sit inside the palette.
+ */
+
+:root,
+[data-theme="light"] {
+  --font-sans: "Hanken Grotesk", Helvetica, Arial, sans-serif;
+  --font-display: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  --font-mono: "Azeret Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Type. The system's body is 13px, its lede 14px, its small 12px. This app sets nearly every control and
+     table to Zengin's "sm" size, which reads --text-sm, so sm is pinned to the system's body (13px) and base
+     to its lede (14px); xs is the system's small. Headings: 17px (h2) and 30px (h1); stats 24/30px. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-lg: 1rem;
+  --text-xl: 1.0625rem;
+  --text-2xl: 1.375rem;
+  --text-3xl: 1.5rem;
+  --text-4xl: 1.875rem;
+  --leading-normal: 1.45;
+  --leading-tight: 1.15;
+  --tracking-caps: 0.08em;
+
+  /* Shape: small, consistent corners; flat surfaces. */
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+
+  --color-surface: #f4f8f5;
+  --color-surface-raised: #e9f0eb;
+  --color-surface-sunken: #e4ece6;
+  --color-surface-overlay: #0e1a13cc;
+  --color-text: #0e1a13;
+  --color-text-muted: #3a4f43;
+  --color-text-subtle: #54675c;
+  --color-border: #d0dcd3;
+  --color-border-strong: #b3c6b9;
+  --color-primary: #1e6b3c;
+  --color-primary-hover: #185a32;
+  --color-primary-active: #124a28;
+  --color-primary-soft: #d8ecdd;
+  --color-primary-soft-hover: #c8e2cf;
+  --color-primary-soft-foreground: #1e6b3c;
+  --color-on-primary: #ffffff;
+  --color-focus: #1e6b3c;
+  --color-neutral: #22332a;
+  --color-neutral-hover: #2f4438;
+  --color-neutral-active: #0e1a13;
+  --color-neutral-soft: #e9f0eb;
+  --color-neutral-soft-hover: #d8ecdd;
+  --color-neutral-soft-foreground: #0e1a13;
+  --color-on-neutral: #ffffff;
+  --color-success: #1e6b3c;
+  --color-success-soft: #d8ecdd;
+  --color-success-soft-foreground: #1e6b3c;
+  --color-on-success: #ffffff;
+  --color-warning: #8a6a12;
+  --color-warning-soft: #f1e9c8;
+  --color-warning-soft-foreground: #6b5210;
+  --color-on-warning: #ffffff;
+  --color-danger: #b4402c;
+  --color-danger-hover: #9c3624;
+  --color-danger-active: #7f2a1b;
+  --color-danger-soft: #f4dcd7;
+  --color-danger-soft-hover: #ecc9c2;
+  --color-danger-soft-foreground: #8f3322;
+  --color-on-danger: #ffffff;
+
+  /* App-level extras the system names and Zengin does not: the fourth text step */
+  --color-text-faint: #6d7f75;
+}
+
+[data-theme="dark"] {
+  --color-surface: #0d1a14;
+  --color-surface-raised: #122119;
+  --color-surface-sunken: #08120c;
+  --color-surface-overlay: #08120ccc;
+  --color-text: #e9f5ee;
+  --color-text-muted: #a9c2b4;
+  --color-text-subtle: #8aa596;
+  --color-border: #1c2e25;
+  --color-border-strong: #274536;
+  --color-primary: #c8f542;
+  --color-primary-hover: #d4f766;
+  --color-primary-active: #9fcf2a;
+  --color-primary-soft: #1a3326;
+  --color-primary-soft-hover: #224030;
+  --color-primary-soft-foreground: #c8f542;
+  --color-on-primary: #08120c;
+  --color-focus: #c8f542;
+  --color-neutral: #c3d6cb;
+  --color-neutral-hover: #d6e6dc;
+  --color-neutral-active: #e9f5ee;
+  --color-neutral-soft: #122119;
+  --color-neutral-soft-hover: #1a3326;
+  --color-neutral-soft-foreground: #e9f5ee;
+  --color-on-neutral: #08120c;
+  --color-success: #7fd9a2;
+  --color-success-soft: #123324;
+  --color-success-soft-foreground: #7fd9a2;
+  --color-on-success: #08120c;
+  --color-warning: #d9b85c;
+  --color-warning-soft: #2a2812;
+  --color-warning-soft-foreground: #e6c76b;
+  --color-on-warning: #08120c;
+  --color-danger: #ef8f8f;
+  --color-danger-hover: #f4a3a3;
+  --color-danger-active: #e07676;
+  --color-danger-soft: #341c1c;
+  --color-danger-soft-hover: #442424;
+  --color-danger-soft-foreground: #ef8f8f;
+  --color-on-danger: #08120c;
+  --color-text-faint: #6c8878;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-surface: #0d1a14;
+    --color-surface-raised: #122119;
+    --color-surface-sunken: #08120c;
+    --color-surface-overlay: #08120ccc;
+    --color-text: #e9f5ee;
+    --color-text-muted: #a9c2b4;
+    --color-text-subtle: #8aa596;
+    --color-border: #1c2e25;
+    --color-border-strong: #274536;
+    --color-primary: #c8f542;
+    --color-primary-hover: #d4f766;
+    --color-primary-active: #9fcf2a;
+    --color-primary-soft: #1a3326;
+    --color-primary-soft-hover: #224030;
+    --color-primary-soft-foreground: #c8f542;
+    --color-on-primary: #08120c;
+    --color-focus: #c8f542;
+    --color-neutral: #c3d6cb;
+    --color-neutral-hover: #d6e6dc;
+    --color-neutral-active: #e9f5ee;
+    --color-neutral-soft: #122119;
+    --color-neutral-soft-hover: #1a3326;
+    --color-neutral-soft-foreground: #e9f5ee;
+    --color-on-neutral: #08120c;
+    --color-success: #7fd9a2;
+    --color-success-soft: #123324;
+    --color-success-soft-foreground: #7fd9a2;
+    --color-on-success: #08120c;
+    --color-warning: #d9b85c;
+    --color-warning-soft: #2a2812;
+    --color-warning-soft-foreground: #e6c76b;
+    --color-on-warning: #08120c;
+    --color-danger: #ef8f8f;
+    --color-danger-hover: #f4a3a3;
+    --color-danger-active: #e07676;
+    --color-danger-soft: #341c1c;
+    --color-danger-soft-hover: #442424;
+    --color-danger-soft-foreground: #ef8f8f;
+    --color-on-danger: #08120c;
+    --color-text-faint: #6c8878;
+  }
+}
+
+/* The lockup: the avatar mark beside the wordmark, TEK in text and JOBS in the accent. */
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.brand-mark__logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.brand-mark__accent {
+  color: var(--color-primary);
+}

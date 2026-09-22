@@ -1,0 +1,130 @@
+/* zengin-owned Dialog, forked from @zenginui/ui@0.1.0, sha f3ad3a947db7 */
+.z-dialog__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: var(--color-surface-overlay);
+  animation: z-dialog-fade-in var(--duration-slow) var(--ease-standard);
+}
+
+.z-dialog__overlay[data-state="closed"] {
+  animation: z-dialog-fade-out var(--duration-normal) var(--ease-exit);
+}
+
+.z-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 51;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  width: calc(100vw - var(--spacing-8));
+  max-height: calc(100vh - var(--spacing-8));
+  overflow: auto;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
+  transform: translate(-50%, -50%);
+  animation: z-dialog-enter var(--duration-slow) var(--ease-emphasized);
+}
+
+.z-dialog[data-state="closed"] {
+  animation: z-dialog-exit var(--duration-normal) var(--ease-exit);
+}
+
+.z-dialog:focus {
+  outline: none;
+}
+
+/* Size owns width and padding. */
+.z-dialog[data-size="sm"] { max-width: 24rem; padding: var(--spacing-5); }
+.z-dialog[data-size="md"] { max-width: 32rem; padding: var(--spacing-6); }
+.z-dialog[data-size="lg"] { max-width: 48rem; padding: var(--spacing-8); }
+
+.z-dialog__title {
+  margin: 0;
+  padding-right: var(--spacing-8);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.z-dialog__description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.z-dialog__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+
+.z-dialog__close {
+  position: absolute;
+  top: var(--spacing-3);
+  right: var(--spacing-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard);
+}
+
+.z-dialog__close > svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.z-dialog__close:hover {
+  background-color: var(--color-neutral-soft);
+  color: var(--color-text);
+}
+
+@keyframes z-dialog-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes z-dialog-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Enter: rise and settle. Exit: drop away faster than it came, so dismissal feels immediate. */
+@keyframes z-dialog-enter {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes z-dialog-exit {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, -48%) scale(0.98); }
+}
+
+/* Reduced motion: fade only, no movement. The dialog still announces itself by appearing. */
+@media (prefers-reduced-motion: reduce) {
+  .z-dialog {
+    animation: z-dialog-fade-in var(--duration-normal) var(--ease-standard);
+  }
+  .z-dialog[data-state="closed"] {
+    animation: z-dialog-fade-out var(--duration-fast) var(--ease-exit);
+  }
+  .z-dialog__close {
+    transition-duration: 0ms;
+  }
+}

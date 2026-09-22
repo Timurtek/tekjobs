@@ -1,0 +1,4 @@
+# Runtime state and scan output. The vault is the record; nothing in data/ is source.
+data/*
+!data/.gitkeep
+node_modules/

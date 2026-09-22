@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "zengin": {
+      "command": "npx",
+      "args": [
+        "--no-install",
+        "zengin-mcp"
+      ],
+      "env": {
+        "ZENGIN_CONFIG": "zengin.config.yaml"
+      }
+    },
+    "tekjobs": {
+      "command": "node",
+      "args": [
+        "server/mcp.mjs"
+      ]
+    }
+  }
+}

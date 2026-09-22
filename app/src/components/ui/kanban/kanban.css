@@ -1,0 +1,75 @@
+/* zengin-owned Kanban, forked from @zenginui/ui@0.2.0, sha 42ba8ad4da44 */
+.z-kanban {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(16rem, 1fr);
+  gap: var(--spacing-4);
+  align-items: start;
+  overflow-x: auto;
+}
+
+.z-kanban__column {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-sunken);
+}
+
+.z-kanban__column[data-over] {
+  border-color: var(--color-primary);
+}
+
+.z-kanban__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.z-kanban__title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.z-kanban__list {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The gap a card would land in. Drawn on the slot rather than the card so the board does not jump. */
+.z-kanban__slot[data-drop]::before {
+  content: "";
+  display: block;
+  height: 2px;
+  margin-bottom: var(--spacing-2);
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.z-kanban__card {
+  padding: var(--spacing-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  cursor: grab;
+}
+
+.z-kanban__card[data-lifted] {
+  cursor: grabbing;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.z-kanban[data-density="sm"] .z-kanban__card {
+  padding: var(--spacing-2);
+}
+
+.z-kanban[data-density="sm"] .z-kanban__column {
+  padding: var(--spacing-2);
+}

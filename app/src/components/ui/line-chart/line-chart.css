@@ -1,0 +1,5 @@
+/* zengin-owned LineChart, forked from @zenginui/ui@0.1.0, sha 2a413f9b20c9 */
+/* LineChart draws with the chart foundation (src/styles/chart.css). Only its own hooks live here. */
+.z-chart[data-kind="line"] .z-chart__svg {
+  cursor: crosshair;
+}

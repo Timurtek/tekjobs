@@ -1,0 +1,228 @@
+/* zengin-owned Select, forked from @zenginui/ui@0.1.0, sha 36a466df6d53 */
+.z-select {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  color: var(--color-text);
+}
+
+.z-select__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+}
+
+.z-select__required {
+  color: var(--color-danger);
+}
+
+/* The trigger looks like a text input, so a form of fields and selects reads as one thing. */
+.z-select__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  width: 100%;
+  min-width: 0;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-family: inherit;
+  line-height: var(--leading-normal);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.z-select__trigger[data-placeholder] {
+  color: var(--color-text-subtle);
+}
+
+.z-select__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-select__chevron {
+  display: inline-flex;
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-muted);
+}
+
+.z-select__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Size owns padding and type. */
+.z-select[data-size="sm"] .z-select__trigger {
+  min-height: 2rem;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--text-sm);
+}
+.z-select[data-size="md"] .z-select__trigger {
+  min-height: 2.5rem;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-sm);
+}
+.z-select[data-size="lg"] .z-select__trigger {
+  min-height: 3rem;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-base);
+}
+
+.z-select__trigger:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+
+.z-select__trigger:focus-visible {
+  border-color: var(--color-focus);
+  outline-offset: 0;
+}
+
+.z-select[data-invalid] .z-select__trigger {
+  border-color: var(--color-danger);
+}
+
+.z-select[data-disabled] {
+  color: var(--color-text-subtle);
+}
+
+.z-select__trigger:disabled {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+.z-select__description,
+.z-select__error {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+.z-select__description {
+  color: var(--color-text-muted);
+}
+
+.z-select__error {
+  color: var(--color-danger);
+}
+
+/* The list, in a portal. Width follows the trigger. */
+.z-select__content {
+  z-index: 60;
+  min-width: var(--radix-select-trigger-width);
+  max-height: var(--radix-select-content-available-height);
+  overflow: hidden;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  transform-origin: var(--radix-select-content-transform-origin);
+  animation: z-select-enter var(--duration-fast) var(--ease-standard);
+}
+
+.z-select__content[data-state="closed"] {
+  animation: z-select-exit var(--duration-fast) var(--ease-exit);
+}
+
+.z-select__viewport {
+  padding: var(--spacing-1);
+}
+
+.z-select__scroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--spacing-6);
+  color: var(--color-text-muted);
+}
+
+.z-select__scroll > svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.z-select__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-8) var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  line-height: var(--leading-tight);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.z-select__item[data-highlighted] {
+  background-color: var(--color-neutral-soft);
+}
+
+.z-select__item[data-state="checked"] {
+  font-weight: var(--font-weight-medium);
+}
+
+.z-select__item[data-disabled] {
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+.z-select__indicator {
+  position: absolute;
+  right: var(--spacing-3);
+  display: inline-flex;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-primary);
+}
+
+.z-select__indicator > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.z-select__group-label {
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-1);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.z-select__separator {
+  height: 1px;
+  margin: var(--spacing-1) 0;
+  background-color: var(--color-border);
+}
+
+@keyframes z-select-enter {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes z-select-exit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-select__trigger {
+    transition-duration: 0ms;
+  }
+  .z-select__content,
+  .z-select__content[data-state="closed"] {
+    animation: none;
+  }
+}

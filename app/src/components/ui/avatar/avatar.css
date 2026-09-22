@@ -1,0 +1,38 @@
+/* zengin-owned Avatar, forked from @zenginui/ui@0.1.0, sha 677fafd8e565 */
+.z-avatar {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--color-neutral-soft);
+  color: var(--color-neutral-soft-foreground);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  user-select: none;
+  vertical-align: middle;
+}
+
+.z-avatar[data-shape="circle"] { border-radius: var(--radius-full); }
+.z-avatar[data-shape="square"] { border-radius: var(--radius-md); }
+
+/* Size owns the box and the initials' type. */
+.z-avatar[data-size="sm"] { width: 1.5rem; height: 1.5rem; font-size: var(--text-xs); }
+.z-avatar[data-size="md"] { width: 2rem; height: 2rem; font-size: var(--text-xs); }
+.z-avatar[data-size="lg"] { width: 2.5rem; height: 2.5rem; font-size: var(--text-sm); }
+.z-avatar[data-size="xl"] { width: 4rem; height: 4rem; font-size: var(--text-xl); }
+
+.z-avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.z-avatar__fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}

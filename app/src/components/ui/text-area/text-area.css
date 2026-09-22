@@ -1,0 +1,112 @@
+/* zengin-owned TextArea, forked from @zenginui/ui@0.2.0, sha 04976b46efd1 */
+.z-textarea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  color: var(--color-text);
+}
+
+.z-textarea__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+}
+
+.z-textarea__required {
+  color: var(--color-danger);
+}
+
+.z-textarea__control {
+  width: 100%;
+  min-width: 0;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-family: inherit;
+  line-height: var(--leading-normal);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+
+.z-textarea__control::placeholder {
+  color: var(--color-text-subtle);
+}
+
+/* Resize owns the drag handle. */
+.z-textarea[data-resize="none"] .z-textarea__control { resize: none; }
+.z-textarea[data-resize="vertical"] .z-textarea__control { resize: vertical; }
+.z-textarea[data-resize="both"] .z-textarea__control { resize: both; }
+
+/* Size owns padding and type. */
+.z-textarea[data-size="sm"] .z-textarea__control {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--text-sm);
+}
+.z-textarea[data-size="md"] .z-textarea__control {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-sm);
+}
+.z-textarea[data-size="lg"] .z-textarea__control {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-base);
+}
+
+.z-textarea__control:hover:not(:disabled):not(:read-only) {
+  border-color: var(--color-text-muted);
+}
+
+.z-textarea__control:focus-visible {
+  border-color: var(--color-focus);
+  outline-offset: 0;
+}
+
+.z-textarea[data-invalid] .z-textarea__control {
+  border-color: var(--color-danger);
+}
+
+.z-textarea[data-invalid] .z-textarea__control:focus-visible {
+  outline-color: var(--color-danger);
+}
+
+.z-textarea[data-readonly] .z-textarea__control {
+  background-color: var(--color-surface-sunken);
+}
+
+.z-textarea[data-disabled] {
+  color: var(--color-text-subtle);
+}
+
+.z-textarea__control:disabled {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+}
+
+.z-textarea__description,
+.z-textarea__error {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+.z-textarea__description {
+  color: var(--color-text-muted);
+}
+
+.z-textarea__error {
+  color: var(--color-danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-textarea__control {
+    transition-duration: 0ms;
+  }
+}
+
+/* A control holding code or data rather than prose. The face is the system's mono token, so `zengin fonts`
+   moves it with everything else; only the family changes, because size and rhythm stay the control's. */
+.z-textarea[data-font="mono"] .z-textarea__control {
+  font-family: var(--font-mono);
+}

@@ -1,0 +1,134 @@
+/* Foundation for the chart components: one drawing style, colors from the tone tokens. */
+
+.z-chart {
+  position: relative;
+  width: 100%;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.z-chart__svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  touch-action: none;
+}
+
+.z-chart__grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.z-chart__tick {
+  fill: var(--color-text-subtle);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.z-chart__line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.z-chart__area {
+  fill-opacity: 0.12;
+}
+
+.z-chart__bar {
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.z-chart__cursor line {
+  stroke: var(--color-border-strong);
+  stroke-dasharray: 3 3;
+}
+
+.z-chart__cursor circle {
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+
+/* Tone owns the color of everything a series draws. */
+[data-tone="primary"] > .z-chart__line, [data-tone="primary"] > .z-chart__bar, circle[data-tone="primary"] { stroke: var(--color-primary); }
+[data-tone="success"] > .z-chart__line, [data-tone="success"] > .z-chart__bar, circle[data-tone="success"] { stroke: var(--color-success); }
+[data-tone="warning"] > .z-chart__line, [data-tone="warning"] > .z-chart__bar, circle[data-tone="warning"] { stroke: var(--color-warning); }
+[data-tone="danger"] > .z-chart__line, [data-tone="danger"] > .z-chart__bar, circle[data-tone="danger"] { stroke: var(--color-danger); }
+[data-tone="neutral"] > .z-chart__line, [data-tone="neutral"] > .z-chart__bar, circle[data-tone="neutral"] { stroke: var(--color-neutral); }
+
+[data-tone="primary"] > .z-chart__area, [data-tone="primary"] > .z-chart__bar, circle[data-tone="primary"], [data-tone="primary"] > .z-chart__swatch { fill: var(--color-primary); background-color: var(--color-primary); }
+[data-tone="success"] > .z-chart__area, [data-tone="success"] > .z-chart__bar, circle[data-tone="success"], [data-tone="success"] > .z-chart__swatch { fill: var(--color-success); background-color: var(--color-success); }
+[data-tone="warning"] > .z-chart__area, [data-tone="warning"] > .z-chart__bar, circle[data-tone="warning"], [data-tone="warning"] > .z-chart__swatch { fill: var(--color-warning); background-color: var(--color-warning); }
+[data-tone="danger"] > .z-chart__area, [data-tone="danger"] > .z-chart__bar, circle[data-tone="danger"], [data-tone="danger"] > .z-chart__swatch { fill: var(--color-danger); background-color: var(--color-danger); }
+[data-tone="neutral"] > .z-chart__area, [data-tone="neutral"] > .z-chart__bar, circle[data-tone="neutral"], [data-tone="neutral"] > .z-chart__swatch { fill: var(--color-neutral); background-color: var(--color-neutral); }
+
+.z-chart__bar {
+  stroke: none;
+}
+
+/* The hover readout: a small panel beside the cursor. */
+.z-chart__readout {
+  position: absolute;
+  top: var(--spacing-2);
+  z-index: 1;
+  display: grid;
+  gap: var(--spacing-1);
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.z-chart__readout[data-side="right"] { transform: translateX(var(--spacing-3)); }
+.z-chart__readout[data-side="left"] { transform: translateX(calc(-100% - var(--spacing-3))); }
+
+.z-chart__readout-label {
+  color: var(--color-text-muted);
+}
+
+.z-chart__readout-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.z-chart__readout-row strong {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.z-chart__swatch {
+  display: inline-block;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  border-radius: var(--radius-full);
+}
+
+.z-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-4);
+  margin: var(--spacing-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.z-chart__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-chart__bar {
+    transition-duration: 0ms;
+  }
+}

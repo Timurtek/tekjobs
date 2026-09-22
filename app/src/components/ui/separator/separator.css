@@ -1,0 +1,38 @@
+/* zengin-owned Separator, forked from @zenginui/ui@0.1.0, sha 3aa644083567 */
+.z-separator {
+  flex: none;
+  background-color: var(--color-border);
+}
+
+.z-separator[data-orientation="horizontal"] {
+  width: 100%;
+  height: 1px;
+}
+
+.z-separator[data-orientation="vertical"] {
+  width: 1px;
+  height: 100%;
+  min-height: 1em;
+  align-self: stretch;
+}
+
+.z-separator--labelled {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  height: auto;
+  background: none;
+}
+
+.z-separator__line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-border);
+}
+
+.z-separator__label {
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}

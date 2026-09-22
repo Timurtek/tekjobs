@@ -1,0 +1,83 @@
+/* zengin-owned Markdown, forked from @zenginui/ui@0.1.0, sha a5fb02e469df */
+.z-markdown {
+  display: grid;
+  gap: var(--spacing-3);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  overflow-wrap: anywhere;
+}
+
+.z-markdown > * {
+  margin: 0;
+}
+
+.z-markdown h1,
+.z-markdown h2,
+.z-markdown h3,
+.z-markdown h4,
+.z-markdown h5,
+.z-markdown h6 {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.z-markdown h1 { font-size: var(--text-xl); }
+.z-markdown h2 { font-size: var(--text-lg); }
+.z-markdown h3,
+.z-markdown h4,
+.z-markdown h5,
+.z-markdown h6 { font-size: var(--text-base); }
+
+.z-markdown ul,
+.z-markdown ol {
+  display: grid;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-5);
+}
+
+.z-markdown code {
+  padding: var(--spacing-0) var(--spacing-1);
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+.z-markdown a {
+  color: var(--color-primary);
+  text-underline-offset: 0.15em;
+}
+
+.z-markdown blockquote {
+  padding-left: var(--spacing-3);
+  border-left: 2px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+}
+
+.z-markdown hr {
+  height: 1px;
+  border: 0;
+  background-color: var(--color-border);
+}
+
+/* The streaming cursor: a bar blinking at the end of the text still arriving. */
+.z-markdown__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: var(--spacing-0);
+  vertical-align: text-bottom;
+  background-color: var(--color-text-muted);
+  animation: z-markdown-blink 1s steps(2) infinite;
+}
+
+@keyframes z-markdown-blink {
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-markdown__cursor {
+    animation: none;
+  }
+}

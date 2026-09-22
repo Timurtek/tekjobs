@@ -1,0 +1,6 @@
+/* zengin-owned BarChart, forked from @zenginui/ui@0.1.0, sha 72f0191e8f29 */
+/* BarChart draws with the chart foundation (src/styles/chart.css). Only its own hooks live here. */
+.z-chart[data-kind="bar"] .z-chart__group:hover .z-chart__bar,
+.z-chart[data-kind="bar"] .z-chart__group[data-hover] .z-chart__bar {
+  opacity: 0.8;
+}

@@ -1,0 +1,45 @@
+/* zengin-owned EmptyState, forked from @zenginui/ui@0.2.0, sha cfb4bc60c0cc */
+.z-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-8);
+  border: var(--border-width) dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.z-empty[data-size="sm"] {
+  padding: var(--spacing-5);
+}
+
+.z-empty__icon {
+  display: inline-flex;
+  color: var(--color-text-subtle);
+}
+
+.z-empty[data-tone="danger"] .z-empty__icon {
+  color: var(--color-danger);
+}
+
+.z-empty__title {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+.z-empty[data-size="md"] .z-empty__title {
+  font-size: var(--text-lg);
+}
+
+.z-empty__description {
+  margin: 0;
+  max-width: 44ch;
+  font-size: var(--text-sm);
+  text-wrap: pretty;
+}
+
+.z-empty__action {
+  margin-top: var(--spacing-2);
+}

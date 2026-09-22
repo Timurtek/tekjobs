@@ -1,0 +1,734 @@
+/* TekJobs layout on top of the template's app.css. Tokens only; the components own their own appearance. */
+
+.toolbar__filter--narrow {
+  width: 7rem;
+}
+
+/* The toolbar aligns its fields on their bottom edge; the switch has no label above it, so it needs to sit on
+   the same line as the field inputs. */
+/* Below tablet width the jobs table becomes a card list: the header row goes to assistive tech only and each
+   row lays its seven cells out on a small grid (score | company, role | pay, status; location and age under).
+   Cell order is the table's: score, company, role, pay, location, posted, status. */
+@media (max-width: 52rem) {
+  .jobs-narrow thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .jobs-narrow tbody tr {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      "score company pay"
+      "score role status"
+      "score where posted";
+    column-gap: var(--spacing-3);
+    row-gap: var(--spacing-1);
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .jobs-narrow tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .jobs-narrow tbody td:nth-child(1) { grid-area: score; font-weight: var(--font-weight-semibold); }
+  .jobs-narrow tbody td:nth-child(2) { grid-area: company; font-weight: var(--font-weight-semibold); }
+  .jobs-narrow tbody td:nth-child(3) { grid-area: role; }
+  .jobs-narrow tbody td:nth-child(4) { grid-area: pay; justify-self: end; }
+  .jobs-narrow tbody td:nth-child(5) { grid-area: where; }
+  .jobs-narrow tbody td:nth-child(6) { grid-area: posted; justify-self: end; }
+  .jobs-narrow tbody td:nth-child(7) { grid-area: status; justify-self: end; }
+  .jobs-narrow tbody td[colspan] { grid-column: 1 / -1; grid-area: auto; }
+  .jobs-narrow .where { max-width: none; }
+}
+
+/* Badge plus location text. Capped so the table does not hand the column all the width it asks for and
+   wrap the role titles instead. */
+.where {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+  max-width: 16rem;
+}
+
+/* Jobs toolbar, as the system lays it out: a views row over a hairline, then the search and the active filters
+   as chips, then a one-line summary with the query on the right. */
+.views {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding-bottom: var(--spacing-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.views__label {
+  padding-right: var(--spacing-1);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.filters__search {
+  width: 14rem;
+}
+
+.filters__summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-2) var(--spacing-5);
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+/* A query string has no spaces to break at; let it wrap anywhere rather than push the layout. */
+.filters__query {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.filters__summary b {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text);
+}
+
+/* A chip: a bordered pill holding a label button, an optional value, and a remove button. The dot is lime while
+   the filter is on. A view chip is the same pill, filled when it is the view in use. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: var(--text-xs);
+}
+
+.chip--on {
+  border-color: var(--color-primary);
+}
+
+/* Views the criteria imply are dashed: they follow the criteria and cannot be removed. */
+.chip--default {
+  border-style: dashed;
+}
+
+.chip--current {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+}
+
+.chip > * + * {
+  border-left: 1px solid var(--color-border);
+}
+
+.chip__dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-border-strong);
+}
+
+.chip--on .chip__dot {
+  background-color: var(--color-primary);
+}
+
+.chip__value {
+  margin-left: var(--spacing-2);
+  color: var(--color-text-muted);
+}
+
+.chip__editor {
+  display: grid;
+  gap: var(--spacing-3);
+  min-width: 16rem;
+}
+
+/* Column headers are mono micro-labels, sortable or not. */
+.jobs-narrow thead th,
+.jobs-narrow thead th .col {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+/* Collapsed sidebar: a 56px icon strip. Labels, counts, group titles and the footer leave; the mark stays. */
+.shell--collapsed {
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+}
+
+.shell--collapsed .sidebar {
+  padding-inline: var(--spacing-2);
+  gap: var(--spacing-4);
+}
+
+.shell--collapsed .brand-mark {
+  gap: 0;
+  font-size: 0;
+}
+
+.shell--collapsed .brand-mark__logo {
+  width: 40px;
+  height: 40px;
+}
+
+.shell--collapsed .nav__group + .nav__group {
+  margin-top: var(--spacing-3);
+}
+
+.sidebar__collapse {
+  margin-left: auto;
+}
+
+.shell--collapsed .sidebar__collapse {
+  margin-left: 0;
+}
+
+/* The job sheet's head: a meta line, the role in display type, tags; actions and links on the right. */
+.sheet-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-4) var(--spacing-6);
+}
+
+.sheet-head__main {
+  display: grid;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.sheet-head__meta {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+.sheet-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+  line-height: var(--leading-tight);
+}
+
+.sheet-head__side {
+  display: grid;
+  justify-items: end;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+.sheet-head__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+/* Match reasons: a hairline list with the points in mono on the right, and a side column of context. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16rem;
+  gap: var(--spacing-8);
+  align-items: start;
+}
+
+@media (max-width: 52rem) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.reasons {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.reasons__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--spacing-4);
+  padding-bottom: var(--spacing-3);
+  font-size: var(--text-xs);
+}
+
+.reasons__fit {
+  font-size: var(--text-2xl);
+  color: var(--color-primary);
+}
+
+.reasons__fit small {
+  font-size: var(--text-xs);
+}
+
+.reasons__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.75rem;
+  gap: var(--spacing-4);
+  padding: var(--spacing-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.reasons__detail {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.reasons__pts {
+  text-align: right;
+  color: var(--color-primary);
+}
+
+.reasons__pts--neg {
+  color: var(--color-danger);
+}
+
+.reasons__log {
+  padding: var(--spacing-3) 0;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+.reasons__log summary {
+  cursor: pointer;
+}
+
+.split__aside {
+  display: grid;
+  gap: var(--spacing-5);
+  font-size: var(--text-xs);
+}
+
+.split__aside p {
+  margin: var(--spacing-2) 0 0;
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}
+
+.split__aside .small {
+  font-size: var(--text-xs);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.microlabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+/* Every number, date, amount and code is mono. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Today's headline: the date in display type, then three inline figures in mono. */
+.today__date {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.015em;
+  line-height: var(--leading-tight);
+}
+
+.today__figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8);
+}
+
+.today__figure {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.today__figure b {
+  font-family: var(--font-mono);
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-none);
+}
+
+.today__figure b[data-tone="danger"] {
+  color: var(--color-danger);
+}
+
+.today__figure small {
+  font-size: var(--text-sm);
+  color: var(--color-text-subtle);
+}
+
+.today__hint {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.today__section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-3);
+}
+
+/* The sidebar's footer line: what the record is, and when the scan last ran. */
+.sidebar__foot {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+  line-height: var(--leading-normal);
+}
+
+/* Criteria impact preview: six short lists of movers. */
+.preview {
+  display: grid;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-3);
+}
+
+.preview__block h3 {
+  font-size: var(--text-sm);
+  margin-bottom: var(--spacing-2);
+}
+
+.preview__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--spacing-1);
+  font-size: var(--text-sm);
+}
+
+.preview__score {
+  display: inline-block;
+  min-width: 5.5rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.import-results {
+  list-style: none;
+  margin: var(--spacing-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--spacing-2);
+  font-size: var(--text-sm);
+}
+
+.import-results li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+}
+
+.import-results__row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-2);
+}
+
+.toolbar__switch {
+  align-self: flex-end;
+  margin-block-end: var(--spacing-2);
+}
+
+.toolbar__filter--wide {
+  width: 22rem;
+  max-width: 100%;
+}
+
+.loading {
+  padding: var(--spacing-6);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.clamp {
+  display: inline-block;
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spacing-3);
+}
+
+/* Onboarding */
+.steps {
+  display: grid;
+  gap: var(--spacing-3);
+  max-width: 52rem;
+}
+
+.step {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: flex-start;
+}
+
+.step__mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+  border-radius: var(--radius-full);
+}
+
+.step__n {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.step__body {
+  display: grid;
+  flex: 1;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.step__label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.step__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  align-items: flex-end;
+}
+
+.step__row > :first-child {
+  flex: 1;
+  min-width: 16rem;
+}
+
+.form__actions--start {
+  justify-content: flex-start;
+}
+
+/* Kanban card body. The board, columns and drop states are the Kanban component's own. */
+.kcard {
+  display: grid;
+  gap: var(--spacing-1);
+  cursor: grab;
+}
+
+.kcard:active {
+  cursor: grabbing;
+}
+
+.kcard__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+/* The card as the system draws it: company as a mono micro-label, the role in body type, then score and pay
+   in mono, the pay lime when it clears the floor. */
+.kcard__company {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.kcard__title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.35;
+}
+
+.kcard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-1);
+  font-size: var(--text-xs);
+}
+
+.kcard__score {
+  color: var(--color-text-subtle);
+}
+
+.kcard__pay {
+  color: var(--color-text-muted);
+}
+
+.kcard__pay--floor {
+  color: var(--color-primary);
+}
+
+/* Today: the decision queue. Sections are separated by space rather than rules, so the page reads as a
+   short list of things to do rather than a dashboard of panels. */
+.today__section {
+  display: grid;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-6);
+}
+
+/* Section headings are display type in sentence case; the mono micro-labels belong to columns and groups. */
+.today__heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+.today__subheading {
+  margin: 0 0 var(--spacing-1);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.today__cols {
+  display: grid;
+  gap: var(--spacing-4);
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  align-items: start;
+}
+
+/* Grid and flex children default to min-width:auto, so one unbreakable job title — and some aggregators put
+   a whole posting in the title field — would widen the column past the page rather than ellipsing inside it.
+   Every step of the chain has to be told it may shrink, or the widest one wins. */
+.today__cols > *,
+.today__list > li,
+.today__row {
+  min-width: 0;
+}
+
+.today__actions {
+  display: flex;
+  gap: var(--spacing-2);
+  justify-content: flex-end;
+}
+
+.today__list {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: var(--spacing-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The row is a ghost Button, which owns its own chrome; width and clipping are the layout's business.
+   Button lays its label out as a block, so a flex child inside it cannot shrink — the text is clamped in the
+   view for that reason, and this is the guard that keeps anything unexpected inside the card regardless. */
+.today__row {
+  width: 100%;
+  overflow: hidden;
+}
+
+.today__row-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The application packet. Fields stack; the state line above them says what is still required. */
+.packet__state {
+  display: grid;
+  gap: var(--spacing-1);
+  justify-items: start;
+  padding: var(--spacing-3);
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.packet__field {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+/* Cover letter */
+.letter__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-3);
+}
+
+.letter__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.letter__warnings {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  list-style: none;
+}
+
+.letter__warnings li {
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: flex-start;
+}
+
+/* Tailored resume preview: the note's Markdown, kept readable inside the sheet. */
+.resume-preview {
+  max-height: 60vh;
+  padding: var(--spacing-4);
+  overflow: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}

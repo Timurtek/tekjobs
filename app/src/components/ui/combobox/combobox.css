@@ -1,0 +1,157 @@
+/* zengin-owned Combobox, forked from @zenginui/ui@0.2.1, sha 3458aa426941 */
+.z-combobox {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.z-combobox__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.z-combobox__control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border: var(--border-width) solid var(--color-outline);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.z-combobox[data-invalid] .z-combobox__control {
+  border-color: var(--color-danger);
+}
+
+.z-combobox[data-disabled] .z-combobox__control {
+  background-color: var(--color-surface-sunken);
+  opacity: 0.55;
+}
+
+/* The input grows into whatever the chips leave, so a long selection wraps rather than squeezing it out. */
+.z-combobox__input {
+  flex: 1 1 6rem;
+  min-width: 6rem;
+  padding-block: var(--spacing-1);
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+}
+
+.z-combobox[data-size="sm"] .z-combobox__input { font-size: var(--text-sm); }
+.z-combobox[data-size="md"] .z-combobox__input { font-size: var(--text-sm); }
+.z-combobox[data-size="lg"] .z-combobox__input { font-size: var(--text-base); }
+
+.z-combobox__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.z-combobox__remove {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.z-combobox__chevron {
+  display: inline-flex;
+  color: var(--color-text-subtle);
+}
+
+.z-combobox__list {
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 16rem;
+  margin: var(--spacing-1) 0 0;
+  padding: var(--spacing-1);
+  overflow-y: auto;
+  list-style: none;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  /* The surface, not --color-surface-overlay: that token is the 80%-alpha scrim a modal sits on top of, and
+     content painted on it composites with the page behind. Menu, Select and Popover all use the surface. */
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-lg);
+}
+
+.z-combobox__list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.z-combobox__group-name {
+  margin: var(--spacing-2) var(--spacing-2) var(--spacing-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.z-combobox__option {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* The pointed-at option, which is not focus: focus stays in the input the whole time. */
+.z-combobox__option[data-active="true"] {
+  background-color: var(--color-surface-sunken);
+}
+
+.z-combobox__option[aria-disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.z-combobox__option-label {
+  font-size: var(--text-sm);
+}
+
+.z-combobox__option-hint {
+  grid-column: 1;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.z-combobox__tick {
+  grid-row: 1 / -1;
+  grid-column: 2;
+  display: inline-flex;
+  color: var(--color-primary);
+}
+
+.z-combobox__empty {
+  padding: var(--spacing-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.z-combobox__description {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.z-combobox__error {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+}

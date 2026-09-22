@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tekjobs-api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["app/server/index.mjs"],
+      "port": 8787
+    },
+    {
+      "name": "tekjobs-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "app", "--", "--port", "5173", "--strictPort"],
+      "port": 5173
+    }
+  ]
+}

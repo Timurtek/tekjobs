@@ -1,0 +1,107 @@
+/* zengin-owned Switch, forked from @zenginui/ui@0.1.0, sha 02c305dfc812 */
+.z-switch {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  color: var(--color-text);
+}
+
+/* The control sits centred on the first line of the label, whatever the label wraps to. */
+.z-switch__box {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: calc(var(--text-sm) * var(--leading-normal));
+}
+
+.z-switch[data-size="sm"] .z-switch__box {
+  height: calc(var(--text-xs) * var(--leading-normal));
+}
+
+.z-switch__control {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  padding: 0;
+  background-color: var(--color-border-strong);
+  border: 2px solid transparent; /* the thumb's inset; the track paints under it */
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.z-switch[data-size="sm"] .z-switch__control { width: 1.75rem; height: 1rem; }
+.z-switch[data-size="md"] .z-switch__control { width: 2.25rem; height: 1.25rem; }
+
+.z-switch__thumb {
+  display: block;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-normal) var(--ease-emphasized);
+}
+
+.z-switch[data-size="sm"] .z-switch__thumb { width: 0.75rem; height: 0.75rem; }
+.z-switch[data-size="md"] .z-switch__thumb { width: 1rem; height: 1rem; }
+
+.z-switch[data-size="sm"] .z-switch__control[data-state="checked"] .z-switch__thumb { transform: translateX(0.75rem); }
+.z-switch[data-size="md"] .z-switch__control[data-state="checked"] .z-switch__thumb { transform: translateX(1rem); }
+
+.z-switch__control:hover:not(:disabled) {
+  background-color: var(--color-text-muted);
+}
+
+.z-switch__control[data-state="checked"] {
+  background-color: var(--color-primary);
+}
+
+.z-switch__control[data-state="checked"]:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.z-switch__control:disabled {
+  background-color: var(--color-border);
+  cursor: not-allowed;
+}
+
+.z-switch__control:disabled[data-state="checked"] {
+  background-color: var(--color-text-subtle);
+}
+
+.z-switch__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-0);
+}
+
+.z-switch__label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-normal);
+  cursor: pointer;
+}
+
+.z-switch[data-size="sm"] .z-switch__label { font-size: var(--text-xs); }
+
+.z-switch__description {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-text-muted);
+}
+
+.z-switch[data-disabled] {
+  color: var(--color-text-subtle);
+}
+
+.z-switch[data-disabled] .z-switch__label {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-switch__control,
+  .z-switch__thumb {
+    transition-duration: 0ms;
+  }
+}

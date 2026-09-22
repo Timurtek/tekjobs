@@ -1,0 +1,76 @@
+/* zengin-owned Progress, forked from @zenginui/ui@0.1.0, sha 2389ed676ebd */
+.z-progress {
+  display: grid;
+  gap: var(--spacing-1);
+  width: 100%;
+  color: var(--color-text);
+}
+
+.z-progress__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
+.z-progress__label {
+  font-weight: var(--font-weight-medium);
+}
+
+.z-progress__value {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.z-progress__track {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--color-neutral-soft);
+  border-radius: var(--radius-full);
+  /* Radix sets transform: translateZ(0) here; the value is the child's translation. */
+}
+
+.z-progress[data-size="sm"] .z-progress__track { height: var(--spacing-1); }
+.z-progress[data-size="md"] .z-progress__track { height: var(--spacing-2); }
+
+.z-progress__indicator {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transition: transform var(--duration-slow) var(--ease-standard);
+}
+
+/* Tone owns the fill. */
+.z-progress[data-tone="primary"] .z-progress__indicator { background-color: var(--color-primary); }
+.z-progress[data-tone="neutral"] .z-progress__indicator { background-color: var(--color-neutral); }
+.z-progress[data-tone="success"] .z-progress__indicator { background-color: var(--color-success); }
+.z-progress[data-tone="warning"] .z-progress__indicator { background-color: var(--color-warning); }
+.z-progress[data-tone="danger"] .z-progress__indicator { background-color: var(--color-danger); }
+
+/* Indeterminate: a segment sweeping across. */
+.z-progress__track[data-state="indeterminate"] .z-progress__indicator {
+  width: 40%;
+  animation: z-progress-sweep 1.4s var(--ease-standard) infinite;
+}
+
+@keyframes z-progress-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-progress__indicator {
+    transition-duration: 0ms;
+  }
+  .z-progress__track[data-state="indeterminate"] .z-progress__indicator {
+    width: 100%;
+    animation: z-progress-pulse 1.4s var(--ease-standard) infinite alternate;
+  }
+}
+
+@keyframes z-progress-pulse {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}

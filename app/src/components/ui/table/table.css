@@ -1,0 +1,85 @@
+/* zengin-owned Table, forked from @zenginui/ui@0.1.0, sha b2312c5f6422 */
+.z-table {
+  width: 100%;
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+}
+
+.z-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+}
+
+.z-table__cell {
+  border-bottom: var(--border-width) solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* Density owns padding and type. */
+.z-table[data-density="sm"] .z-table__cell {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-xs);
+}
+
+.z-table[data-density="md"] .z-table__cell {
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-sm);
+}
+
+.z-table__cell--head {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.z-table__head .z-table__cell {
+  background-color: var(--color-surface-raised);
+}
+
+.z-table[data-sticky] .z-table__head .z-table__cell {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.z-table__body .z-table__row:last-child .z-table__cell {
+  border-bottom: 0;
+}
+
+.z-table__foot .z-table__cell {
+  border-top: var(--border-width) solid var(--color-border);
+  border-bottom: 0;
+  background-color: var(--color-surface-raised);
+  font-weight: var(--font-weight-medium);
+}
+
+.z-table__cell[data-align="center"] { text-align: center; }
+.z-table__cell[data-align="end"] { text-align: right; }
+
+.z-table__cell[data-numeric] {
+  font-variant-numeric: tabular-nums;
+}
+
+.z-table__row[data-interactive] {
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.z-table__row[data-interactive]:hover .z-table__cell {
+  background-color: var(--color-surface-raised);
+}
+
+.z-table__row[data-selected] .z-table__cell {
+  background-color: var(--color-primary-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-table__row[data-interactive] {
+    transition-duration: 0ms;
+  }
+}
