@@ -116,7 +116,6 @@
 | Grafana Labs | greenhouse | grafanalabs | C | |  |
 | MongoDB | greenhouse | mongodb | C | |  |
 | LaunchDarkly | greenhouse | launchdarkly | C | |  |
-| Postman | greenhouse | postman | C | |  |
 | Prisma | greenhouse | prisma | C | |  |
 | Klaviyo | greenhouse | klaviyo | C | |  |
 | Braze | greenhouse | braze | C | |  |
@@ -202,7 +201,6 @@
 | Honeycomb | greenhouse | honeycomb | B | |  |
 | Included Health | lever | includedhealth | B | |  |
 | Inngest | ashby | inngest | B | |  |
-| Instabase | greenhouse | instabase | B | |  |
 | Knock | greenhouse | knock | B | |  |
 | Kong | ashby | kong | B | |  |
 | Lambda | ashby | lambda | B | |  |

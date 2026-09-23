@@ -1,0 +1,39 @@
+name: A board stopped fetching
+description: A company board on the watchlist answers with an error or with nothing.
+title: "board: <company>"
+labels: [source]
+body:
+  - type: input
+    id: company
+    attributes:
+      label: Company and platform
+      placeholder: "Vercel, greenhouse"
+    validations:
+      required: true
+  - type: input
+    id: slug
+    attributes:
+      label: Slug, as it appears in the watchlist row
+      placeholder: "vercel"
+    validations:
+      required: true
+  - type: input
+    id: health
+    attributes:
+      label: The Sources page's health line for it
+      description: State, last success, last attempt, and the error in the tooltip, or the Status cell from Targets/Companies.md.
+      placeholder: "Failed ×3 · last success 4d ago · 41 jobs · bad-slug (HTTP 404)"
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: The careers page as it is today
+      description: If the company moved boards, the new URL is the fix.
+      placeholder: "https://vercel.com/careers"
+  - type: textarea
+    id: dry
+    attributes:
+      label: Output of a one-board dry run
+      description: "`node run.mjs --dry --only <slug>`"
+      render: text

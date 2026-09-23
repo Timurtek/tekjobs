@@ -1,0 +1,22 @@
+# Dependency updates, monthly, one PR per ecosystem per folder, grouped so a bump is one review, not twelve.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: monthly }
+    groups: { root: { patterns: ["*"] } }
+    commit-message: { prefix: "chore(deps)" }
+  - package-ecosystem: npm
+    directory: /app
+    schedule: { interval: monthly }
+    groups: { app: { patterns: ["*"] } }
+    commit-message: { prefix: "chore(deps)" }
+  - package-ecosystem: npm
+    directory: /site
+    schedule: { interval: monthly }
+    groups: { site: { patterns: ["*"] } }
+    commit-message: { prefix: "chore(deps)" }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    commit-message: { prefix: "chore(ci)" }

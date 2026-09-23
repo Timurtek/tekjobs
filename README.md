@@ -119,6 +119,6 @@ tools/                  board and source discovery scripts
 
 Versions come from the commit messages, by [semantic-release](https://semantic-release.gitbook.io/) on every push to `main` (`.github/workflows/release.yml`): tests, the app's type check and `zengin check` run first; then `feat:` commits make a minor release and `fix:` and `perf:` a patch. The project is at 0.x on purpose, so a `BREAKING CHANGE:` footer or a `!` after the type also bumps the minor (the `releaseRules` line in `.releaserc.json`); delete that line when 1.0 is earned and breaking changes become majors. The release bumps `package.json`, writes `CHANGELOG.md`, tags `vX.Y.Z` and publishes the notes on GitHub. Nothing is published to npm. Commit messages are checked locally by commitlint through a husky hook (`npm install` at the root sets it up), in the [Conventional Commits](https://www.conventionalcommits.org/) shape: `type(scope): summary`, scope optional, and a prose body is welcome. The app's sidebar footer shows the running version.
 
-## Contributing data
+## Contributing
 
-The two things that compound are data files: the board registry (`src/starter/companies-table.md`, platform + slug per company) and, soon, criteria presets per role. Pull requests to either are the most useful contribution.
+The two things that compound are data files: the board registry (`src/starter/companies-table.md`, platform + slug per company) and, soon, criteria presets per role. Pull requests to either are the most useful contribution. [CONTRIBUTING.md](CONTRIBUTING.md) has the mechanics (three installs, the design-system check, the commit format); [SECURITY.md](SECURITY.md) says where to report a vulnerability, and what counts as one.

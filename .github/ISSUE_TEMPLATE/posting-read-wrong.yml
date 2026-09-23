@@ -1,0 +1,45 @@
+name: A posting was read wrong
+description: The scan or Add by link got a posting's title, pay, location, remote flag or description wrong.
+title: "posting: <company> <title>"
+labels: [parser]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: The posting's URL
+    validations:
+      required: true
+  - type: dropdown
+    id: field
+    attributes:
+      label: What is wrong
+      multiple: true
+      options:
+        - Title
+        - Company
+        - Pay range
+        - Location
+        - Remote or on-site
+        - Posted date
+        - Description text
+        - It was not found at all
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What the posting actually says
+      description: Paste the relevant lines from the posting itself.
+    validations:
+      required: true
+  - type: textarea
+    id: got
+    attributes:
+      label: What TekJobs wrote
+      description: The frontmatter of the job note, or the row as the app shows it.
+      render: yaml
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: The `source` line of the note (greenhouse, ashby, page, tekjobs, ...).

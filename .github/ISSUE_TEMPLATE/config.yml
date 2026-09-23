@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: A security problem
+    url: https://github.com/Timurtek/tekjobs/blob/main/SECURITY.md
+    about: Read SECURITY.md and report privately instead of opening an issue.
+  - name: The docs
+    url: https://tekjobs.timurtek.com/docs/getting-started
+    about: Setup, the daily scan, scoring, the app, MCP, and posting a job.

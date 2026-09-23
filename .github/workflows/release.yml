@@ -29,7 +29,9 @@ jobs:
       - run: npm test
       - run: npm ci --ignore-scripts
         working-directory: app
-      - run: npx tsc --noEmit -p .
+      # The app: the real build (tokens, type check, bundle), then the design-system rules. A fresh clone has no
+      # generated tokens until the build makes them, so running tsc alone would pass while vite build failed.
+      - run: npm run build
         working-directory: app
       - run: npx zengin check
         working-directory: app
