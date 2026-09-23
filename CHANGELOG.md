@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.9.2 (2026-09-23)</small>
+
+* chore(repo): ignore env files, key files and local artefacts at every root ([79b9ebb](https://github.com/Timurtek/tekjobs/commit/79b9ebb))
+* chore(site): stop tracking the TypeScript build info file ([73a77ac](https://github.com/Timurtek/tekjobs/commit/73a77ac))
+* fix(site): accept the service account however it was pasted ([e9aafd4](https://github.com/Timurtek/tekjobs/commit/e9aafd4))
+
 ## <small>0.9.1 (2026-09-23)</small>
 
 * fix(site): add the files a failed git add left out of v0.9.0 ([388d5d4](https://github.com/Timurtek/tekjobs/commit/388d5d4))
