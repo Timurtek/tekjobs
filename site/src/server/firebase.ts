@@ -10,14 +10,27 @@ import { getFirestore } from "firebase-admin/firestore";
  */
 export const adminConfigured = !!(process.env.FIREBASE_SERVICE_ACCOUNT || process.env.FIRESTORE_EMULATOR_HOST || process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.FIREBASE_PROJECT_ID);
 
+/**
+ * FIREBASE_SERVICE_ACCOUNT as people actually paste it: the JSON on one line, sometimes wrapped in the single
+ * quotes a .env file needs, sometimes base64 to dodge quoting altogether. All three parse.
+ */
+function serviceAccount(): Record<string, string> | null {
+  let raw = (process.env.FIREBASE_SERVICE_ACCOUNT || "").trim();
+  if (!raw) return null;
+  if ((raw.startsWith("'") && raw.endsWith("'")) || (raw.startsWith('"') && raw.endsWith('"') && !raw.startsWith('{"'))) raw = raw.slice(1, -1).trim();
+  if (!raw.startsWith("{")) { try { raw = Buffer.from(raw, "base64").toString("utf8").trim(); } catch { /* not base64 either; JSON.parse will say so */ } }
+  try { return JSON.parse(raw) as Record<string, string>; }
+  catch (e) { throw new Error(`FIREBASE_SERVICE_ACCOUNT is not the service-account JSON (${(e as Error).message.slice(0, 60)}). Paste the file's contents on one line, without surrounding quotes, or base64-encode it.`); }
+}
+
 let app: App | null = null;
 function admin(): App {
   if (app) return app;
   if (getApps().length) { app = getApps()[0]!; return app; }
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  const sa = process.env.FIREBASE_SERVICE_ACCOUNT;
+  const sa = serviceAccount();
   app = sa
-    ? initializeApp({ credential: cert(JSON.parse(sa)), projectId })
+    ? initializeApp({ credential: cert(sa), projectId })
     : process.env.FIRESTORE_EMULATOR_HOST
       ? initializeApp({ projectId: projectId || "demo-tekjobs" })
       : initializeApp({ credential: applicationDefault(), projectId });
