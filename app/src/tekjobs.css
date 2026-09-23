@@ -942,3 +942,11 @@
   margin-right: var(--spacing-1);
   border-radius: var(--radius-sm);
 }
+
+/* Sources: the health filters, one button per state with its count. */
+.health {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+  margin-bottom: var(--spacing-4);
+}

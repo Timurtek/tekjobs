@@ -116,7 +116,10 @@ export interface RunEntry {
 }
 export interface RunDay { date: string; runs: RunEntry[] }
 export interface ScanState { running: boolean; startedAt: string | null; finishedAt: string | null; exitCode: number | null; output: string[]; criteria?: string }
-export interface Company { name: string; ats: string; slug: string; tier: string; status: string; notes: string }
+export type HealthState = "failed" | "zero" | "stale" | "never" | "ok";
+export interface SourceHealth { state: HealthState; lastAttempt: string; lastOk: string; lastOkJobs: number | null; lastError: string; failStreak: number }
+export interface Company { name: string; ats: string; slug: string; tier: string; status: string; notes: string; health: SourceHealth }
+export interface Feed { key: string; label: string; enabled: boolean; needsKey: boolean; health: Omit<SourceHealth, "failStreak"> }
 export interface Criteria { raw: string; parsed: Record<string, unknown> | null; fingerprint?: string; path?: string }
 /** A named criteria set under Targets/Criteria/. `active` means it is byte-for-byte the current Search Criteria weights. */
 export interface CriteriaPreset { name: string; file: string; valid: boolean; minScore: number | null; floor: number | null; titles: number; fingerprint: string; active: boolean; updated: string }
@@ -332,7 +335,7 @@ export const api = {
   saveApplication: (id: string, field: string, value: string) => request<Job>(`/api/jobs/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ application: { field, value } }) }),
   runs: () => request<RunDay[]>("/api/runs"),
   scan: () => request<ScanState>("/api/scan"),
-  startScan: (dry = false, criteria?: string) => request<ScanState>("/api/scan", { method: "POST", body: JSON.stringify({ dry, criteria: criteria || "" }) }),
+  startScan: (dry = false, criteria?: string, retryFailed = false) => request<ScanState>("/api/scan", { method: "POST", body: JSON.stringify({ dry, criteria: criteria || "", retryFailed }) }),
   criteria: () => request<Criteria>("/api/criteria"),
   saveCriteria: (raw: string) => request<Criteria>("/api/criteria", { method: "PUT", body: JSON.stringify({ raw }) }),
   outcomes: () => request<Outcomes>("/api/outcomes"),
@@ -361,7 +364,8 @@ export const api = {
   logContact: (personId: string, text: string, date?: string) => request<PersonDetail>(`/api/people/${encodeURIComponent(personId)}/log`, { method: "POST", body: JSON.stringify({ text, date }) }),
   jobPeople: (id: string) => request<JobPerson[]>(`/api/jobs/${encodeURIComponent(id)}/people`),
   companies: () => request<Company[]>("/api/companies"),
-  addCompany: (c: Omit<Company, "status">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
+  addCompany: (c: Omit<Company, "status" | "health">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
+  feeds: () => request<Feed[]>("/api/feeds"),
   onboarding: () => request<Onboarding>("/api/onboarding"),
   initProfile: () => request<{ dir: string; made: string[] }>("/api/onboarding/init", { method: "POST", body: "{}" }),
   importResume: (path: string) => request<{ original: string; source: string; chars: number }>("/api/onboarding/resume", { method: "POST", body: JSON.stringify({ path }) }),

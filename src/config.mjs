@@ -56,6 +56,8 @@ export const P = {
   seen: path.join(DATA_DIR, 'seen.json'),
   lastRun: path.join(DATA_DIR, 'last-run.json'),
   runsLog: path.join(DATA_DIR, 'runs.log'),
+  // What each board and feed did the last time the scan tried it (src/health.mjs).
+  health: path.join(DATA_DIR, 'board-health.json'),
 };
 
 export const ALL_ATS = ['greenhouse', 'lever', 'ashby', 'workday', 'rippling', 'smartrecruiters', 'workable', 'bamboohr', 'breezy', 'personio', 'teamtailor', 'eightfold', 'atlassian', 'github', 'spotify', 'amazon', 'google', 'apple'];

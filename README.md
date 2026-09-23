@@ -18,8 +18,8 @@ Nothing personal lives in this repository. Your profile folder (profile, resume,
 
 - **A profile folder** (default `~/.tekjobs/profile`): your profile, your resume as text, the scoring criteria, the board watchlist, one note per matched job, and scan logs. Plain markdown, readable in Obsidian or anything else.
 - **A daily scan** over Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold boards, the Atlassian, GitHub, Spotify and Amazon career APIs, the Google and Apple career pages (keyword-searched; they have no API), and eleven aggregator feeds including Wellfound's and Built In's remote listing pages. All public, all key-free. Two optional feeds need a free key: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, which is every federal posting in the United States. Job alert emails saved into `Inbox/` are read too, which is how LinkedIn and Indeed listings get in without anything contacting those sites. Around 25,000 postings a run, deduplicated, scored, and cut to the ones that fit you.
-- **An app** (Zengin UI): overview, filterable jobs table with a detail sheet, drag-and-drop pipeline, watchlist, criteria editor, scan history with a run button, and the agent setup page.
-- **An MCP server** with 39 tools, so Claude Code, Claude Desktop, ChatGPT or Cursor can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans.
+- **An app** (Zengin UI): a Today queue, filterable jobs table with a detail sheet, drag-and-drop pipeline, a Sources page with each board's health and a retry for the failed ones, criteria editor, scan history with a run button, and the agent setup page.
+- **An MCP server** with 40 tools, so Claude Code, Claude Desktop, ChatGPT or Cursor can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans.
 
 ## Getting started
 

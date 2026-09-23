@@ -13,7 +13,7 @@ const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "pipeline", label: "Pipeline", icon: Icon.Layers },
   { page: "mail", label: "Mail", icon: Icon.Mail },
   { page: "people", label: "People", icon: Icon.Users },
-  { page: "companies", label: "Companies", icon: Icon.Globe },
+  { page: "companies", label: "Sources", icon: Icon.Globe },
   { page: "criteria", label: "Criteria", icon: Icon.Filter },
   { page: "profile", label: "Profile", icon: Icon.User },
   { page: "runs", label: "Runs", icon: Icon.Refresh },
@@ -21,7 +21,7 @@ const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "settings", label: "Settings", icon: Icon.Settings },
 ];
 
-const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", mail: "Mail", people: "People", companies: "Companies", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access", settings: "Settings" };
+const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", mail: "Mail", people: "People", companies: "Sources", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access", settings: "Settings" };
 
 /** Sidebar groups, by intent: the work, the numbers, the setup, the machinery. */
 const GROUPS: { title: string; pages: Page[] }[] = [

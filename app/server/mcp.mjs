@@ -39,7 +39,8 @@ const TOOLS = [
   { name: 'scan_status', description: 'Whether a scan is running, and its last output lines.', inputSchema: { type: 'object', properties: {} } },
   { name: 'get_criteria', description: 'The scoring criteria JSON from Targets/Search Criteria.md.', inputSchema: { type: 'object', properties: {} } },
   { name: 'set_criteria', description: 'Replace the criteria JSON block. Pass the full JSON as a string; it is validated before writing.', inputSchema: { type: 'object', properties: { raw: { type: 'string' } }, required: ['raw'] } },
-  { name: 'list_companies', description: 'The company watchlist rows (name, ats, slug, tier, status).', inputSchema: { type: 'object', properties: {} } },
+  { name: 'list_companies', description: 'The company watchlist rows (name, ats, slug, tier, status) with each board\'s health: state (failed, zero, stale, never, ok), last success, last attempt, last error.', inputSchema: { type: 'object', properties: {} } },
+  { name: 'list_feeds', description: 'The aggregator feeds: whether each is on under the criteria\'s openSources, and how it did on the last scan.', inputSchema: { type: 'object', properties: {} } },
   { name: 'onboarding_status', description: 'What the onboarding still needs: profile folder, resume, profile note, criteria, first scan. Call this first in a new setup.', inputSchema: { type: 'object', properties: {} } },
   { name: 'onboarding_materials', description: 'Start the onboarding interview. Returns the resume text, the current profile note, the current criteria JSON, and the interview script to follow step by step. Follow the script; it ends with save_profile, set_criteria and a scan.', inputSchema: { type: 'object', properties: {} } },
   { name: 'save_profile', description: 'Write Profile/Profile.md in full (markdown with the standard headings). The previous version is kept beside it.', inputSchema: { type: 'object', properties: { markdown: { type: 'string' } }, required: ['markdown'] } },
@@ -82,6 +83,7 @@ async function call(name, a = {}) {
     case 'get_criteria': return store.getCriteria();
     case 'set_criteria': return store.setCriteria(a.raw);
     case 'list_companies': return store.companies();
+    case 'list_feeds': return store.feeds();
     case 'add_company': return store.addCompany(a);
     case 'add_job': return store.importLinks(a.urls);
     case 'attach_posting': return store.attachPosting(a.id, a.url);

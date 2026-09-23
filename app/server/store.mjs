@@ -6,6 +6,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../src/config.mjs';
+import { loadHealth, healthState } from '../../src/health.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../src/vault.mjs';
 import { weightsFingerprint, titlePoints, recencyPoints, payPoints } from '../../src/rescore.mjs';
 import { RESUME_NOTE, LEGACY_RESUME_NOTES } from '../../src/resume-sync.mjs';
@@ -775,7 +776,30 @@ export function deleteCriteriaPreset(name) {
 export function activateCriteriaPreset(name) {
   return setCriteria(getCriteriaPreset(name).raw);
 }
-export function companies() { return loadCompanies(); }
+/** The watchlist rows, each with where the board stands: state, last success, last attempt, last error. */
+export function companies() {
+  const h = loadHealth();
+  return loadCompanies().map((c) => {
+    const b = h.boards[`${c.ats}:${c.slug}`] || {};
+    return { ...c, health: { state: healthState(b, c.status), lastAttempt: b.lastAttempt || '', lastOk: b.lastOk || '', lastOkJobs: b.lastOkJobs ?? null, lastError: b.lastError || '', failStreak: b.failStreak || 0 } };
+  });
+}
+
+/** The aggregator feeds: which are on under the criteria's openSources, and how each did last time. */
+export async function feeds() {
+  const { OPEN_SOURCES } = await import('../../src/sources-extra.mjs');
+  const open = safe(() => loadCriteria().openSources, {}) || {};
+  const h = loadHealth();
+  const row = (key, label, enabled, needsKey = false) => {
+    const f = h.feeds[label] || {};
+    return { key, label, enabled, needsKey, health: { state: healthState(f, enabled ? '' : 'off'), lastAttempt: f.lastAttempt || '', lastOk: f.lastOk || '', lastOkJobs: f.lastOkJobs ?? null, lastError: f.lastError || '' } };
+  };
+  return [
+    row('remoteok', 'RemoteOK', open.remoteok !== false),
+    row('hn', 'HN Who is hiring', open.hn !== false),
+    ...Object.entries(OPEN_SOURCES).map(([key, def]) => row(key, def.label, def.defaultOn ? open[key] !== false : !!open[key], key === 'adzuna' || key === 'usajobs')),
+  ];
+}
 
 /**
  * Views the criteria imply, offered before the saved ones: the person's own bar, floor and remote rule turned
@@ -936,8 +960,9 @@ export function saveProfileNote(key, markdown) {
 // ---------- scan ----------
 const scan = { running: false, startedAt: null, finishedAt: null, exitCode: null, output: [], criteria: '' };
 export function scanStatus() { return { ...scan, output: scan.output.slice(-200) }; }
-export function runScan(args = [], { criteria = '' } = {}) {
+export function runScan(args = [], { criteria = '', retryFailed = false } = {}) {
   if (scan.running) return scanStatus();
+  if (retryFailed) args = [...args, '--retry-failed'];
   if (criteria) getCriteriaPreset(criteria); // 404 now rather than a dead child process later
   scan.running = true; scan.startedAt = new Date().toISOString(); scan.finishedAt = null; scan.exitCode = null; scan.output = []; scan.criteria = criteria;
   const child = spawn(process.execPath, [path.join(ROOT, 'run.mjs'), ...args, ...(criteria ? ['--criteria', criteria] : [])], { cwd: ROOT, env: process.env });

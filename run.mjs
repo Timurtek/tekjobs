@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// TekJobs runner. Usage: node run.mjs [--dry] [--min N] [--floor N] [--only slug] [--criteria <preset name | file>] [--no-remoteok] [--no-hn] [--check-slugs]
+// TekJobs runner. Usage: node run.mjs [--dry] [--min N] [--floor N] [--only slug] [--retry-failed] [--criteria <preset name | file>] [--no-remoteok] [--no-hn] [--check-slugs]
 import fs from 'node:fs';
 import path from 'node:path';
 import { ensureDirs, loadCriteria, loadCompanies, writeCompanyStatuses, criteriaPresetFile, P } from './src/config.mjs';
@@ -7,12 +7,15 @@ import { fetchCompany, fetchRemoteOK, fetchHNWhoIsHiring, htmlToText } from './s
 import { scoreJob, parseSalary } from './src/score.mjs';
 import { loadSeen, saveSeen, writeJobNote, markClosedListings, appendLog, writeDashboard, readFrontmatter } from './src/vault.mjs';
 import { weightsFingerprint } from './src/rescore.mjs';
+import { loadHealth, saveHealth, record, healthState } from './src/health.mjs';
 
 const args = process.argv.slice(2);
 const flag = (f) => args.includes(f);
 const opt = (f) => { const i = args.indexOf(f); return i >= 0 ? args[i + 1] : undefined; };
 const DRY = flag('--dry');
 const ONLY = opt('--only');
+// Only the boards whose latest attempt failed, and no feeds: the Sources page's Retry button.
+const RETRY = flag('--retry-failed');
 
 async function pool(items, n, fn) {
   const out = new Array(items.length);
@@ -39,6 +42,11 @@ if (opt('--min')) criteria.minScore = Number(opt('--min'));
 if (opt('--floor')) { criteria.salary = { ...(criteria.salary || {}), minAnnual: Number(opt('--floor')) }; console.log(`  pay floor overridden: $${criteria.salary.minAnnual}`); }
 let companies = loadCompanies();
 if (ONLY) companies = companies.filter((c) => c.slug === ONLY || c.name.toLowerCase() === ONLY.toLowerCase());
+const health = loadHealth();
+if (RETRY) {
+  companies = companies.filter((c) => healthState(health.boards[`${c.ats}:${c.slug}`], c.status) === 'failed');
+  if (companies.length === 0) { console.log('No failed boards to retry.'); process.exit(0); }
+}
 console.log(`TekJobs run ${new Date().toISOString()}${DRY ? ' (dry)' : ''} — ${companies.length} companies, minScore ${criteria.minScore}, criteria ${criteriaLabel}`);
 
 // 1. Fetch company boards
@@ -50,6 +58,7 @@ companies.sort((a, b) => (a.ats === 'workday') - (b.ats === 'workday'));
 const results = await pool(companies, 8, async (c) => {
   const key = `${c.ats}:${c.slug}`;
   const r = await fetchCompany(c, criteria);
+  health.boards[key] = record(health.boards[key], r);
   if (!r.ok) {
     statusBySlug[key] = `bad-slug (${r.error})`;
     failed.push({ ...c, error: r.error });
@@ -66,7 +75,7 @@ let jobs = results.flat();
 // 2. Open sources (no slug). RemoteOK and HN are always on unless flagged; the rest toggle via criteria.openSources.
 const extras = [];
 const open = criteria.openSources || {};
-if (!ONLY) {
+if (!ONLY && !RETRY) {
   const { OPEN_SOURCES } = await import('./src/sources-extra.mjs');
   const tasks = [];
   if (!flag('--no-remoteok') && open.remoteok !== false) tasks.push(['RemoteOK', fetchRemoteOK]);
@@ -82,6 +91,7 @@ if (!ONLY) {
   const results = await pool(tasks, 4, async ([label, fn]) => [label, await fn(withPaths)]);
   for (const [label, r] of results) {
     extras.push([label, r]);
+    health.feeds[label] = record(health.feeds[label], r);
     if (r.ok) { for (const j of r.jobs) j.companyKey = `open:${label}`; jobs.push(...r.jobs); liveIdsByCompanyKey[`open:${label}`] = new Set(r.jobs.map((j) => j.id)); }
     else console.log(`  x ${label} ${r.error}`);
   }
@@ -145,6 +155,9 @@ if (!DRY) {
   saveSeen(seen);
   writeCompanyStatuses(statusBySlug);
 }
+
+// Source health is diagnostic, so it is written on dry runs too.
+saveHealth(health);
 
 // 5. Debug snapshot: everything scored, so near-misses can be reviewed and criteria tuned
 fs.writeFileSync(P.lastRun, JSON.stringify({
