@@ -1,0 +1,49 @@
+/* zengin-owned Popover, forked from @zenginui/ui@0.2.3, sha 69f1e3c038cd */
+.z-popover {
+  z-index: 60;
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  transform-origin: var(--radix-popover-content-transform-origin);
+  animation: z-popover-enter var(--duration-normal) var(--ease-emphasized);
+}
+
+.z-popover[data-state="closed"] {
+  animation: z-popover-exit var(--duration-fast) var(--ease-exit);
+}
+
+.z-popover:focus {
+  outline: none;
+}
+
+/* Size owns width and padding. */
+.z-popover[data-size="sm"] { width: 16rem; padding: var(--spacing-3); }
+.z-popover[data-size="md"] { width: 20rem; padding: var(--spacing-4); }
+.z-popover[data-size="lg"] { width: 28rem; padding: var(--spacing-5); }
+
+.z-popover__arrow {
+  fill: var(--color-surface);
+  stroke: var(--color-border);
+  stroke-width: 1px;
+}
+
+@keyframes z-popover-enter {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes z-popover-exit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-popover,
+  .z-popover[data-state="closed"] {
+    animation: none;
+  }
+}

@@ -1,0 +1,157 @@
+/* zengin-owned Button, forked from @zenginui/ui@0.2.3, sha 6669982b4711 */
+.z-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  border: var(--border-width) solid var(--color-outline);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+/* Align owns where the content sits: centred, or at the start for full-width navigation buttons. */
+.z-button[data-align="center"] { justify-content: center; }
+.z-button[data-align="start"] { justify-content: flex-start; }
+
+/* Size owns padding and type. */
+.z-button[data-size="sm"] {
+  min-height: 2rem;
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--text-sm);
+}
+
+.z-button[data-size="md"] {
+  min-height: 2.5rem;
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--text-sm);
+}
+
+.z-button[data-size="lg"] {
+  min-height: 3rem;
+  padding: var(--spacing-3) var(--spacing-5);
+  font-size: var(--text-base);
+}
+
+/* Solid: tone owns background and text. */
+.z-button[data-variant="solid"][data-tone="neutral"] {
+  background-color: var(--color-neutral);
+  color: var(--color-on-neutral);
+}
+.z-button[data-variant="solid"][data-tone="neutral"]:hover { background-color: var(--color-neutral-hover); }
+.z-button[data-variant="solid"][data-tone="neutral"]:active { background-color: var(--color-neutral-active); }
+
+.z-button[data-variant="solid"][data-tone="primary"] {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.z-button[data-variant="solid"][data-tone="primary"]:hover { background-color: var(--color-primary-hover); }
+.z-button[data-variant="solid"][data-tone="primary"]:active { background-color: var(--color-primary-active); }
+
+.z-button[data-variant="solid"][data-tone="danger"] {
+  background-color: var(--color-danger);
+  color: var(--color-on-danger);
+}
+.z-button[data-variant="solid"][data-tone="danger"]:hover { background-color: var(--color-danger-hover); }
+.z-button[data-variant="solid"][data-tone="danger"]:active { background-color: var(--color-danger-active); }
+
+/* Soft: tinted background, toned text. */
+.z-button[data-variant="soft"][data-tone="neutral"] {
+  background-color: var(--color-neutral-soft);
+  color: var(--color-neutral-soft-foreground);
+}
+.z-button[data-variant="soft"][data-tone="neutral"]:hover { background-color: var(--color-neutral-soft-hover); }
+
+.z-button[data-variant="soft"][data-tone="primary"] {
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-soft-foreground);
+}
+.z-button[data-variant="soft"][data-tone="primary"]:hover { background-color: var(--color-primary-soft-hover); }
+
+.z-button[data-variant="soft"][data-tone="danger"] {
+  background-color: var(--color-danger-soft);
+  color: var(--color-danger-soft-foreground);
+}
+.z-button[data-variant="soft"][data-tone="danger"]:hover { background-color: var(--color-danger-soft-hover); }
+
+/* Ghost: nothing at rest, soft on hover. */
+.z-button[data-variant="ghost"] {
+  background-color: transparent;
+}
+.z-button[data-variant="ghost"][data-tone="neutral"] { color: var(--color-text); }
+.z-button[data-variant="ghost"][data-tone="neutral"]:hover { background-color: var(--color-neutral-soft); }
+.z-button[data-variant="ghost"][data-tone="primary"] { color: var(--color-primary); }
+.z-button[data-variant="ghost"][data-tone="primary"]:hover { background-color: var(--color-primary-soft); }
+.z-button[data-variant="ghost"][data-tone="danger"] { color: var(--color-danger); }
+.z-button[data-variant="ghost"][data-tone="danger"]:hover { background-color: var(--color-danger-soft); }
+
+/* Link: inline text with an underline on hover; no box. */
+.z-button[data-variant="link"] {
+  min-height: 0;
+  padding: 0;
+  background-color: transparent;
+  border-radius: var(--radius-sm);
+}
+.z-button[data-variant="link"][data-tone="neutral"] { color: var(--color-text); }
+.z-button[data-variant="link"][data-tone="primary"] { color: var(--color-primary); }
+.z-button[data-variant="link"][data-tone="danger"] { color: var(--color-danger); }
+.z-button[data-variant="link"]:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* Press feedback, except for links. */
+.z-button:not([data-variant="link"]):active:not([data-disabled]) {
+  transform: translateY(1px);
+}
+
+/* Disabled and loading. Loading keeps the label in the box (invisible) so width does not change. */
+.z-button[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.z-button[data-loading] .z-button__label {
+  visibility: hidden;
+}
+
+.z-button__spinner {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.z-button__spinner > svg {
+  width: 1.125em;
+  height: 1.125em;
+  animation: z-spin var(--duration-slow) linear infinite;
+  animation-duration: 800ms;
+}
+
+@keyframes z-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-button {
+    transition-duration: 0ms;
+  }
+  .z-button:active {
+    transform: none;
+  }
+  /* The spinner still turns: it is the only signal that something is happening. Slower, so it reads as status, not motion. */
+  .z-button__spinner > svg {
+    animation-duration: 1600ms;
+  }
+}

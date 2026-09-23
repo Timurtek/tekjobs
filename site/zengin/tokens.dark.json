@@ -1,0 +1,136 @@
+{
+  "$description": "Zengin dark theme. Only colors change; spacing, type, motion and shape are shared with the default theme.",
+  "color": {
+    "$type": "color",
+    "surface": {
+      "$value": "#0F172A"
+    },
+    "surface-raised": {
+      "$value": "#1E293B"
+    },
+    "surface-sunken": {
+      "$value": "#020617"
+    },
+    "surface-overlay": {
+      "$value": "#020617CC"
+    },
+    "text": {
+      "$value": "#F1F5F9"
+    },
+    "text-muted": {
+      "$value": "#94A3B8"
+    },
+    "text-subtle": {
+      "$value": "#64748B"
+    },
+    "text-faint": {
+      "$value": "#64748B"
+    },
+    "border": {
+      "$value": "#1E293B"
+    },
+    "border-strong": {
+      "$value": "#334155"
+    },
+    "primary": {
+      "DEFAULT": {
+        "$value": "#3B82F6"
+      },
+      "hover": {
+        "$value": "#60A5FA"
+      },
+      "active": {
+        "$value": "#93C5FD"
+      },
+      "soft": {
+        "$value": "#1E3A8A"
+      },
+      "soft-hover": {
+        "$value": "#1E40AF"
+      },
+      "soft-foreground": {
+        "$value": "#93C5FD"
+      }
+    },
+    "on-primary": {
+      "$value": "#0F172A"
+    },
+    "danger": {
+      "DEFAULT": {
+        "$value": "#EF4444"
+      },
+      "hover": {
+        "$value": "#F87171"
+      },
+      "active": {
+        "$value": "#FCA5A5"
+      },
+      "soft": {
+        "$value": "#7F1D1D"
+      },
+      "soft-hover": {
+        "$value": "#991B1B"
+      },
+      "soft-foreground": {
+        "$value": "#FCA5A5"
+      }
+    },
+    "on-danger": {
+      "$value": "#0F172A"
+    },
+    "success": {
+      "DEFAULT": {
+        "$value": "#22C55E"
+      },
+      "soft": {
+        "$value": "#14532D"
+      },
+      "soft-foreground": {
+        "$value": "#86EFAC"
+      }
+    },
+    "on-success": {
+      "$value": "#0F172A"
+    },
+    "warning": {
+      "DEFAULT": {
+        "$value": "#F59E0B"
+      },
+      "soft": {
+        "$value": "#78350F"
+      },
+      "soft-foreground": {
+        "$value": "#FCD34D"
+      }
+    },
+    "on-warning": {
+      "$value": "#0F172A"
+    },
+    "neutral": {
+      "DEFAULT": {
+        "$value": "#CBD5E1"
+      },
+      "hover": {
+        "$value": "#E2E8F0"
+      },
+      "active": {
+        "$value": "#F1F5F9"
+      },
+      "soft": {
+        "$value": "#334155"
+      },
+      "soft-hover": {
+        "$value": "#475569"
+      },
+      "soft-foreground": {
+        "$value": "#F1F5F9"
+      }
+    },
+    "on-neutral": {
+      "$value": "#0F172A"
+    },
+    "focus": {
+      "$value": "#60A5FA"
+    }
+  }
+}

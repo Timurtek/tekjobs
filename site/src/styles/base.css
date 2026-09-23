@@ -1,0 +1,107 @@
+/* Foundation: what every Zengin surface assumes. Scoped to the components, not a global reset. */
+
+.z-button,
+.z-badge,
+.z-card,
+.z-field,
+.z-checkbox,
+.z-dialog,
+.z-tooltip,
+.z-tabs,
+.z-select,
+.z-switch,
+.z-toast,
+.z-menu,
+.z-table,
+.z-avatar,
+.z-skeleton,
+.z-sheet,
+.z-popover,
+.z-progress,
+.z-separator,
+.z-textarea,
+.z-chart,
+.z-sparkline,
+.z-markdown,
+.z-codeblock,
+.z-conversation,
+.z-message,
+.z-prompt,
+.z-reasoning,
+.z-toolcall,
+.z-sources,
+.z-suggestions,
+.z-loader {
+  box-sizing: border-box;
+  font-family: var(--font-sans);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+.z-button *,
+.z-card *,
+.z-field *,
+.z-checkbox *,
+.z-dialog *,
+.z-tabs *,
+.z-select *,
+.z-switch *,
+.z-toast *,
+.z-menu *,
+.z-table *,
+.z-avatar *,
+.z-skeleton *,
+.z-sheet *,
+.z-popover *,
+.z-progress *,
+.z-separator *,
+.z-textarea *,
+.z-chart *,
+.z-markdown *,
+.z-codeblock *,
+.z-conversation *,
+.z-message *,
+.z-prompt *,
+.z-reasoning *,
+.z-toolcall *,
+.z-sources *,
+.z-suggestions *,
+.z-loader * {
+  box-sizing: border-box;
+}
+
+/* One focus treatment for the whole system. Components opt in with .z-focusable. */
+.z-focusable:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.z-focusable:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Icons inside components size themselves to the text. */
+.z-icon {
+  display: inline-flex;
+  flex: none;
+  width: 1em;
+  height: 1em;
+}
+
+.z-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Visually hidden, still announced. */
+.z-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

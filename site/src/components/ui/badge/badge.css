@@ -1,0 +1,43 @@
+/* zengin-owned Badge, forked from @zenginui/ui@0.2.3, sha b64af8aa4af5 */
+.z-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  border: var(--border-width) solid var(--color-outline);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+}
+
+.z-badge[data-size="sm"] {
+  padding: var(--spacing-0) var(--spacing-2);
+  font-size: var(--text-xs);
+}
+
+.z-badge[data-size="md"] {
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--text-sm);
+}
+
+/* Soft: tinted background. */
+.z-badge[data-variant="soft"][data-tone="neutral"] { background-color: var(--color-neutral-soft); color: var(--color-neutral-soft-foreground); }
+.z-badge[data-variant="soft"][data-tone="primary"] { background-color: var(--color-primary-soft); color: var(--color-primary-soft-foreground); }
+.z-badge[data-variant="soft"][data-tone="danger"] { background-color: var(--color-danger-soft); color: var(--color-danger-soft-foreground); }
+.z-badge[data-variant="soft"][data-tone="success"] { background-color: var(--color-success-soft); color: var(--color-success-soft-foreground); }
+.z-badge[data-variant="soft"][data-tone="warning"] { background-color: var(--color-warning-soft); color: var(--color-warning-soft-foreground); }
+
+/* Solid: filled. */
+.z-badge[data-variant="solid"][data-tone="neutral"] { background-color: var(--color-neutral); color: var(--color-on-neutral); }
+.z-badge[data-variant="solid"][data-tone="primary"] { background-color: var(--color-primary); color: var(--color-on-primary); }
+.z-badge[data-variant="solid"][data-tone="danger"] { background-color: var(--color-danger); color: var(--color-on-danger); }
+.z-badge[data-variant="solid"][data-tone="success"] { background-color: var(--color-success); color: var(--color-on-success); }
+.z-badge[data-variant="solid"][data-tone="warning"] { background-color: var(--color-warning); color: var(--color-on-warning); }
+
+/* Outline: border only. */
+.z-badge[data-variant="outline"] { background-color: transparent; }
+.z-badge[data-variant="outline"][data-tone="neutral"] { border-color: var(--color-border-strong); color: var(--color-text-muted); }
+.z-badge[data-variant="outline"][data-tone="primary"] { border-color: var(--color-primary); color: var(--color-primary); }
+.z-badge[data-variant="outline"][data-tone="danger"] { border-color: var(--color-danger); color: var(--color-danger); }
+.z-badge[data-variant="outline"][data-tone="success"] { border-color: var(--color-success); color: var(--color-success); }
+.z-badge[data-variant="outline"][data-tone="warning"] { border-color: var(--color-warning); color: var(--color-warning); }

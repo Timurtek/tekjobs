@@ -21,6 +21,9 @@ type Theme = "light" | "dark";
 /** The theme lives on <html> so the tokens flow into portals (menus, sheets, toasts) as well as the page. */
 function useTheme(): [Theme, () => void] {
   const [theme, setTheme] = useState<Theme>(() => {
+    // ?theme=dark|light before the hash forces a scheme for this load: screenshots, demos, a shared link.
+    const forced = new URLSearchParams(window.location.search).get("theme");
+    if (forced === "light" || forced === "dark") return forced;
     const stamped = document.documentElement.dataset.theme;
     if (stamped === "light" || stamped === "dark") return stamped;
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

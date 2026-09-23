@@ -111,6 +111,7 @@ src/score.mjs           scoring and pay-range parsing
 src/vault.mjs           job notes, dedupe state, closed detection, log, dashboard
 src/starter/            the notes a new profile folder starts with (including the board registry)
 app/                    Zengin UI front end, API server, MCP server
+site/                   tekjobs.timurtek.com: the landing page and docs (Next.js on Zengin UI, deployed from this folder on Vercel)
 tools/                  board and source discovery scripts
 ```
 

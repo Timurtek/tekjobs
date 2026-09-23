@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "zengin": {
+      "command": "npx",
+      "args": ["--no-install", "zengin-mcp"],
+      "env": { "ZENGIN_CONFIG": "zengin.config.yaml" }
+    }
+  }
+}

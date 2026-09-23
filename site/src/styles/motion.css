@@ -1,0 +1,60 @@
+/*
+ * Motion presets: how things enter. Add a class, get the system's timing. Every preset is a fade with a
+ * small movement, on the duration and easing tokens, and every one collapses to a plain fade under
+ * reduced motion. Stagger delays children in order, so a list arrives as a list.
+ */
+
+.z-enter-fade {
+  animation: z-enter-fade var(--duration-normal) var(--ease-standard) both;
+}
+
+.z-enter-rise {
+  animation: z-enter-rise var(--duration-slow) var(--ease-emphasized) both;
+}
+
+.z-enter-scale {
+  animation: z-enter-scale var(--duration-normal) var(--ease-emphasized) both;
+}
+
+/* Children of a stagger container enter one after another, up to twelve. */
+.z-stagger > * {
+  animation: z-enter-rise var(--duration-slow) var(--ease-emphasized) both;
+}
+
+.z-stagger > :nth-child(1) { animation-delay: 0ms; }
+.z-stagger > :nth-child(2) { animation-delay: calc(var(--duration-fast) * 0.5); }
+.z-stagger > :nth-child(3) { animation-delay: calc(var(--duration-fast) * 1); }
+.z-stagger > :nth-child(4) { animation-delay: calc(var(--duration-fast) * 1.5); }
+.z-stagger > :nth-child(5) { animation-delay: calc(var(--duration-fast) * 2); }
+.z-stagger > :nth-child(6) { animation-delay: calc(var(--duration-fast) * 2.5); }
+.z-stagger > :nth-child(7) { animation-delay: calc(var(--duration-fast) * 3); }
+.z-stagger > :nth-child(8) { animation-delay: calc(var(--duration-fast) * 3.5); }
+.z-stagger > :nth-child(9) { animation-delay: calc(var(--duration-fast) * 4); }
+.z-stagger > :nth-child(10) { animation-delay: calc(var(--duration-fast) * 4.5); }
+.z-stagger > :nth-child(11) { animation-delay: calc(var(--duration-fast) * 5); }
+.z-stagger > :nth-child(12) { animation-delay: calc(var(--duration-fast) * 5.5); }
+
+@keyframes z-enter-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes z-enter-rise {
+  from { opacity: 0; transform: translateY(var(--spacing-2)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes z-enter-scale {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-enter-rise,
+  .z-enter-scale,
+  .z-stagger > * {
+    animation-name: z-enter-fade;
+    animation-duration: var(--duration-fast);
+    animation-delay: 0ms;
+  }
+}

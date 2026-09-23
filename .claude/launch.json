@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--prefix", "app", "--", "--port", "5173", "--strictPort"],
       "port": 5173
+    },
+    {
+      "name": "tekjobs-site",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "site", "--", "--port", "3000"],
+      "port": 3000
     }
   ]
 }

@@ -24,6 +24,7 @@ jobs:
           cache-dependency-path: |
             package-lock.json
             app/package-lock.json
+            site/package-lock.json
       - run: npm ci --ignore-scripts
       - run: npm test
       - run: npm ci --ignore-scripts
@@ -32,6 +33,13 @@ jobs:
         working-directory: app
       - run: npx zengin check
         working-directory: app
+      # The site: types and the design-system rules. Vercel does the build.
+      - run: npm ci --ignore-scripts
+        working-directory: site
+      - run: npx zengin tokens && npx tsc --noEmit -p .
+        working-directory: site
+      - run: npx zengin check
+        working-directory: site
 
   release:
     needs: check

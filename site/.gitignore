@@ -1,0 +1,7 @@
+node_modules/
+dist/
+storybook-static/
+# Built from zengin/tokens*.json by `zengin tokens`
+src/styles/generated/
+.next/
+next-env.d.ts
