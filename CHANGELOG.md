@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.13.0 (2026-09-23)
+
+* feat(site): one pass over the employer form from the audit ([cdf8c2b](https://github.com/Timurtek/tekjobs/commit/cdf8c2b))
+
 ## 0.12.0 (2026-09-23)
 
 * feat(app): mark postings that came through tekjobs ([8e86282](https://github.com/Timurtek/tekjobs/commit/8e86282))
