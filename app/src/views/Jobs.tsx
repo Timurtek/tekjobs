@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CoverLetter } from "./CoverLetter";
 import { JobPeople } from "./People";
 import { TailoredResume } from "./TailoredResume";
+import { isPosted, PostedMark } from "@/components/PostedMark";
 import { api, BAND_LABEL, BAND_TONE, daysAgo, money, PASS_REASONS, shortPay, STATUS_TONE, STATUSES, type Facets, type ImportResult, type Job, type JobQuery, type JobRow, type Kind, type Packet, type PassReason, type PayBand, type SavedView, type Status } from "../api";
 
 /** Paste links to postings found elsewhere (LinkedIn, a newsletter); each is read once and added as a note unless one exists. */
@@ -476,9 +477,9 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
             </Table.Head>
             <Table.Body>
               {rows.map((r) => (
-                <Table.Row key={r.id} interactive selected={selectedId === r.id} onClick={() => setSelectedId(r.id)}>
+                <Table.Row key={r.id} interactive selected={selectedId === r.id} data-posted={isPosted(r.source) || undefined} onClick={() => setSelectedId(r.id)}>
                   <Table.Cell align="end" numeric><span className="num">{r.score}</span></Table.Cell>
-                  <Table.Cell>{r.company}</Table.Cell>
+                  <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
                   <Table.Cell>
                     <div className="who__text">
                       {r.title}
@@ -595,9 +596,10 @@ export function JobSheet({ id, onClose, onChanged }: { id: string | null; onClos
           <div className="detail">
             <div className="sheet-head">
               <div className="sheet-head__main">
-                <p className="sheet-head__meta">{job.company} · {job.location || "location n/a"} · {job.source} · found {daysAgo(job.found) || job.found}</p>
+                <p className="sheet-head__meta">{job.company} · {job.location || "location n/a"} · {isPosted(job.source) ? "posted on TekJobs" : job.source} · found {daysAgo(job.found) || job.found}</p>
                 <Sheet.Title>{job.title}</Sheet.Title>
                 <div className="chips">
+                  {isPosted(job.source) && <PostedMark label="Posted on TekJobs" />}
                   <Badge tone={job.payBand === "floor" ? "primary" : "neutral"} variant="soft" size="sm"><span className="num">{job.salaryMax ? shortPay(job.salary) : "pay not stated"}</span></Badge>
                   {job.salaryMax > 0 && <Badge tone="neutral" variant="outline" size="sm">{BAND_LABEL[job.payBand].toLowerCase()}</Badge>}
                   <Badge tone={job.remote ? "success" : "neutral"} variant={job.remote ? "soft" : "outline"} size="sm">{job.remote ? "remote" : "on-site"}</Badge>

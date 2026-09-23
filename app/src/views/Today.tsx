@@ -1,5 +1,6 @@
 import { Badge, Button, Card, EmptyState, Icon, Loader, Menu, Select, Skeleton, Table, toast } from "@/components/ui";
 import { useEffect, useState } from "react";
+import { isPosted, PostedMark } from "@/components/PostedMark";
 import { api, BAND_TONE, daysAgo, PASS_REASONS, shortPay, type Job, type MailGroup, type MailItem, type MailState, type PassReason, type Today as TodayData, type TodayRow } from "../api";
 
 import { MailStrip } from "./Mail";
@@ -85,9 +86,9 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               </Table.Head>
               <Table.Body>
                 {sections.triage.map((r) => (
-                  <Table.Row key={r.id} interactive selected={selected === r.id} onClick={() => setSelected(r.id)}>
+                  <Table.Row key={r.id} interactive data-posted={isPosted(r.source) || undefined} selected={selected === r.id} onClick={() => setSelected(r.id)}>
                     <Table.Cell align="end" numeric><Fit value={r.fit} /></Table.Cell>
-                    <Table.Cell>{r.company}</Table.Cell>
+                    <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
                     <Table.Cell>
                       <div className="who__text">
                         {r.title}
@@ -138,9 +139,9 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               </Table.Head>
               <Table.Body>
                 {sections.started.map((r) => (
-                  <Table.Row key={r.id} interactive selected={selected === r.id} onClick={() => setSelected(r.id)}>
+                  <Table.Row key={r.id} interactive data-posted={isPosted(r.source) || undefined} selected={selected === r.id} onClick={() => setSelected(r.id)}>
                     <Table.Cell align="end" numeric><Fit value={r.fit} /></Table.Cell>
-                    <Table.Cell>{r.company}</Table.Cell>
+                    <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
                     <Table.Cell>{r.title}</Table.Cell>
                     <Table.Cell><Badge size="sm" tone="primary" variant="soft">{r.packet} filled</Badge></Table.Cell>
                     <Table.Cell>{r.salaryMax > 0 ? <Badge tone={BAND_TONE[r.payBand]} size="sm">{shortPay(r.salary)}</Badge> : <span className="muted">—</span>}</Table.Cell>
@@ -227,9 +228,9 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               </Table.Head>
               <Table.Body>
                 {inFlight.map((r) => (
-                  <Table.Row key={r.id} interactive onClick={() => setSelected(r.id)}>
+                  <Table.Row key={r.id} interactive data-posted={isPosted(r.source) || undefined} onClick={() => setSelected(r.id)}>
                     <Table.Cell align="end" numeric><Fit value={r.fit} /></Table.Cell>
-                    <Table.Cell>{r.company}</Table.Cell>
+                    <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
                     <Table.Cell>{r.title}</Table.Cell>
                     <Table.Cell><Badge size="sm" tone="primary">{r.status}</Badge></Table.Cell>
                     <Table.Cell>{r.due || <span className="muted">—</span>}</Table.Cell>
@@ -263,9 +264,9 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               </Table.Head>
               <Table.Body>
                 {sections.waiting.map((r) => (
-                  <Table.Row key={r.id} interactive onClick={() => setSelected(r.id)}>
+                  <Table.Row key={r.id} interactive data-posted={isPosted(r.source) || undefined} onClick={() => setSelected(r.id)}>
                     <Table.Cell align="end" numeric><span className="num" data-tone={(r.days ?? 0) >= 21 ? "danger" : undefined}>{r.days}</span></Table.Cell>
-                    <Table.Cell>{r.company}</Table.Cell>
+                    <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
                     <Table.Cell>{r.title}</Table.Cell>
                     <Table.Cell><span className="num muted">{r.appliedOn}</span></Table.Cell>
                     <Table.Cell><WriteTo contact={r.contact} /></Table.Cell>

@@ -1,5 +1,6 @@
 import { Badge, Button, Combobox, Icon, Kanban, Menu, Skeleton, toast, type KanbanMove } from "@/components/ui";
 import { useEffect, useMemo, useState } from "react";
+import { isPosted, PostedMark } from "@/components/PostedMark";
 import { api, BAND_TONE, shortPay, STATUSES, type Job, type JobRow, type Status } from "../api";
 import { JobSheet } from "./Jobs";
 
@@ -103,9 +104,9 @@ export function Pipeline() {
         cardLabel={(r) => `${r.title} at ${r.company}`}
         onMove={(m: KanbanMove) => move(m.cardId, m.to as Status)}
         renderCard={(r) => (
-          <div className="kcard" onClick={() => setSelected(r.id)}>
+          <div className="kcard" data-posted={isPosted(r.source) || undefined} onClick={() => setSelected(r.id)}>
             <div className="kcard__head">
-              <span className="kcard__company">{r.company}</span>
+              <span className="kcard__company posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span>
               <Menu>
                 <Menu.Trigger asChild>
                   <Button

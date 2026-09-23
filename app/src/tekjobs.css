@@ -912,3 +912,33 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
+
+/* A posting that came through TekJobs itself (an employer paid to post it): a lime rule down the row's left
+   edge and a faint lime wash, so it reads as ours before the eye reaches the mark beside the company. */
+.z-table__row[data-posted] > td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.z-table__row[data-posted] {
+  background-color: color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
+.kcard[data-posted] {
+  border-left: 3px solid var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface-raised));
+}
+
+.posted-co {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.posted__glyph {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: var(--spacing-1);
+  border-radius: var(--radius-sm);
+}
