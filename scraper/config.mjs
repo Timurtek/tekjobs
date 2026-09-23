@@ -56,7 +56,7 @@ export const P = {
   seen: path.join(DATA_DIR, 'seen.json'),
   lastRun: path.join(DATA_DIR, 'last-run.json'),
   runsLog: path.join(DATA_DIR, 'runs.log'),
-  // What each board and feed did the last time the scan tried it (src/health.mjs).
+  // What each board and feed did the last time the scan tried it (scraper/health.mjs).
   health: path.join(DATA_DIR, 'board-health.json'),
 };
 

@@ -40,4 +40,4 @@ The [Terms of Use](/legal/terms#3-job-postings) carry the posting rules: real jo
 
 ## For developers
 
-The feed is public: `GET /api/feed/jobs` returns every live posting in the scan's normalized job shape, cached for five minutes. It is what `fetchTekJobs` in `src/sources-extra.mjs` reads, and anyone is welcome to read it.
+The feed is public: `GET /api/feed/jobs` returns every live posting in the scan's normalized job shape, cached for five minutes. It is what `fetchTekJobs` in `scraper/sources-extra.mjs` reads, and anyone is welcome to read it.

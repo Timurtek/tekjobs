@@ -4,7 +4,7 @@ Thanks for looking. TekJobs is one person's job-search machine made public; cont
 
 ## The most useful contribution
 
-A board. `src/starter/companies-table.md` is the registry every new profile folder starts with: company, platform, slug, tier, notes. If a company you follow runs Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor or Eightfold and is not in the table, add a row. Test it first:
+A board. `scraper/starter/companies-table.md` is the registry every new profile folder starts with: company, platform, slug, tier, notes. If a company you follow runs Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor or Eightfold and is not in the table, add a row. Test it first:
 
 ```
 node run.mjs --dry --only <slug>
@@ -12,13 +12,13 @@ node run.mjs --dry --only <slug>
 
 A row that answers `ok · N` is good. `ok · 0 jobs (slug?)` usually means the slug is wrong or the board moved; `bad-slug (HTTP 404)` means it is wrong.
 
-The second most useful contribution is a source adapter for a platform the scan does not read yet. Look at `fetchWorkable` in `src/sources-extra.mjs` for the shape: one function, the normalized job object from `job()`, `{ ok, jobs }` or `{ ok: false, error }`. Add it to `fetchExtraCompany` and `EXTRA_ATS`, and a line to the README's source list.
+The second most useful contribution is a source adapter for a platform the scan does not read yet. Look at `fetchWorkable` in `scraper/sources-extra.mjs` for the shape: one function, the normalized job object from `job()`, `{ ok, jobs }` or `{ ok: false, error }`. Add it to `fetchExtraCompany` and `EXTRA_ATS`, and a line to the README's source list.
 
 ## Three parts, three installs
 
 | Folder | What | Install | Check |
 |---|---|---|---|
-| `/` | the scan, the CLI, scoring, the profile folder | `npm install` (one dependency) | `npm test` |
+| `/` + `scraper/` | the scan, the CLI, scoring, the profile folder | `npm install` (one dependency) | `npm test` |
 | `app/` | the app, its API server and the MCP server (Vite, React, Zengin UI) | `cd app && npm install` | `npm run build && npx zengin check` |
 | `site/` | tekjobs.timurtek.com: landing, docs, employer postings (Next.js on Zengin UI) | `cd site && npm install` | `npx zengin tokens && npx tsc --noEmit -p . && npx zengin check` |
 

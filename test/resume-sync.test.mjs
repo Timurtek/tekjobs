@@ -3,7 +3,7 @@
 // (the person sends something untrue). Both are tested here.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { _internals } from '../src/resume-sync.mjs';
+import { _internals } from '../scraper/resume-sync.mjs';
 
 const { claims, claimKey, stillClaimed } = _internals;
 

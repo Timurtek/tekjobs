@@ -9,10 +9,10 @@
 // because a wrong "rejected" is the one a person would mind most.
 import fs from 'node:fs';
 import path from 'node:path';
-import { DATA_DIR, loadCriteria } from '../../src/config.mjs';
-import { writeJobNote } from '../../src/vault.mjs';
-import { scoreJob } from '../../src/score.mjs';
-import { htmlToText } from '../../src/sources.mjs';
+import { DATA_DIR, loadCriteria } from '../../scraper/config.mjs';
+import { writeJobNote } from '../../scraper/vault.mjs';
+import { scoreJob } from '../../scraper/score.mjs';
+import { htmlToText } from '../../scraper/sources.mjs';
 import * as store from './store.mjs';
 import * as people from './people.mjs';
 import { runLLM, runnerConfig } from './cover-letter.mjs';

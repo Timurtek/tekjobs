@@ -100,19 +100,19 @@ The profile folder is resolved from `TEKJOBS_PROFILE`, then `~/.tekjobs/config.j
 ## Layout
 
 ```
-cli.mjs                 tekjobs command
-run.mjs                 the scan
-src/config.mjs          profile folder resolution, the two config notes
-src/profile.mjs         init, resume import, onboarding status, interview materials, save profile, fetch link
-src/resume.mjs          PDF / DOCX / Markdown text extraction
-src/sources.mjs         Greenhouse, Lever, Ashby, Workday, RemoteOK, HN
-src/sources-extra.mjs   the other platforms, career APIs, aggregators
-src/score.mjs           scoring and pay-range parsing
-src/vault.mjs           job notes, dedupe state, closed detection, log, dashboard
-src/starter/            the notes a new profile folder starts with (including the board registry)
-app/                    Zengin UI front end, API server, MCP server
-site/                   tekjobs.timurtek.com: the landing page and docs (Next.js on Zengin UI, deployed from this folder on Vercel)
-tools/                  board and source discovery scripts
+cli.mjs                    tekjobs command
+run.mjs                    the scan
+scraper/config.mjs         profile folder resolution, the two config notes
+scraper/profile.mjs        init, resume import, onboarding status, interview materials, save profile, fetch link
+scraper/resume.mjs         PDF / DOCX / Markdown text extraction
+scraper/sources.mjs        Greenhouse, Lever, Ashby, Workday, RemoteOK, HN
+scraper/sources-extra.mjs  the other platforms, career APIs, aggregators
+scraper/score.mjs          scoring and pay-range parsing
+scraper/vault.mjs          job notes, dedupe state, closed detection, log, dashboard
+scraper/starter/           the notes a new profile folder starts with (including the board registry)
+app/                       Zengin UI front end, API server, MCP server
+site/                      tekjobs.timurtek.com: the landing page and docs (Next.js on Zengin UI, deployed from this folder on Vercel)
+tools/                     board and source discovery scripts
 ```
 
 ## Releases
@@ -121,4 +121,4 @@ Versions come from the commit messages, by [semantic-release](https://semantic-r
 
 ## Contributing
 
-The two things that compound are data files: the board registry (`src/starter/companies-table.md`, platform + slug per company) and, soon, criteria presets per role. Pull requests to either are the most useful contribution. [CONTRIBUTING.md](CONTRIBUTING.md) has the mechanics (three installs, the design-system check, the commit format); [SECURITY.md](SECURITY.md) says where to report a vulnerability, and what counts as one.
+The two things that compound are data files: the board registry (`scraper/starter/companies-table.md`, platform + slug per company) and, soon, criteria presets per role. Pull requests to either are the most useful contribution. [CONTRIBUTING.md](CONTRIBUTING.md) has the mechanics (three installs, the design-system check, the commit format); [SECURITY.md](SECURITY.md) says where to report a vulnerability, and what counts as one.

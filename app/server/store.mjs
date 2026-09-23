@@ -5,12 +5,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../src/config.mjs';
-import { loadHealth, healthState } from '../../src/health.mjs';
-import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../src/vault.mjs';
-import { weightsFingerprint, titlePoints, recencyPoints, payPoints } from '../../src/rescore.mjs';
-import { RESUME_NOTE, LEGACY_RESUME_NOTES } from '../../src/resume-sync.mjs';
-import { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile } from '../../src/profile.mjs';
+import { P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
+import { loadHealth, healthState } from '../../scraper/health.mjs';
+import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../scraper/vault.mjs';
+import { weightsFingerprint, titlePoints, recencyPoints, payPoints } from '../../scraper/rescore.mjs';
+import { RESUME_NOTE, LEGACY_RESUME_NOTES } from '../../scraper/resume-sync.mjs';
+import { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile } from '../../scraper/profile.mjs';
 export { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile };
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url)); // the scraper repo root
@@ -676,7 +676,7 @@ function resumePath(name) {
   return p;
 }
 export async function useResume(name) {
-  const { syncResume } = await import('../../src/resume-sync.mjs');
+  const { syncResume } = await import('../../scraper/resume-sync.mjs');
   const r = await syncResume({ source: resumePath(name) });
   return { ...r, files: listResumes().files };
 }
@@ -787,7 +787,7 @@ export function companies() {
 
 /** The aggregator feeds: which are on under the criteria's openSources, and how each did last time. */
 export async function feeds() {
-  const { OPEN_SOURCES } = await import('../../src/sources-extra.mjs');
+  const { OPEN_SOURCES } = await import('../../scraper/sources-extra.mjs');
   const open = safe(() => loadCriteria().openSources, {}) || {};
   const h = loadHealth();
   const row = (key, label, enabled, needsKey = false) => {
@@ -859,9 +859,9 @@ export function revealJob(id) {
 export async function attachPosting(id, href, { linkOnly = false } = {}) {
   const file = notePath(id);
   if (!/^https?:\/\//i.test(String(href || ''))) throw Object.assign(new Error('Give an http(s) link.'), { status: 400 });
-  const { readLink } = await import('../../src/import-link.mjs');
-  const { weightsFingerprint: fp } = await import('../../src/rescore.mjs');
-  const { loadSeen, saveSeen } = await import('../../src/vault.mjs');
+  const { readLink } = await import('../../scraper/import-link.mjs');
+  const { weightsFingerprint: fp } = await import('../../scraper/rescore.mjs');
+  const { loadSeen, saveSeen } = await import('../../scraper/vault.mjs');
   const criteria = loadCriteria();
   const r = linkOnly ? { ok: false, error: '' } : await readLink(href, { criteria });
   // A link the reader cannot turn into a posting (a page behind a login, a board with no API, an odd site)
@@ -908,7 +908,7 @@ export async function importLinks(urls) {
   const list = [].concat(urls || []).flatMap((s) => String(s).split(/\s+/)).map((s) => s.trim()).filter(Boolean);
   if (!list.length) throw Object.assign(new Error('Give at least one link.'), { status: 400 });
   if (list.length > 25) throw Object.assign(new Error('At most 25 links at a time.'), { status: 400 });
-  const { importLink } = await import('../../src/import-link.mjs');
+  const { importLink } = await import('../../scraper/import-link.mjs');
   const criteria = loadCriteria();
   const out = [];
   for (const u of list) {

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { record, healthState } from '../src/health.mjs';
+import { record, healthState } from '../scraper/health.mjs';
 
 const day = 864e5;
 const at = (d) => new Date(Date.UTC(2026, 8, 23) + d * day).toISOString();

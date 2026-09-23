@@ -41,16 +41,16 @@ async function main() {
     const dirArg = rest.find((a) => !a.startsWith('--') && a !== opt('--resume'));
     const dir = path.resolve(dirArg || process.env.TEKJOBS_PROFILE || path.join(process.env.USERPROFILE || process.env.HOME || '.', '.tekjobs', 'profile'));
     process.env.TEKJOBS_PROFILE = dir;
-    const { initProfile, importResume, onboardingStatus } = await import('./src/profile.mjs');
+    const { initProfile, importResume, onboardingStatus } = await import('./scraper/profile.mjs');
     const r = initProfile(dir);
     console.log(`Profile folder: ${r.dir}${r.made.length ? `\n  created: ${r.made.join(', ')}` : '\n  (already existed; nothing overwritten)'}`);
     if (opt('--resume')) { const i = await importResume(path.resolve(opt('--resume')), dir); console.log(`Resume imported: ${i.chars} characters → ${i.source}`); }
     return printStatus(onboardingStatus(dir));
   }
-  const { importResume, onboardingStatus } = await import('./src/profile.mjs');
-  const { VAULT } = await import('./src/config.mjs');
+  const { importResume, onboardingStatus } = await import('./scraper/profile.mjs');
+  const { VAULT } = await import('./scraper/config.mjs');
   if (cmd === 'resume' && rest[0] === 'sync') {
-    const { syncResume } = await import('./src/resume-sync.mjs');
+    const { syncResume } = await import('./scraper/resume-sync.mjs');
     const source = rest.slice(1).find((a) => !a.startsWith('--')) || '';
     const r = await syncResume({ source, dry: rest.includes('--dry') });
     const show = (label, list, mark) => {
@@ -94,7 +94,7 @@ async function main() {
   if (cmd === 'add') {
     const urls = rest.filter((a) => !a.startsWith('--'));
     if (!urls.length) return console.error('usage: tekjobs add <url> [<url>...] [--dry]');
-    const { importLink } = await import('./src/import-link.mjs');
+    const { importLink } = await import('./scraper/import-link.mjs');
     for (const u of urls) {
       const r = await importLink(u, { dry: rest.includes('--dry') });
       if (!r.ok) { console.log(`  x ${u}\n    ${r.error}`); continue; }
@@ -106,11 +106,11 @@ async function main() {
     return;
   }
   if (cmd === 'rescore') {
-    const { rescore, rescoreFull } = await import('./src/rescore.mjs');
+    const { rescore, rescoreFull } = await import('./scraper/rescore.mjs');
     const dry = rest.includes('--dry');
     if (rest.includes('--full')) {
       const r = rescoreFull({ dry });
-      const bar = (await import('./src/config.mjs')).loadCriteria().minScore || 0;
+      const bar = (await import('./scraper/config.mjs')).loadCriteria().minScore || 0;
       const crossed = r.changes.filter((c) => (c.stored >= bar) !== (c.updated >= bar));
       console.log(`${r.changed} of ${r.considered} notes ${dry ? 'would change' : 'updated'} under weights ${r.fingerprint}; ${r.alreadyCurrent} already carried them.`);
       console.log(`${crossed.filter((c) => c.updated >= bar).length} rise above the bar (${bar}), ${crossed.filter((c) => c.updated < bar).length} fall below it.`);

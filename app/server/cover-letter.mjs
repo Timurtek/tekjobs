@@ -11,8 +11,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import * as store from './store.mjs';
-import { CONFIG_FILE, VAULT } from '../../src/config.mjs';
-import { _internals as resumeCheck } from '../../src/resume-sync.mjs';
+import { CONFIG_FILE, VAULT } from '../../scraper/config.mjs';
+import { _internals as resumeCheck } from '../../scraper/resume-sync.mjs';
 
 const EMPHASES = {
   auto: 'Choose whichever of the two emphases below the posting itself asks for, and commit to it.',

@@ -3,7 +3,7 @@
 // of these breaks, the page changed.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseGoogleCards, parseGoogleDetail, parseAppleHydration, appleDescription, parseWellfoundPage, parseBuiltInCards, parseBuiltInDetail, relativeDate } from '../src/sources-sites.mjs';
+import { parseGoogleCards, parseGoogleDetail, parseAppleHydration, appleDescription, parseWellfoundPage, parseBuiltInCards, parseBuiltInDetail, relativeDate } from '../scraper/sources-sites.mjs';
 
 test('google: a results card yields id, title, employer, locations, level, remote flag and qualifications', () => {
   const html = `<ul><li class="lLd3Je"><div><h3 class="QJPWVe">Senior UX Engineer, Search Ads</h3>

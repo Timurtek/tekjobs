@@ -2,12 +2,12 @@
 // TekJobs runner. Usage: node run.mjs [--dry] [--min N] [--floor N] [--only slug] [--retry-failed] [--criteria <preset name | file>] [--no-remoteok] [--no-hn] [--check-slugs]
 import fs from 'node:fs';
 import path from 'node:path';
-import { ensureDirs, loadCriteria, loadCompanies, writeCompanyStatuses, criteriaPresetFile, P } from './src/config.mjs';
-import { fetchCompany, fetchRemoteOK, fetchHNWhoIsHiring, htmlToText } from './src/sources.mjs';
-import { scoreJob, parseSalary } from './src/score.mjs';
-import { loadSeen, saveSeen, writeJobNote, markClosedListings, appendLog, writeDashboard, readFrontmatter } from './src/vault.mjs';
-import { weightsFingerprint } from './src/rescore.mjs';
-import { loadHealth, saveHealth, record, healthState } from './src/health.mjs';
+import { ensureDirs, loadCriteria, loadCompanies, writeCompanyStatuses, criteriaPresetFile, P } from './scraper/config.mjs';
+import { fetchCompany, fetchRemoteOK, fetchHNWhoIsHiring, htmlToText } from './scraper/sources.mjs';
+import { scoreJob, parseSalary } from './scraper/score.mjs';
+import { loadSeen, saveSeen, writeJobNote, markClosedListings, appendLog, writeDashboard, readFrontmatter } from './scraper/vault.mjs';
+import { weightsFingerprint } from './scraper/rescore.mjs';
+import { loadHealth, saveHealth, record, healthState } from './scraper/health.mjs';
 
 const args = process.argv.slice(2);
 const flag = (f) => args.includes(f);
@@ -76,7 +76,7 @@ let jobs = results.flat();
 const extras = [];
 const open = criteria.openSources || {};
 if (!ONLY && !RETRY) {
-  const { OPEN_SOURCES } = await import('./src/sources-extra.mjs');
+  const { OPEN_SOURCES } = await import('./scraper/sources-extra.mjs');
   const tasks = [];
   if (!flag('--no-remoteok') && open.remoteok !== false) tasks.push(['RemoteOK', fetchRemoteOK]);
   if (!flag('--no-hn') && open.hn !== false) tasks.push(['HN Who is hiring', fetchHNWhoIsHiring]);

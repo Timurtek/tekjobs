@@ -4,8 +4,8 @@
 // no-reply senders), and they are written when the person confirms the email, like everything else from mail.
 import fs from 'node:fs';
 import path from 'node:path';
-import { VAULT } from '../../src/config.mjs';
-import { readFrontmatter } from '../../src/vault.mjs';
+import { VAULT } from '../../scraper/config.mjs';
+import { readFrontmatter } from '../../scraper/vault.mjs';
 import * as store from './store.mjs';
 
 export const PEOPLE_DIR = path.join(VAULT, 'People');

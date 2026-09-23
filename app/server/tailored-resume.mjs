@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import * as store from './store.mjs';
 import { runLLM, runnerConfig, readVoice, letterClaims } from './cover-letter.mjs';
-import { _internals as resumeCheck } from '../../src/resume-sync.mjs';
+import { _internals as resumeCheck } from '../../scraper/resume-sync.mjs';
 
 const EMPHASES = {
   auto: 'Choose whichever emphasis the posting itself asks for, and commit to it.',

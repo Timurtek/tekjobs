@@ -2,8 +2,8 @@
 // are not tested here; the decisions and parsers are, because they are where a wrong guess writes a wrong note.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cleanUrl, classify, jobPostingFromJsonLd, jobFromJsonLd, linkedInApplyUrl, pageTitle, siteName } from '../src/import-link.mjs';
-import { parseGoogleJobPage } from '../src/sources-sites.mjs';
+import { cleanUrl, classify, jobPostingFromJsonLd, jobFromJsonLd, linkedInApplyUrl, pageTitle, siteName } from '../scraper/import-link.mjs';
+import { parseGoogleJobPage } from '../scraper/sources-sites.mjs';
 
 test('classify: Google and Apple job pages get their own readers', () => {
   assert.deepEqual(classify('https://www.google.com/about/careers/applications/jobs/results/87805489504494278-senior-ux-engineer'), { kind: 'google', id: '87805489504494278' });

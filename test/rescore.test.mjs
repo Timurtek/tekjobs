@@ -2,7 +2,7 @@
 // a criteria preset is the same set as the active one. It has to move when any weight moves, and only then.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { weightsFingerprint } from '../src/rescore.mjs';
+import { weightsFingerprint } from '../scraper/rescore.mjs';
 
 const base = { minScore: 45, titleTerms: { 'design engineer': 40, 'ux engineer': 40 }, titleExclude: ['mechanical'], salary: { minAnnual: 220000, stretchAnnual: 180000 }, location: { requireRemote: true, notRemotePenalty: -60 }, recency: { days7: 15 } };
 

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { jobNotePath } from '../src/vault.mjs';
+import { jobNotePath } from '../scraper/vault.mjs';
 
 test('a link id ending in a URL gives a clean filename tail', () => {
   const p = jobNotePath({ company: 'Meta', title: 'Product Designer, Human Interface', id: 'link:https://www.metacareers.com/profile/job_details/2153803492149585/' });

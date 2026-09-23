@@ -16,7 +16,7 @@ Some sites are not reachable from a scan and the docs say so rather than pretend
 
 ## The watchlist
 
-`Targets/Companies.md` is a markdown table: company, platform, slug, tier, last fetch, notes. The Sources page shows it with each board's health (failed, zero jobs, stale, never fetched, healthy), last success apart from last attempt, filters by state, a Retry failed button that fetches only those boards, and the aggregator feeds with their switches; it also lets you add a board; `add_company` does the same over MCP. The registry a new profile starts with is in the repository at `src/starter/companies-table.md`, and pull requests to it are the most useful contribution.
+`Targets/Companies.md` is a markdown table: company, platform, slug, tier, last fetch, notes. The Sources page shows it with each board's health (failed, zero jobs, stale, never fetched, healthy), last success apart from last attempt, filters by state, a Retry failed button that fetches only those boards, and the aggregator feeds with their switches; it also lets you add a board; `add_company` does the same over MCP. The registry a new profile starts with is in the repository at `scraper/starter/companies-table.md`, and pull requests to it are the most useful contribution.
 
 ## A run
 
