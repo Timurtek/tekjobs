@@ -2,6 +2,13 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.17.0 (2026-09-23)
+
+* feat: a fictional sample profile folder, built by the product's own writers ([774e0a0](https://github.com/Timurtek/tekjobs/commit/774e0a0))
+* refactor: the scan's code lives in scraper/, not src/ ([f3c0ca5](https://github.com/Timurtek/tekjobs/commit/f3c0ca5))
+* chore: check out every text file as LF ([69366ee](https://github.com/Timurtek/tekjobs/commit/69366ee))
+* chore(repo): the way in for contributors, and a clean-clone rehearsal's fixes ([270cfe5](https://github.com/Timurtek/tekjobs/commit/270cfe5))
+
 ## 0.16.0 (2026-09-23)
 
 * feat(app): the sidebar is an icon strip across the top on phones ([1c4cd39](https://github.com/Timurtek/tekjobs/commit/1c4cd39))
