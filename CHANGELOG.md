@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.15.0 (2026-09-23)
+
+* feat(app): jobs as master-detail on wide screens, with J/K and a counter ([e4b04b0](https://github.com/Timurtek/tekjobs/commit/e4b04b0))
+
 ## 0.14.0 (2026-09-23)
 
 * feat(app): sources page with board and feed health, and a retry for failed boards ([122af4c](https://github.com/Timurtek/tekjobs/commit/122af4c))
