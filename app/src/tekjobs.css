@@ -1105,3 +1105,61 @@
 .sheet-head__title {
   margin: 0;
 }
+
+/* Phone: the sidebar is a strip of icons across the top, sticky, scrolling sideways if it must. The brand mark
+   leads, groups are separated by a hairline, and the menu button in the top bar has nothing left to open. */
+@media (max-width: 40rem) {
+  .shell--strip .sidebar:not(.sidebar--sheet) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-2);
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    height: auto;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .shell--strip .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shell--strip .brand-mark {
+    gap: 0;
+    font-size: 0;
+  }
+
+  .shell--strip .brand-mark__logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .shell--strip .nav {
+    display: flex;
+    gap: var(--spacing-1);
+  }
+
+  .shell--strip .nav__group {
+    display: flex;
+    gap: var(--spacing-1);
+  }
+
+  .shell--strip .nav__group + .nav__group {
+    margin: 0 0 0 var(--spacing-1);
+    padding-left: var(--spacing-2);
+    border-left: 1px solid var(--color-border);
+  }
+
+  .shell--strip .nav__item {
+    width: auto;
+  }
+
+  .shell--strip .topbar__menu {
+    display: none;
+  }
+}

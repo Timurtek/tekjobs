@@ -1,5 +1,6 @@
 import { Button, Icon, Sheet, TextField, Tooltip } from "@/components/ui";
 import { useState, type ComponentType, type FormEvent, type ReactNode } from "react";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { BrandMark } from "./brand-mark";
 import { CopyPanel } from "./CopyPanel";
 
@@ -48,6 +49,9 @@ interface ShellProps {
 /** The frame every page sits in: sidebar navigation, a top bar with search and theme, and the content column. */
 export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboarded = true, counts = {}, lastScan = "", children }: ShellProps) {
   const [drawer, setDrawer] = useState(false);
+  // On a phone the sidebar is a horizontal strip of icons across the top: the collapsed navigation laid out in a
+  // row, tooltips below. Between phone and desktop widths it is the drawer behind the menu button.
+  const strip = useMediaQuery("(max-width: 40rem)");
   const [q, setQ] = useState("");
   // The sidebar collapses to an icon strip; the choice is this browser's own.
   const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem("tekjobs.sidebar") === "collapsed"; } catch { return false; } });
@@ -62,9 +66,9 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   };
 
   return (
-    <div className={collapsed ? "shell shell--collapsed" : "shell"}>
+    <div className={`shell${collapsed ? " shell--collapsed" : ""}${strip ? " shell--strip" : ""}`}>
       <aside className="sidebar" aria-label="Primary">
-        <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
+        <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} collapsed={collapsed || strip} onToggleCollapsed={strip ? undefined : toggleCollapsed} tipSide={strip ? "bottom" : "right"} />
       </aside>
 
       <div className="main">
@@ -97,7 +101,7 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   );
 }
 
-function Navigation({ page, onNavigate, onboarded, counts, lastScan, collapsed, onToggleCollapsed }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; collapsed: boolean; onToggleCollapsed?: () => void }) {
+function Navigation({ page, onNavigate, onboarded, counts, lastScan, collapsed, onToggleCollapsed, tipSide = "right" }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; collapsed: boolean; onToggleCollapsed?: () => void; tipSide?: "right" | "bottom" }) {
   const byPage = new Map(NAV.map((n) => [n.page, n]));
   // Before onboarding is done, Get started leads on its own; after, it is a System item.
   const groups = onboarded ? GROUPS : [{ title: "Start", pages: ["onboarding"] as Page[] }, ...GROUPS.map((g) => ({ ...g, pages: g.pages.filter((p) => p !== "onboarding") }))];
@@ -133,7 +137,7 @@ function Navigation({ page, onNavigate, onboarded, counts, lastScan, collapsed, 
                   {collapsed ? null : item.label}
                 </Button>
               );
-              return collapsed ? <Tooltip key={item.page} content={counts[item.page] != null ? `${item.label} · ${counts[item.page]}` : item.label} side="right">{button}</Tooltip> : button;
+              return collapsed ? <Tooltip key={item.page} content={counts[item.page] != null ? `${item.label} · ${counts[item.page]}` : item.label} side={tipSide}>{button}</Tooltip> : button;
             })}
           </div>
         ))}
