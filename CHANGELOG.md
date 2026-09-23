@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.18.0 (2026-09-23)
+
+* feat(cli): tekjobs schedule, and the first-run path as a stranger meets it ([07ef3ea](https://github.com/Timurtek/tekjobs/commit/07ef3ea))
+
 ## 0.17.0 (2026-09-23)
 
 * feat: a fictional sample profile folder, built by the product's own writers ([774e0a0](https://github.com/Timurtek/tekjobs/commit/774e0a0))
