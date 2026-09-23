@@ -42,11 +42,11 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "@zenginui/cli": "^0.7.0",
-    "@zenginui/hook": "^0.2.0",
-    "@zenginui/mcp": "^0.1.3",
+    "@zenginui/cli": "^0.7.1",
+    "@zenginui/hook": "^0.2.1",
+    "@zenginui/mcp": "^0.1.4",
     "storybook": "^10.6.0",
-    "typescript": "^5.9.2",
+    "typescript": "^7.0.2",
     "vite": "^8.3.0"
   }
 }
