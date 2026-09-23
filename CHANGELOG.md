@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.10.0 (2026-09-23)
+
+* feat(site): terms of use, privacy policy and refund policy ([4a6ef72](https://github.com/Timurtek/tekjobs/commit/4a6ef72))
+
 ## <small>0.9.2 (2026-09-23)</small>
 
 * chore(repo): ignore env files, key files and local artefacts at every root ([79b9ebb](https://github.com/Timurtek/tekjobs/commit/79b9ebb))
