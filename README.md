@@ -45,6 +45,17 @@ npm run dev         # UI on http://localhost:5173
 
 `npm run start` in `app/` builds the UI and serves it from the API on one port. The scan itself is `npm run scan` at the root; schedule it with your OS (a Windows Task Scheduler entry and `run.cmd` are included; launchd and cron equivalents are one line).
 
+## Try it without your own data
+
+`samples/vault` is a complete, fictional profile folder: Jordan Example, a design engineer three weeks into a search, with fourteen postings at companies that do not exist, one application in interview, a rejection, two passes, a closed listing, three people on the threads, two scan logs and the dashboard. Every note in it was written by the product's own code (`npm run sample` rebuilds it with today's dates), so it is always in the shape the app expects.
+
+```
+TEKJOBS_PROFILE=$PWD/samples/vault npm run serve
+cd app && npm run dev
+```
+
+Point the API at it and the app shows a search in progress instead of an empty folder. Nothing in it is a real person, company or posting.
+
 ## Cover letters
 
 Each job has a Cover letter tab. "Write cover letter" runs a local LLM CLI you are already signed in to (Claude Code by default; set another under `"llm"` in `~/.tekjobs/config.json`), so there is no API key and nothing metered. It writes from the live posting and your resume, and your resume is the only source of facts. How it sounds comes from `Profile/Voice.md` in your profile folder: your voice rules, the shape of a letter you would send, the patterns you never use, and samples of your own prose. Edit that note to change every letter after it; there is a generic fallback for a profile without one. The prompt makes the model draft and then edit against the same checklist (portability test, repeated shapes, self-adjectives, quote count). The result is saved under `## Cover letter` in the job note and checked: a figure that is not on your resume, your profile or the posting is flagged, along with dashes, placeholders, stock phrases, a letter that never names the company, and the tells of a generated letter: a "decade" opener, "You ask for X" stanzas, tag lines, "not X but Y" contrasts, colon reveals, applicant boilerplate, adjectives about yourself. An agent connected over MCP can do the same with `cover_letter_materials` and `save_cover_letter`. If the CLI is signed out or out of date the tab says so and what to run.

@@ -23,6 +23,17 @@ npm run init -- --resume ~/Downloads/resume.pdf
 
 `init` creates the profile folder (default `~/.tekjobs/profile`, or the folder you name), writes the starter notes, imports the resume, and remembers the folder in `~/.tekjobs/config.json`.
 
+## A look before you commit
+
+The repository ships a fictional profile folder, `samples/vault`: a design engineer three weeks into a search, fourteen postings, an interview in progress, people on the threads, two scan logs. Point the API at it and the app shows a search in progress instead of an empty folder:
+
+```
+TEKJOBS_PROFILE=$PWD/samples/vault npm run serve
+cd app && npm run dev
+```
+
+Nothing in it is real. `npm run sample` rebuilds it with today's dates.
+
 ## The interview
 
 Open Claude Code in the `app/` folder. Its `.mcp.json` connects the `tekjobs` server. Say:

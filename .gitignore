@@ -13,6 +13,8 @@ service-account*.json
 # Runtime state and scan output. The vault is the record; nothing in data/ is source.
 data/*
 !data/.gitkeep
+# The sample profile folder is source; the scan state a run leaves inside it is not.
+samples/vault/.tekjobs/
 
 # Dependencies and build outputs, at every root (/, app/, site/).
 node_modules/
