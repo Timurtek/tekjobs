@@ -16,6 +16,8 @@ export async function createJobPostingCheckout({ userId, email, postingId }: { u
     mode: "payment",
     "line_items[0][price]": process.env.STRIPE_PRICE_JOB_POSTING!,
     "line_items[0][quantity]": "1",
+    "payment_method_types[0]": "card",
+    "payment_method_types[1]": "link",
     success_url: `${appUrl}/app/post-a-job?paid=${encodeURIComponent(postingId)}`,
     cancel_url: `${appUrl}/app/post-a-job/${encodeURIComponent(postingId)}?canceled=1`,
     client_reference_id: userId,

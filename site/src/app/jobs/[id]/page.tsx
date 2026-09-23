@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DocBody } from "@/components/DocBody";
 import { ApplyButton } from "@/components/postings/ApplyButton";
 import { appUrl } from "@/lib/flags";
+import { whereOf } from "@/lib/where";
 import { getPosting, type Posting } from "@/server/postings";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +25,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
   const { id } = await params;
   const p = await getPosting(id).catch(() => null);
   if (!isLive(p)) notFound();
-  const where = p.workplace === "remote" ? `Remote · ${p.regions.join(", ")}` : `${p.workplace === "hybrid" ? "Hybrid · " : ""}${p.location}`;
+  const where = whereOf(p);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
@@ -35,7 +36,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
     employmentType: p.employmentType.toUpperCase().replace("-", "_"),
     hiringOrganization: { "@type": "Organization", name: p.company, ...(p.companyUrl ? { sameAs: p.companyUrl } : {}) },
     ...(p.workplace === "remote"
-      ? { jobLocationType: "TELECOMMUTE", applicantLocationRequirements: p.regions.map((r) => ({ "@type": "Country", name: r })) }
+      ? { jobLocationType: "TELECOMMUTE", applicantLocationRequirements: p.regions.map((r) => ({ "@type": "Country", name: r })), ...(p.location ? { jobLocation: { "@type": "Place", address: p.location } } : {}) }
       : { jobLocation: { "@type": "Place", address: p.location } }),
     baseSalary: { "@type": "MonetaryAmount", currency: "USD", value: { "@type": "QuantitativeValue", minValue: p.salaryMin, maxValue: p.salaryMax, unitText: "YEAR" } },
     directApply: !!p.applyUrl,

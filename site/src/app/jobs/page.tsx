@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { POSTING } from "@/content";
+import { whereOf } from "@/lib/where";
 import { livePostings } from "@/server/postings";
 
 export const metadata: Metadata = { title: "Jobs", description: "Every job posted on TekJobs and live today. The same postings every TekJobs user's morning scan reads." };
@@ -30,7 +31,7 @@ export default async function JobsPage() {
                   <span className="jobrow__title">{j.title}</span>
                   <span className="jobrow__meta num">
                     <span className="jobrow__pay">{money(j.salaryMin)}–{money(j.salaryMax)}</span>
-                    <span>{j.workplace === "remote" ? `Remote · ${j.regions.join(", ")}` : j.workplace === "hybrid" ? `Hybrid · ${j.location}` : j.location}</span>
+                    <span>{whereOf(j)}</span>
                     <span>{j.employmentType}{j.seniority ? ` · ${j.seniority}` : ""}</span>
                     <span className="muted">{days(j.publishedAt)}</span>
                   </span>

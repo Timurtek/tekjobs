@@ -1,5 +1,6 @@
 import "server-only";
 import { adminConfigured, db } from "./firebase";
+import { whereOf } from "@/lib/where";
 
 /**
  * A job posting an employer writes here, in Firestore under `postings/{id}`. It is a draft until paid, live
@@ -48,13 +49,16 @@ export function validatePosting(raw: Partial<PostingInput>): { input: PostingInp
   const errors: string[] = [];
   if (input.title.length < 3) errors.push("A title, at least three characters.");
   if (input.company.length < 2) errors.push("The company's name.");
-  if (!input.location) errors.push("A location, even for remote roles (the country or time zone that applies).");
   if (input.workplace === "remote" && input.regions.length === 0) errors.push("For a remote role, at least one region it is open to.");
+  if (input.workplace !== "remote" && !input.location) errors.push("The office location for a hybrid or on-site role.");
   if (!input.salaryMin || !input.salaryMax) errors.push("A pay range, both ends, in US dollars a year. Postings without one score lower for every reader.");
   else if (input.salaryMax < input.salaryMin) errors.push("The top of the pay range is below the bottom.");
   else if (input.salaryMin < 10000 || input.salaryMax > 2000000) errors.push("The pay range should be annual figures (for example 180000 to 240000).");
   if (input.description.length < 200) errors.push("A description of at least 200 characters. Keywords in the text are what the score reads.");
-  if (!input.applyUrl && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.applyEmail)) errors.push("An apply link or an apply email.");
+  if (!input.applyUrl && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.applyEmail)) errors.push("How candidates apply: a working application link, or an email address.");
+  // A matching term counts only when the posting itself carries it; the form says so before this strips it.
+  const haystack = `${input.title}\n${input.description}`.toLowerCase();
+  input.tags = input.tags.filter((t) => haystack.includes(t));
   return { input, errors };
 }
 
@@ -118,7 +122,7 @@ export async function livePostings() {
 
 export function toFeedJob(p: Posting, site: string) {
   const pay = p.salaryMin && p.salaryMax ? `$${Math.round(p.salaryMin / 1000)}k–$${Math.round(p.salaryMax / 1000)}k` : "";
-  const location = [p.location, p.workplace === "remote" ? `Remote (${p.regions.join(", ") || "Worldwide"})` : p.workplace === "hybrid" ? "Hybrid" : "On-site"].filter(Boolean).join(" · ");
+  const location = whereOf(p);
   return {
     id: p.id, source: "tekjobs", company: p.company, title: p.title, url: `${site}/jobs/${p.id}`, applyUrl: p.applyUrl || undefined,
     location, remote: p.workplace === "remote", posted: p.publishedAt, expires: p.expiresAt,
