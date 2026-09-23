@@ -1,5 +1,6 @@
 import { Badge, Button, Card, Combobox, Dialog, Icon, Markdown, Menu, Popover, Select, Sheet, Skeleton, Switch, Table, Tabs, TextArea, TextField, toast, Tooltip } from "@/components/ui";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { CoverLetter } from "./CoverLetter";
 import { JobPeople } from "./People";
 import { TailoredResume } from "./TailoredResume";
@@ -297,6 +298,45 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
 
   const onChanged = (job: Job) => setRows((rs) => (rs ? rs.map((r) => (r.id === job.id ? { ...r, status: job.status } : r)) : rs));
 
+  // Wide screens show the open job beside a compact list of the same results (the table and its filters step
+  // aside); narrower ones open it in a sheet over the table. J/K or the arrows walk the list in either case,
+  // across pages, and Escape closes. Keys typed into a field, or already taken by an open menu, are left alone.
+  const wide = useMediaQuery("(min-width: 68.75rem)");
+  const split = wide && selectedId !== null;
+  const pos = rows ? rows.findIndex((r) => r.id === selectedId) : -1;
+  const pending = useRef<"first" | "last" | null>(null);
+  useEffect(() => {
+    if (!rows || !pending.current) return;
+    const want = pending.current; pending.current = null;
+    const pick = want === "first" ? rows[0] : rows[rows.length - 1];
+    if (pick) setSelectedId(pick.id);
+  }, [rows]);
+  const stepSel = (d: 1 | -1) => {
+    if (!rows || rows.length === 0) return;
+    const first = rows[0];
+    if (pos < 0) { if (first) setSelectedId(first.id); return; }
+    const n = pos + d;
+    const at = rows[n];
+    if (at) setSelectedId(at.id);
+    else if (n >= rows.length && current < pages - 1) { pending.current = "first"; setPage(current + 1); }
+    else if (n < 0 && current > 0) { pending.current = "last"; setPage(current - 1); }
+  };
+  useEffect(() => {
+    if (selectedId === null) return;
+    const on = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (t && (/^(input|textarea|select)$/i.test(t.tagName) || t.isContentEditable)) return;
+      if (e.key === "Escape") setSelectedId(null);
+      else if (e.key === "j" || e.key === "ArrowDown") { e.preventDefault(); stepSel(1); }
+      else if (e.key === "k" || e.key === "ArrowUp") { e.preventDefault(); stepSel(-1); }
+    };
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  });
+  const nav: SheetNav = { pos: pos >= 0 ? current * PAGE_SIZE + pos : -1, total, prev: () => stepSel(-1), next: () => stepSel(1) };
+  const activeCount = DIMS.filter((d) => isActive(f, d.key)).length + (f.q ? 1 : 0);
+
   // The editor inside a chip's popover, per dimension.
   const editorFor = (key: DimKey) => {
     switch (key) {
@@ -370,7 +410,50 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   };
 
   return (
-    <>
+    <div className={split ? "jobs jobs--split" : "jobs"}>
+      {split ? (
+        <>
+          <aside className="jobs__list" aria-label="Matches">
+            <div className="ctools">
+              <div className="ctools__row">
+                <TextField size="sm" aria-label="Search" placeholder="Search company or role" value={f.q} onChange={(e) => set("q", e.target.value)} />
+                <Tooltip content="Back to the full table (Esc)">
+                  <Button size="sm" variant="ghost" tone="neutral" aria-label="Back to the full table" leadingIcon={<Icon.Grid />} onClick={() => setSelectedId(null)} />
+                </Tooltip>
+              </div>
+              <div className="ctools__row ctools__meta">
+                <span><b className="num">{total}</b>{allTotal !== null ? <> of {allTotal}</> : null} · {activeCount} filter{activeCount === 1 ? "" : "s"}</span>
+                <span className="num">J K move · Esc close</span>
+              </div>
+            </div>
+            <div className="clist">
+              {(rows ?? []).map((r) => (
+                <Button key={r.id} asChild variant="ghost" size="sm" align="start" className="clist__item">
+                  <button type="button" aria-current={r.id === selectedId ? "true" : undefined} data-posted={isPosted(r.source) || undefined} onClick={() => setSelectedId(r.id)}>
+                    <span className="clist__score num">{r.score}</span>
+                    <span className="clist__text">
+                      <span className="clist__role">{r.title}</span>
+                      <span className="clist__meta">{r.company} · <span className={`num${r.payBand === "floor" ? " clist__pay--floor" : ""}`}>{r.salaryMax ? shortPay(r.salary) : "not stated"}</span> · {daysAgo(r.posted) || "—"}</span>
+                    </span>
+                  </button>
+                </Button>
+              ))}
+              {rows && rows.length === 0 && <p className="muted">Nothing matches these filters.</p>}
+              {rows && pages > 1 && (
+                <div className="clist__pager">
+                  <Button variant="ghost" size="sm" disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</Button>
+                  <span className="muted num">{current + 1} / {pages}</span>
+                  <Button variant="ghost" size="sm" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>Next</Button>
+                </div>
+              )}
+            </div>
+          </aside>
+          <section className="jobs__detail" aria-label="Job">
+            <JobDetail id={selectedId} inline nav={nav} onClose={() => setSelectedId(null)} onChanged={onChanged} />
+          </section>
+        </>
+      ) : (
+        <>
       {!condensed && (<div className="views">
         <Tooltip content="Hide the views and filters">
           <Button size="sm" variant="ghost" tone="neutral" aria-label="Hide the views and filters" leadingIcon={<Icon.ChevronUp />} onClick={toggleCondensed} />
@@ -526,10 +609,15 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
         </div>
       </div>
 
-      <JobSheet id={selectedId} onClose={() => setSelectedId(null)} onChanged={onChanged} />
-    </>
+        </>
+      )}
+      {!wide && <JobSheet id={selectedId} nav={nav} onClose={() => setSelectedId(null)} onChanged={onChanged} />}
+    </div>
   );
 }
+
+/** Where the open job sits in the current result list, for the sheet's prev/next and its counter. */
+export type SheetNav = { pos: number; total: number; prev: () => void; next: () => void };
 
 /** The job note, opened beside the table. Status and notes write back to the markdown file. */
 /** The "Why it matched" lines ("- title +40: design engineer", "- not remote -60") as label, detail and points. */
@@ -545,7 +633,18 @@ export function parseReasons(why: string): { label: string; detail: string; poin
   });
 }
 
-export function JobSheet({ id, onClose, onChanged }: { id: string | null; onClose: () => void; onChanged: (job: Job) => void }) {
+export function JobSheet(props: { id: string | null; onClose: () => void; onChanged: (job: Job) => void; nav?: SheetNav }) {
+  return (
+    <Sheet open={props.id !== null} onOpenChange={(open) => !open && props.onClose()} side="right" size="lg">
+      <Sheet.Content>
+        <JobDetail {...props} />
+      </Sheet.Content>
+    </Sheet>
+  );
+}
+
+/** The job note itself: the head, the tabs, and everything that writes back to the markdown file. */
+export function JobDetail({ id, onClose, onChanged, nav, inline = false }: { id: string | null; onClose: () => void; onChanged: (job: Job) => void; nav?: SheetNav; inline?: boolean }) {
   const [job, setJob] = useState<Job | null>(null);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -587,17 +686,25 @@ export function JobSheet({ id, onClose, onChanged }: { id: string | null; onClos
     setBusy(false);
   };
 
+  const navRow = nav && (
+    <div className="sheet-nav">
+      <Tooltip content="Previous (K)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Previous job" leadingIcon={<Icon.ChevronUp />} disabled={nav.pos <= 0} onClick={nav.prev} /></Tooltip>
+      <Tooltip content="Next (J)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Next job" leadingIcon={<Icon.ChevronDown />} disabled={nav.pos < 0 ? nav.total === 0 : nav.pos >= nav.total - 1} onClick={nav.next} /></Tooltip>
+      <span className="sheet-nav__count num">{nav.pos >= 0 ? `${nav.pos + 1} of ${nav.total}` : "not in this view"}</span>
+      {inline && <Tooltip content="Close (Esc)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Close" leadingIcon={<Icon.Close />} onClick={onClose} className="sheet-nav__close" /></Tooltip>}
+    </div>
+  );
   return (
-    <Sheet open={id !== null} onOpenChange={(open) => !open && onClose()} side="right" size="lg">
-      <Sheet.Content>
+    <>
         {!job ? (
-          <div className="detail"><Skeleton lines={6} /></div>
+          <div className="detail">{navRow}<Skeleton lines={6} /></div>
         ) : (
           <div className="detail">
+            {navRow}
             <div className="sheet-head">
               <div className="sheet-head__main">
                 <p className="sheet-head__meta">{job.company} · {job.location || "location n/a"} · {isPosted(job.source) ? "posted on TekJobs" : job.source} · found {daysAgo(job.found) || job.found}</p>
-                <Sheet.Title>{job.title}</Sheet.Title>
+                {inline ? <h2 className="sheet-head__title">{job.title}</h2> : <Sheet.Title>{job.title}</Sheet.Title>}
                 <div className="chips">
                   {isPosted(job.source) && <PostedMark label="Posted on TekJobs" />}
                   <Badge tone={job.payBand === "floor" ? "primary" : "neutral"} variant="soft" size="sm"><span className="num">{job.salaryMax ? shortPay(job.salary) : "pay not stated"}</span></Badge>
@@ -718,8 +825,7 @@ export function JobSheet({ id, onClose, onChanged }: { id: string | null; onClos
             </Tabs>
           </div>
         )}
-      </Sheet.Content>
-    </Sheet>
+    </>
   );
 }
 

@@ -950,3 +950,158 @@
   gap: var(--spacing-1);
   margin-bottom: var(--spacing-4);
 }
+
+/* Jobs, wide, with a job open: the compact list on the left and the note on the right, each scrolling on its
+   own under the top bar. The block bleeds to the page's edges so the two columns meet the frame. */
+.jobs {
+  display: grid;
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+
+.jobs--split {
+  --tj-topbar: 3.5625rem;
+  grid-template-columns: minmax(18.75rem, 23.75rem) minmax(0, 1fr);
+  gap: 0;
+  margin: calc(var(--spacing-8) * -1) calc(var(--spacing-10) * -1) calc(var(--spacing-12) * -1);
+  align-items: start;
+}
+
+.jobs__list {
+  position: sticky;
+  top: var(--tj-topbar);
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-4);
+  max-height: calc(100vh - var(--tj-topbar));
+  overflow-y: auto;
+  padding: var(--spacing-5) var(--spacing-5) var(--spacing-12);
+  border-right: 1px solid var(--color-border);
+}
+
+.jobs__detail {
+  position: sticky;
+  top: var(--tj-topbar);
+  container-type: inline-size;
+  height: calc(100vh - var(--tj-topbar));
+  overflow-y: auto;
+  padding: var(--spacing-5) var(--spacing-8) var(--spacing-12);
+}
+
+/* The note's two-column tabs fold to one when the pane itself is narrow, whatever the window is. */
+@container (max-width: 38.75rem) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ctools {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.ctools__row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.ctools__row > .z-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.ctools__meta {
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+.ctools__meta b {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The compact list: score, then role over company · pay · age. The open one has the lime rule. */
+.clist {
+  display: grid;
+  border-top: 1px solid var(--color-border);
+}
+
+.clist .clist__item {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: var(--spacing-3);
+  height: auto;
+  padding: var(--spacing-3) var(--spacing-3);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  text-align: left;
+  white-space: normal;
+}
+
+.clist .clist__item[aria-current="true"] {
+  background-color: var(--color-surface-sunken);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+
+.clist .clist__item[data-posted] {
+  background-color: color-mix(in srgb, var(--color-primary) 6%, transparent);
+}
+
+.clist__score {
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.clist__text {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.clist__role {
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+.clist__meta {
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+}
+
+.clist__pay--floor {
+  color: var(--color-primary);
+}
+
+.clist__pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding-top: var(--spacing-3);
+  font-size: var(--text-xs);
+}
+
+/* The note's own top line: previous, next, where it sits in the list, and (inline) close. */
+.sheet-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.sheet-nav__count {
+  padding-left: var(--spacing-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+.sheet-nav .sheet-nav__close {
+  margin-left: auto;
+}
+
+.sheet-head__title {
+  margin: 0;
+}
