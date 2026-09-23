@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.11.0 (2026-09-23)
+
+* feat(site): employer flow, public job pages and the tekjobs feed source ([7a78286](https://github.com/Timurtek/tekjobs/commit/7a78286))
+
 ## 0.10.0 (2026-09-23)
 
 * feat(site): terms of use, privacy policy and refund policy ([4a6ef72](https://github.com/Timurtek/tekjobs/commit/4a6ef72))
