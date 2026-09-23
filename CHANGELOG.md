@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.9.1 (2026-09-23)</small>
+
+* fix(site): add the files a failed git add left out of v0.9.0 ([388d5d4](https://github.com/Timurtek/tekjobs/commit/388d5d4))
+
 ## 0.9.0 (2026-09-23)
 
 * feat(site): the landing page and docs for tekjobs.timurtek.com ([6624620](https://github.com/Timurtek/tekjobs/commit/6624620))
