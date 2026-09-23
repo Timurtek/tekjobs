@@ -960,6 +960,20 @@ export function saveProfileNote(key, markdown) {
 // ---------- scan ----------
 const scan = { running: false, startedAt: null, finishedAt: null, exitCode: null, output: [], criteria: '' };
 export function scanStatus() { return { ...scan, output: scan.output.slice(-200) }; }
+/**
+ * The top of the last scan's ranking, dry or real, from the snapshot every run writes. This is how the
+ * onboarding shows "here is what your criteria find" before a single note exists: a dry run writes no notes,
+ * so search_jobs has nothing to say until the first real scan.
+ */
+export function scanPreview({ limit = 15 } = {}) {
+  let snap;
+  try { snap = JSON.parse(fs.readFileSync(P.lastRun, 'utf8')); } catch { return { when: null, minScore: null, total: 0, rows: [], note: 'No scan has run yet for this profile folder. run_scan first.' }; }
+  const rows = (snap.jobs || []).slice(0, Math.max(1, Math.min(50, Number(limit) || 15))).map((j) => ({
+    score: j.score, company: j.company, title: j.title, location: j.location, remote: !!j.remote, salary: j.salary || '', payBand: j.payBand, posted: j.posted, url: j.url, source: j.source, isNew: !!j.isNew,
+    reasons: (j.reasons || []).slice(0, 3),
+  }));
+  return { when: snap.when, minScore: snap.minScore, total: (snap.jobs || []).length, aboveBar: (snap.jobs || []).filter((j) => j.score >= (snap.minScore || 0)).length, failed: (snap.failed || []).length, rows };
+}
 export function runScan(args = [], { criteria = '', retryFailed = false } = {}) {
   if (scan.running) return scanStatus();
   if (retryFailed) args = [...args, '--retry-failed'];

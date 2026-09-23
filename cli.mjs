@@ -2,7 +2,7 @@
 // tekjobs CLI: init a profile folder, import a resume, check onboarding, scan, serve, mcp.
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = fileURLToPath(new URL('.', import.meta.url));
@@ -29,6 +29,10 @@ const HELP = `tekjobs — a local job-search machine
   tekjobs rescore --full [--dry]         score every note again from the note itself under the current criteria
                                          (for location, description or seniority rule changes); notes already
                                          at these weights are left alone
+  tekjobs schedule [--time HH:MM] [--print]
+                                         run the scan and the mail read every morning: creates the Windows task
+                                         (07:30 by default), or prints the crontab or launchd line for macOS and
+                                         Linux; --print shows the command without installing anything
   tekjobs serve                          the app + API on http://127.0.0.1:8787
   tekjobs mcp                            the MCP server on stdio (for Claude Code, Claude Desktop, ChatGPT, Cursor)
 
@@ -37,6 +41,7 @@ The profile folder is resolved from TEKJOBS_PROFILE, then ~/.tekjobs/config.json
 
 async function main() {
   if (!cmd || cmd === 'help' || cmd === '--help') return console.log(HELP);
+  if (cmd === 'schedule') return schedule();
   if (cmd === 'init') {
     const dirArg = rest.find((a) => !a.startsWith('--') && a !== opt('--resume'));
     const dir = path.resolve(dirArg || process.env.TEKJOBS_PROFILE || path.join(process.env.USERPROFILE || process.env.HOME || '.', '.tekjobs', 'profile'));
@@ -155,3 +160,42 @@ function printStatus(s) {
 }
 function run(bin, args) { const p = spawn(bin, args, { stdio: 'inherit', env: process.env }); p.on('close', (c) => process.exit(c ?? 0)); }
 main().catch((e) => { console.error(e.message); process.exit(1); });
+
+/**
+ * The morning task. On Windows, a Task Scheduler entry that runs run.cmd (the scan, then the mail read) daily;
+ * elsewhere, the crontab line or launchd plist that runs run.sh, printed for the person to install, because
+ * editing a crontab unasked is not this tool's place. --print shows the Windows command without running it.
+ */
+function schedule() {
+  const time = opt('--time') || '07:30';
+  if (!/^\d{2}:\d{2}$/.test(time)) return console.error('--time wants HH:MM, for example 07:30');
+  const [hh, mm] = time.split(':').map(Number);
+  const printOnly = rest.includes('--print');
+  if (process.platform === 'win32') {
+    const cmd = `schtasks /Create /F /SC DAILY /ST ${time} /TN "TekJobs Daily Scan" /TR "\\"${path.join(ROOT, 'run.cmd')}\\""`;
+    console.log(`Windows Task Scheduler entry "TekJobs Daily Scan", daily at ${time}, running run.cmd (the scan, then the mail read):\n  ${cmd}`);
+    if (printOnly) return;
+    const r = spawnSync(cmd, { shell: true, encoding: 'utf8' });
+    if (r.status === 0) console.log('Installed. See it in Task Scheduler, or remove it with: schtasks /Delete /TN "TekJobs Daily Scan" /F');
+    else console.error(`schtasks answered ${r.status}: ${(r.stderr || r.stdout || '').trim()}\nRun the command above in an elevated terminal if Windows asked for permission.`);
+    return;
+  }
+  const sh = path.join(ROOT, 'run.sh');
+  console.log(`Add one line to your crontab (crontab -e), daily at ${time}:\n  ${mm} ${hh} * * * ${sh}\n`);
+  if (process.platform === 'darwin') {
+    const plist = path.join(process.env.HOME || '~', 'Library', 'LaunchAgents', 'com.tekjobs.scan.plist');
+    console.log(`Or, on macOS, a launchd agent (it survives sleep better than cron):
+  cat > ${plist} <<'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.tekjobs.scan</string>
+  <key>ProgramArguments</key><array><string>/bin/sh</string><string>${sh}</string></array>
+  <key>StartCalendarInterval</key><dict><key>Hour</key><integer>${hh}</integer><key>Minute</key><integer>${mm}</integer></dict>
+  <key>EnvironmentVariables</key><dict><key>PATH</key><string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string></dict>
+</dict></plist>
+EOF
+  launchctl load ${plist}`);
+  }
+  console.log('\nBoth run run.sh: the scan, then the read-only mail pass, appending to data/runs.log.');
+}

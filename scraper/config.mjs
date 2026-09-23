@@ -64,9 +64,6 @@ export const ALL_ATS = ['greenhouse', 'lever', 'ashby', 'workday', 'rippling', '
 
 export function ensureDirs() {
   for (const d of [DATA_DIR, P.jobs, P.inbox, P.logs, P.profileDir, path.dirname(P.criteria)]) fs.mkdirSync(d, { recursive: true });
-  // One-time migration: the first version kept scan state in the repo's data/ folder.
-  const legacy = path.join(ROOT, 'data', 'seen.json');
-  if (!fs.existsSync(P.seen) && fs.existsSync(legacy)) fs.copyFileSync(legacy, P.seen);
 }
 
 /** Criteria live in a ```json fence inside Targets/Search Criteria.md */

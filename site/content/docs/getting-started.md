@@ -9,7 +9,8 @@ summary: Clone, import a resume, be interviewed, and let the morning task take i
 - **Node 20 or newer.** The scraper has one dependency (PDF reading); the app has its own `npm install`.
 - **A folder for your profile.** Plain markdown. Obsidian is the nicest way to read it, and not required.
 - **A coding CLI that can run tools, signed in on this machine.** Claude Code by default. The onboarding interview, cover letters, tailored resumes and the mail check all go through it, so there is no API key and nothing metered. Another CLI can be set in Settings.
-- **Its Gmail connector**, if you want Check mail. The run is boxed to Gmail's three read tools.
+- **Its Gmail connector**, if you want Check mail. Optional; the run is boxed to Gmail's three read tools.
+- **Git**, to clone. Windows, macOS or Linux; the morning task is set up for each by `tekjobs schedule`.
 
 Nothing personal lives in the repository. Your profile folder, criteria, watchlist, notes, mail state and `~/.tekjobs/config.json` are outside it.
 
@@ -54,4 +55,8 @@ npm run dev         # UI on http://localhost:5173
 
 ## The mornings
 
-The scan is `npm run scan` at the repository root; schedule it with your OS. A Windows Task Scheduler entry and `run.cmd` are included; launchd and cron equivalents are one line. `run.cmd` runs the scan and then the mail read, so by the time you open Today the matches are filed and the mailbox has been read.
+The scan is `npm run scan` at the repository root, and it should run every morning without you. `tekjobs schedule` sets that up: on Windows it creates the Task Scheduler entry (daily at 07:30, `--time` to change it) that runs `run.cmd`; on macOS and Linux it prints the crontab line, and on macOS a launchd agent too, that runs `run.sh`. Both do the scan and then the read-only mail pass, so by the time you open Today the matches are filed and the mailbox has been read. `--print` shows the command without installing anything.
+
+## How long it takes
+
+About twenty-five minutes end to end on a fresh machine: five for the install, ten for the interview (it asks its questions in one message and writes the notes itself), five for the first dry scan to fetch three hundred boards, five to look at the top matches and adjust a title term or the pay floor. After that the mornings are the scan's; yours start at Today.

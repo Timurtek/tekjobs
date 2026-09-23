@@ -32,7 +32,7 @@ export function initProfile(dir = VAULT) {
 export async function importResume(file, dir = VAULT) {
   if (!fs.existsSync(file)) throw Object.assign(new Error(`No such file: ${file}`), { status: 404 });
   const text = await extractText(file);
-  if (text.trim().length < 200) throw Object.assign(new Error('The resume text came out nearly empty. If it is a scanned PDF, export it as text or DOCX first.'), { status: 422 });
+  if (text.trim().length < 200) throw Object.assign(new Error(`The resume text came out at ${text.trim().length} characters; a resume is at least 200. If it is a scanned PDF, export it as text or DOCX first.`), { status: 422 });
   const profileDir = path.join(dir, 'Profile');
   fs.mkdirSync(profileDir, { recursive: true });
   const dest = path.join(profileDir, `Resume - Original${path.extname(file).toLowerCase()}`);
@@ -117,7 +117,7 @@ const INTERVIEW_SCRIPT = `You are onboarding a job seeker into TekJobs. Goal: wr
    - salary.minAnnual and salary.stretchAnnual as integers (or null if the user declines).
    - location.requireRemote true only if the user said remote only; add their metro to bayAreaTerms with bayAreaBoost 12 if hybrid there is acceptable.
    Call set_criteria with the full JSON string. It is validated before writing.
-5. Call run_scan with dry=true, wait with scan_status until it finishes, then search_jobs kind=all limit=15 and show the user the top matches with score, pay band and one reason each. Ask whether the list looks right. Adjust criteria once if not, then run a real scan (dry=false).
+5. Call run_scan with dry=true and poll scan_status every few seconds until running is false (two to three minutes). A dry run writes no notes, so do not use search_jobs yet: call scan_preview limit=15 and show the user the top matches with score, pay band and one reason each. Ask whether the list looks right. Adjust the criteria once if it does not (set_criteria, then another dry run_scan and scan_preview). When it does, call run_scan with dry=false and poll scan_status until it finishes; that run writes the notes, and search_jobs and the app's Today page work from then on.
 6. Finish by telling the user where things live: Profile/Profile.md, Targets/Search Criteria.md, Jobs/. Remind them the daily scan runs on its own from here.`;
 
 function criteriaNote(json) {
