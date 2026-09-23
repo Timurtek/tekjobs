@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.9.0 (2026-09-23)
+
+* feat(site): the landing page and docs for tekjobs.timurtek.com ([6624620](https://github.com/Timurtek/tekjobs/commit/6624620))
+
 ## 0.8.0 (2026-09-22)
 
 * feat(import): read Google and Apple job pages, and name plain pages properly ([10e91d4](https://github.com/Timurtek/tekjobs/commit/10e91d4))
