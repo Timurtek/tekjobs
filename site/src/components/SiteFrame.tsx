@@ -35,9 +35,12 @@ export function SiteFrame({ children }: { children: ReactNode }) {
             <main>{children}</main>
             <footer className="footer">
               <div className="wrap footer__inner">
-                <span>TekJobs is MIT licensed. Notes are the record.</span>
+                <span>TekJobs is MIT licensed. Notes are the record. © {new Date().getFullYear()} Timurtek LLC.</span>
                 <span className="footer__links">
-                  <a href={REPO} target="_blank" rel="noreferrer">github.com/Timurtek/tekjobs</a>
+                  <a href="/legal/terms">Terms</a>
+                  <a href="/legal/privacy">Privacy</a>
+                  <a href="/legal/refunds">Refunds</a>
+                  <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
                   <a href={ZENGIN} target="_blank" rel="noreferrer">built on Zengin</a>
                   <a href={AUTHOR} target="_blank" rel="noreferrer">timurtek.com</a>
                 </span>

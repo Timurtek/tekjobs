@@ -427,6 +427,15 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.sidebar__legal {
+  color: var(--color-text-faint);
+  text-decoration: none;
+}
+
+.sidebar__legal:hover {
+  color: var(--color-text);
+}
+
 /* Today's mail strip: one line and a button. */
 .mailstrip {
   display: flex;

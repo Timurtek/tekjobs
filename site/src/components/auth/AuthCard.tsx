@@ -47,6 +47,7 @@ export function AuthCard({ next = "/account" }: { next?: string }) {
           <TextField label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
           <TextField label="Password" type="password" autoComplete={mode === "in" ? "current-password" : "new-password"} required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
           <Button type="submit" tone="primary" loading={busy}>{mode === "in" ? "Sign in" : "Create account"}</Button>
+          <p className="consent">By continuing you agree to the <a href="/legal/terms">Terms of Use</a> and the <a href="/legal/privacy">Privacy Policy</a>. Accounts are for adults.</p>
           {mode === "in" && (
             <Button type="button" variant="link" size="sm" tone="neutral" disabled={!email || busy} onClick={() => run(() => auth.resetPassword(email), "Reset email sent")}>
               Send a password reset to {email || "your email"}

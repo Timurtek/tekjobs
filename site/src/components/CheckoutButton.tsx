@@ -19,5 +19,10 @@ export function CheckoutButton({ open }: { open: boolean }) {
       window.location.assign(data.url);
     } catch (e) { toast({ title: "Could not start checkout", description: (e as Error).message, tone: "danger" }); setBusy(false); }
   };
-  return <Button tone="primary" loading={busy} onClick={go}>Continue to payment</Button>;
+  return (
+    <div className="stack">
+      <Button tone="primary" loading={busy} onClick={go}>Continue to payment</Button>
+      <p className="consent">One posting, 30 days, paid once through Stripe. By paying you agree to the <a href="/legal/terms">Terms of Use</a>, including the posting rules in section 3, and the <a href="/legal/refunds">Refund Policy</a>.</p>
+    </div>
+  );
 }
