@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.16.0 (2026-09-23)
+
+* feat(app): the sidebar is an icon strip across the top on phones ([1c4cd39](https://github.com/Timurtek/tekjobs/commit/1c4cd39))
+
 ## 0.15.0 (2026-09-23)
 
 * feat(app): jobs as master-detail on wide screens, with J/K and a counter ([e4b04b0](https://github.com/Timurtek/tekjobs/commit/e4b04b0))
