@@ -1,4 +1,40 @@
+# Secrets and local configuration, anywhere in the repository. The examples are the only env files tracked.
+.env
+.env.*
+!.env.example
+*.local
+# Service-account and key files that tend to land next to the code that uses them.
+*-firebase-adminsdk-*.json
+serviceAccount*.json
+service-account*.json
+*.pem
+*.p12
+
 # Runtime state and scan output. The vault is the record; nothing in data/ is source.
 data/*
 !data/.gitkeep
+
+# Dependencies and build outputs, at every root (/, app/, site/).
 node_modules/
+dist/
+.next/
+out/
+storybook-static/
+next-env.d.ts
+*.tsbuildinfo
+# Built from zengin/tokens*.json by `zengin tokens`
+**/src/styles/generated/
+
+# Tooling state.
+.vercel/
+.turbo/
+.cache/
+coverage/
+npm-debug.log*
+yarn-error.log*
+
+# Editors and operating systems.
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

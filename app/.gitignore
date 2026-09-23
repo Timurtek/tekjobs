@@ -1,5 +1,10 @@
+# The repository root's .gitignore covers env files, secrets, node_modules and build output for this folder
+# too; this file only restates what is specific to the app, for anyone who opens app/ on its own.
 node_modules/
 dist/
 storybook-static/
 # Built from zengin/tokens*.json by `zengin tokens`
 src/styles/generated/
+.env
+.env.*
+!.env.example
