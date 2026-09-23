@@ -231,8 +231,7 @@ body {
 }
 
 @media (max-width: 64rem) {
-  .nav__links,
-  .nav__account {
+  .nav__links {
     display: none;
   }
 
@@ -558,6 +557,60 @@ body {
   text-wrap: pretty;
 }
 
+/* Post a job: the offer on the left, what scores well on the right, under the four steps. */
+.posting {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--spacing-12);
+  align-items: start;
+  margin-top: var(--spacing-12);
+}
+
+@media (max-width: 60rem) {
+  .posting {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--spacing-8);
+  }
+}
+
+.posting__offer {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.posting__price {
+  font-family: var(--font-mono);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-none);
+  color: var(--color-primary);
+}
+
+.posting__price small {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.posting__tips {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.posting__list {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.posting__list li {
+  padding-left: var(--spacing-4);
+  border-left: 2px solid var(--color-primary);
+  color: var(--color-text-muted);
+  text-wrap: pretty;
+}
+
 /* Numbers */
 .proof__figure {
   font-family: var(--font-mono);
@@ -706,6 +759,249 @@ body {
   line-height: var(--leading-normal);
 }
 
+/* The employer's front door: pitch left, sign-in right. */
+.employer {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--spacing-12);
+  align-items: start;
+}
+
+@media (max-width: 64rem) {
+  .employer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.employer__pitch {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.employer__steps {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding-left: var(--spacing-5);
+  color: var(--color-text-muted);
+}
+
+.employer__steps strong {
+  color: var(--color-text);
+}
+
+.employer__price {
+  font-size: var(--text-lg);
+}
+
+.employer__price .num {
+  color: var(--color-primary);
+  font-size: var(--text-2xl);
+}
+
+.employer__side {
+  display: grid;
+  gap: var(--spacing-4);
+  position: sticky;
+  top: calc(var(--spacing-16) + var(--spacing-6));
+}
+
+/* An empty state: what belongs here, and the one action that starts it. */
+.empty {
+  display: grid;
+  gap: var(--spacing-6);
+  padding: var(--spacing-10);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  justify-items: center;
+}
+
+.empty__text {
+  display: grid;
+  gap: var(--spacing-3);
+  max-width: 40rem;
+}
+
+.empty__text h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.empty .hero__actions {
+  justify-content: center;
+}
+
+/* Form primitives the posting form is built from. */
+.form {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.form__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-4);
+  align-items: start;
+}
+
+@media (max-width: 40rem) {
+  .form__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.form__actions .spacer {
+  flex: 1;
+}
+
+.microlabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.cell-text {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.cell-text small {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* The posting form: sections as cards, the reader's card on the right. */
+.pform {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: var(--spacing-10);
+  align-items: start;
+}
+
+@media (max-width: 64rem) {
+  .pform {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pform__main {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.pform__h {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.pform__errors ul {
+  margin: var(--spacing-2) 0 0;
+  padding-left: var(--spacing-5);
+}
+
+.pform__errors {
+  border-color: var(--color-danger);
+  color: var(--color-text);
+}
+
+.pform__regions {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pform__checks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--spacing-2) var(--spacing-4);
+  padding-top: var(--spacing-2);
+}
+
+@media (max-width: 40rem) {
+  .pform__checks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pform__preview {
+  min-height: 12rem;
+  padding: var(--spacing-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.pform__aside {
+  position: sticky;
+  top: calc(var(--spacing-16) + var(--spacing-6));
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.pcard {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+}
+
+.pcard__company {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.pcard__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.pcard__meta {
+  display: grid;
+  gap: var(--spacing-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.pcard__reasons {
+  display: grid;
+  border-top: 1px solid var(--color-border);
+}
+
+.pcard__reasons > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+}
+
+.pcard__reasons .num {
+  color: var(--color-primary);
+}
+
+.pcard__note {
+  font-size: var(--text-xs);
+}
+
 /* Auth, account, post a job */
 .authcard {
   display: grid;
@@ -769,4 +1065,139 @@ body {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* The public board: one row per live posting, the pay first because that is what people read first. */
+.jobs {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.jobrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "company company" "title meta";
+  gap: var(--spacing-1) var(--spacing-6);
+  padding: var(--spacing-5) 0;
+  border-bottom: 1px solid var(--color-border);
+  color: inherit;
+  text-decoration: none;
+}
+
+.jobrow:hover .jobrow__title {
+  color: var(--color-primary);
+}
+
+.jobrow__company {
+  grid-area: company;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.jobrow__title {
+  grid-area: title;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.jobrow__meta {
+  grid-area: meta;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-4);
+  align-items: baseline;
+  justify-content: end;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+.jobrow__pay {
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 40rem) {
+  .jobrow {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "company" "title" "meta";
+  }
+
+  .jobrow__meta {
+    justify-content: start;
+    text-align: left;
+  }
+}
+
+/* One job: the posting on the left, the apply card on the right. */
+.job {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: var(--spacing-12);
+  align-items: start;
+}
+
+@media (max-width: 64rem) {
+  .job {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.job__main {
+  display: grid;
+  gap: var(--spacing-8);
+  max-width: 46rem;
+}
+
+.job__head {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.job__head .eyebrow {
+  text-decoration: none;
+}
+
+.job__company {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.job__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.job__pay {
+  color: var(--color-primary);
+}
+
+.job__tags {
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.job__aside {
+  position: sticky;
+  top: calc(var(--spacing-16) + var(--spacing-6));
+}
+
+.job__aside .pcard__reasons a {
+  color: var(--color-text);
 }

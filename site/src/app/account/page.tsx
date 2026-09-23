@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 /** The server decides who is here; the client panel only renders it and offers sign-out. */
 export default async function AccountPage() {
   const who = await currentIdentity();
-  if (!who) redirect("/login");
+  if (!who) redirect("/login?next=/account");
   const entitlements = await listEntitlements(who.uid).catch(() => []);
   return (
     <section className="section">

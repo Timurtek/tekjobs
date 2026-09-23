@@ -71,7 +71,8 @@ if (!ONLY) {
   const tasks = [];
   if (!flag('--no-remoteok') && open.remoteok !== false) tasks.push(['RemoteOK', fetchRemoteOK]);
   if (!flag('--no-hn') && open.hn !== false) tasks.push(['HN Who is hiring', fetchHNWhoIsHiring]);
-  for (const [key, def] of Object.entries(OPEN_SOURCES)) if (open[key]) tasks.push([def.label, def.fn]);
+  // A source marked defaultOn (TekJobs' own postings) runs unless the criteria say `false`; the rest are opt-in.
+  for (const [key, def] of Object.entries(OPEN_SOURCES)) if (def.defaultOn ? open[key] !== false : open[key]) tasks.push([def.label, def.fn]);
   // Open-source fetchers are handed the criteria. Most ignore it; the ones that read the profile (Adzuna
   // searches for its own titleTerms) need it, and the rest destructure their own options, so an extra
   // argument is harmless.

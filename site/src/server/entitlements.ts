@@ -16,6 +16,7 @@ export type Entitlement = {
   stripeCheckoutSessionId: string;
   stripePaymentIntentId?: string;
   priceId?: string;
+  postingId?: string;
   email?: string;
   consumedAt?: string;
   revokedAt?: string;
@@ -36,6 +37,7 @@ export async function grantFromCheckoutSession(session: CheckoutSession) {
     userId, sku, status: "active", createdAt: now, updatedAt: now, stripeCheckoutSessionId: session.id,
     ...(session.payment_intent ? { stripePaymentIntentId: String(session.payment_intent) } : {}),
     ...(session.customer_details?.email ? { email: session.customer_details.email } : {}),
+    ...(session.metadata?.postingId ? { postingId: session.metadata.postingId } : {}),
   };
   const ref = await col.add(doc);
   return { granted: true, id: ref.id };
@@ -51,6 +53,7 @@ export async function revokeByPaymentIntent(paymentIntentId: string) {
 
 export async function listEntitlements(userId: string): Promise<Entitlement[]> {
   if (!adminConfigured) return [];
-  const snap = await db().collection("entitlements").where("userId", "==", userId).orderBy("createdAt", "desc").limit(50).get();
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Entitlement, "id">) }));
+  // Sorted here rather than in the query, so no composite index has to exist before the first purchase.
+  const snap = await db().collection("entitlements").where("userId", "==", userId).limit(100).get();
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Entitlement, "id">) })).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

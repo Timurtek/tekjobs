@@ -236,6 +236,20 @@ export async function fetchTheMuse({ pages = 12 } = {}) {
   return { ok: true, jobs };
 }
 
+// TekJobs' own postings: the feed the site serves from what employers paid to post. On by default, because
+// it is the one source that exists for these readers; `openSources.tekjobs: false` turns it off.
+const TEKJOBS_FEED = process.env.TEKJOBS_FEED || 'https://tekjobs.timurtek.com/api/feed/jobs';
+export async function fetchTekJobs() {
+  const r = await req(TEKJOBS_FEED);
+  if (!r.ok || !Array.isArray(r.data?.jobs)) return bad(r);
+  const jobs = r.data.jobs.map((j) => job({
+    id: `tj:${j.id}`, source: 'tekjobs', company: j.company || 'Unknown', title: j.title || '', url: j.url, location: j.location || '', remote: !!j.remote,
+    posted: iso(j.posted), descriptionHtml: `<p>${String(j.description || '').replace(/\n\n/g, '</p><p>')}</p>${(j.tags || []).length ? `<p>Keywords: ${j.tags.join(', ')}</p>` : ''}${j.applyUrl ? `<p>Apply: ${j.applyUrl}</p>` : ''}${j.applyEmail ? `<p>Apply by email: ${j.applyEmail}</p>` : ''}`,
+    salary: j.salary || '', salaryMin: j.salaryMin || 0, salaryMax: j.salaryMax || 0, department: j.department || '', employmentType: j.employmentType || '',
+  }));
+  return { ok: true, jobs, scanned: jobs.length };
+}
+
 export async function fetchRemotive() {
   const jobs = []; const seen = new Set();
   for (const cat of ['software-dev', 'design', 'product']) {
@@ -502,6 +516,7 @@ export const OPEN_SOURCES = {
   adzuna: { label: 'Adzuna', fn: fetchAdzuna },
   usajobs: { label: 'USAJOBS (US federal)', fn: fetchUSAJobs },
   themuse: { label: 'The Muse (remote, design + engineering)', fn: fetchTheMuse },
+  tekjobs: { label: 'TekJobs postings', fn: fetchTekJobs, defaultOn: true },
   remotive: { label: 'Remotive', fn: fetchRemotive },
   himalayas: { label: 'Himalayas', fn: fetchHimalayas },
   jobicy: { label: 'Jobicy', fn: fetchJobicy },

@@ -7,11 +7,30 @@ export const ZENGIN = "https://zengin.timurtek.com";
 export const NAV: { href: string; label: string; external?: boolean }[] = [
   { href: "/#how", label: "How it works" },
   { href: "/#boundary", label: "The boundary" },
+  { href: "/#post", label: "For employers" },
+  { href: "/jobs", label: "Jobs" },
   { href: "/#proof", label: "Numbers" },
-  { href: "/#requirements", label: "Requirements" },
   { href: "/docs/getting-started", label: "Docs" },
   { href: REPO, label: "GitHub", external: true },
 ];
+
+/** Posting a job: the price and the four steps, in the order an employer meets them. */
+export const POSTING = {
+  price: "$49",
+  term: "30 days",
+  steps: [
+    { title: "Write it", body: "Title, company, location and whether it is remote, the pay range, and the description. The pay range is required: a posting without one scores lower in every TekJobs user's criteria, and most of them have a floor." },
+    { title: "Pay once", body: "$49 for 30 days, through Stripe. No subscription, no per-view charge, no upsell. The refund policy is one page." },
+    { title: "It enters the morning scan", body: "The posting becomes one more source every TekJobs user's software reads the next morning, scored against that user's own criteria like any Greenhouse or Ashby board. It is never emailed, pushed or promoted; it is found." },
+    { title: "Fits apply to you directly", body: "A user whose criteria the posting clears sees it on their Today page with the reasons it scored, and applies through your own link. We are not in the middle of the application, and we never hand you a list of who saw it." },
+  ],
+  scoresWell: [
+    "State the pay range, in the posting itself.",
+    "Say remote, hybrid or on-site plainly, with the country or time zone that applies.",
+    "Use the real title. Design engineers search for design engineer, not for rockstar.",
+    "Describe the work in the description: stack, systems, what the first quarter looks like. Keywords in the text are what the score reads.",
+  ],
+};
 
 /** The five moments, in the order they happen every day. */
 export const STEPS = [
