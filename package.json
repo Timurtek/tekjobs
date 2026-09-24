@@ -9,7 +9,7 @@
     "node": ">=20"
   },
   "bin": {
-    "tekjobs": "./cli.mjs"
+    "tekjobs": "cli.mjs"
   },
   "scripts": {
     "prepare": "husky || true",
