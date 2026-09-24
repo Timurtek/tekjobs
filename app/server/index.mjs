@@ -61,6 +61,7 @@ const routes = [
   ['POST', /^\/api\/criteria\/presets\/([^/]+)\/activate$/, (m) => store.activateCriteriaPreset(decodeURIComponent(m[1]))],
   ['GET', /^\/api\/criteria$/, () => store.getCriteria()],
   ['PUT', /^\/api\/criteria$/, async (_, __, req) => { const b = await readBody(req); return store.setCriteria(b.raw); }],
+  ['GET', /^\/api\/profile\/summary$/, () => store.profileSummary()],
   ['GET', /^\/api\/companies$/, () => store.companies()],
   ['GET', /^\/api\/feeds$/, () => store.feeds()],
   ['POST', /^\/api\/companies$/, async (_, __, req) => store.addCompany(await readBody(req))],

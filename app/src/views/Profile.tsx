@@ -1,6 +1,7 @@
 import { Badge, Button, Card, EmptyState, Icon, Markdown, Skeleton, Table, Tabs, TextArea, toast } from "@/components/ui";
 import { useEffect, useState } from "react";
-import { api, type ProfileNote, type Resumes } from "../api";
+import { api, type ProfileNote, type ProfileSummary, type Resumes } from "../api";
+import { ProfileSummaryView } from "../components/ProfileSummary";
 
 /** The note without its frontmatter, for reading. */
 const bodyOf = (md: string) => md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
@@ -120,7 +121,8 @@ function ResumeVariants({ onChanged }: { onChanged: () => void }) {
 
 export function Profile() {
   const [notes, setNotes] = useState<ProfileNote[] | null>(null);
-  const load = () => api.profileNotes().then((p) => setNotes(p.notes)).catch((e: Error) => toast({ title: "Could not load the profile", description: e.message, tone: "danger" }));
+  const [summary, setSummary] = useState<ProfileSummary | null>(null);
+  const load = () => { api.profileSummary().then(setSummary).catch(() => {}); return api.profileNotes().then((p) => setNotes(p.notes)).catch((e: Error) => toast({ title: "Could not load the profile", description: e.message, tone: "danger" })); };
   useEffect(() => { load(); }, []);
   if (!notes) return <Skeleton variant="rect" height="24rem" />;
   return (
@@ -130,12 +132,16 @@ export function Profile() {
           <p>Who you are, how the story is told, and how you write. Cover letters, tailored resumes and application packets read these notes; the scan reads the Criteria page. Saving keeps yesterday's copy beside the note.</p>
         </div>
       </div>
-      <Tabs defaultValue={notes[0]?.key ?? "profile"} variant="line" size="sm">
+      <Tabs defaultValue="summary" variant="line" size="sm">
         <Tabs.List aria-label="Profile notes">
+          <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
           {notes.map((n) => (
             <Tabs.Trigger key={n.key} value={n.key}>{n.title}</Tabs.Trigger>
           ))}
         </Tabs.List>
+        <Tabs.Content value="summary">
+          {summary ? <ProfileSummaryView s={summary} /> : <Skeleton variant="rect" height="12rem" />}
+        </Tabs.Content>
         {notes.map((n) => (
           <Tabs.Content key={n.key} value={n.key}>
             <div className="detail">

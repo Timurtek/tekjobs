@@ -134,6 +134,20 @@ export interface CriteriaPreset { name: string; file: string; valid: boolean; mi
 export interface CriteriaPresetDoc { name: string; file: string; raw: string; parsed: Record<string, unknown> | null; fingerprint: string }
 export interface ProfileNote { key: string; title: string; rel: string; path: string; markdown: string; editable: boolean; hint: string; exists: boolean }
 export interface ProfileNotes { profile: string; positioning: string; voice: string; resume: string; notes: ProfileNote[] }
+export type Level = "ok" | "warn" | "missing" | "info";
+/** The profile read as structure, checked against the criteria and the documents. */
+export interface ProfileSummary {
+  exists: boolean; status: string; updated: string;
+  basics: { name: string; location: string; email: string; links: string[]; currentRole: string };
+  summary: string;
+  targets: { tier: string; title: string; term: string }[];
+  constraints: { label: string; profile: string; criteria: string; level: Level }[];
+  proofPoints: { text: string; hasNumber: boolean }[];
+  documents: { label: string; state: string; level: Level; where: string }[];
+  attention: { level: Level; note: string; text: string }[];
+  feeds: { produces: string; reads: string }[];
+  resumeAgeDays: number | null;
+}
 
 export type CoverLetterEmphasis = "auto" | "design-systems" | "ai-product";
 export interface CoverLetterOptions { emphasis: CoverLetterEmphasis; length: "short" | "standard"; extra: string }
@@ -371,6 +385,7 @@ export const api = {
   deleteCriteriaPreset: (name: string) => request<CriteriaPreset[]>(`/api/criteria/presets/${encodeURIComponent(name)}`, { method: "DELETE" }),
   activateCriteriaPreset: (name: string) => request<Criteria>(`/api/criteria/presets/${encodeURIComponent(name)}/activate`, { method: "POST" }),
   profileNotes: () => request<ProfileNotes>("/api/profile"),
+  profileSummary: () => request<ProfileSummary>("/api/profile/summary"),
   saveProfileNote: (note: string, markdown: string) => request<{ saved: string }>("/api/profile", { method: "PUT", body: JSON.stringify({ note, markdown }) }),
   snippets: () => request<Snippets>("/api/snippets"),
   saveSnippets: (items: Snippet[]) => request<Snippets>("/api/snippets", { method: "PUT", body: JSON.stringify({ items }) }),

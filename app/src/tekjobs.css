@@ -1230,3 +1230,13 @@ p.panel--pad,
 .impact--after {
   color: var(--color-text-muted);
 }
+
+/* Profile summary: plain lists with a badge naming the note each line points at. */
+.summary__list {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}

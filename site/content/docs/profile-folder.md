@@ -24,6 +24,8 @@ The folder is resolved from `TEKJOBS_PROFILE`, then `~/.tekjobs/config.json`, th
 | `Logs/` | One note per scan. |
 | `.tekjobs/` | Scan state and mail state. Not notes. |
 
+The app's Profile page opens on a summary read from these notes: who, the target roles and whether a criteria title term would find each one, the constraints beside what the scan enforces, the documents and their age, what is stale, and which note feeds which draft. The Markdown stays the record; the summary is a reading of it.
+
 ## What is never rewritten
 
 A job note is written once. After that the scan only flips `listing: open` to `listing: closed <date>` when the posting disappears. Everything the app writes later is an append: a status-log line, a note, a packet field, a mail line, a person. The two exceptions are things you ask for on one note: Attach posting, which replaces the posting's facts, and `rescore --full`, which rewrites the score and reasons under new criteria and says so in the log.

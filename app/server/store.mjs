@@ -990,6 +990,103 @@ export function profile() {
   const resume = notes.find((n) => n.key === 'resume').markdown || [...LEGACY_RESUME_NOTES, 'Profile/Resume - Source.md'].map(read).find(Boolean) || '';
   return { profile: read('Profile/Profile.md'), positioning: read('Profile/Positioning.md'), voice: read('Profile/Voice.md'), resume, notes };
 }
+/**
+ * The profile as structure: who, what they aim at and whether the criteria agree, the constraints, the documents
+ * and their age, what is stale, and which note feeds which draft. Read from the Markdown each time; nothing is
+ * stored twice. Parsing follows the note's own headings and "- **Field:** value" lines.
+ */
+export function profileSummary() {
+  const md = safe(() => fs.readFileSync(P.profile, 'utf8'), '');
+  const fmOf = (text) => { const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/); const out = {}; if (m) for (const line of m[1].split(/\r?\n/)) { const i = line.indexOf(':'); if (i > 0) out[line.slice(0, i).trim()] = line.slice(i + 1).trim(); } return out; };
+  const fm = fmOf(md);
+  const section = (name) => { const m = md.match(new RegExp(`^## ${name.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}[^\\n]*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm')); return m ? m[1].trim() : ''; };
+  const field = (text, label) => { const m = text.match(new RegExp(`^- \\*\\*${label}[^*]*\\*\\*\\s*(.*)$`, 'm')); return m ? m[1].trim().replace(/\*\*/g, '').replace(/\s+/g, ' ') : ''; };
+  const basicsText = section('Basics'), constraintsText = section('Constraints & preferences') || section('Constraints');
+  const links = (field(basicsText, 'Links').match(/https?:\/\/[^\s·,)]+|[a-z0-9.-]+\.[a-z]{2,}(?:\/[^\s·,)]*)?/gi) || []).filter((x, i, arr) => arr.indexOf(x) === i);
+  const portfolio = field(basicsText, 'Portfolio'); if (portfolio && !links.includes(portfolio)) links.unshift(portfolio);
+  const basics = { name: field(basicsText, 'Name'), location: field(basicsText, 'Location'), email: field(basicsText, 'Email'), links, currentRole: field(basicsText, 'Current role') || field(basicsText, 'Current') || field(basicsText, 'Role') };
+  const whatHeading = (md.match(/^## (What [^\n]*)$/m) || [])[1] || 'What you are, in three sentences';
+  const summaryText = section(whatHeading).replace(/^\(The interview fills this in[\s\S]*$/m, '').replace(/^>.*$/gm, '').trim();
+  const proofPoints = section('Proof points').split(/\r?\n/).map((l) => l.replace(/^-\s*/, '').trim()).filter((l) => l && !/^\(/.test(l)).map((text) => ({ text, hasNumber: /\d/.test(text) }));
+  // Target roles: the table's rows, one entry per title, with the criteria title term that would find it.
+  const criteria = safe(() => loadCriteria(), {}) || {};
+  const terms = Object.keys(criteria.titleTerms || {}).map((t) => t.toLowerCase());
+  const targets = [];
+  for (const line of section('Target roles').split(/\r?\n/)) {
+    const cells = line.split('|').slice(1, -1).map((c) => c.trim());
+    if (cells.length < 2 || !/^[A-Z]$/.test(cells[0])) continue;
+    for (const title of cells[1].split(/\s*[·,;]\s*/).map((t) => t.trim()).filter(Boolean)) {
+      const lower = title.toLowerCase();
+      const term = terms.find((t) => lower.includes(t) || t.includes(lower)) || '';
+      targets.push({ tier: cells[0], title, term });
+    }
+  }
+  // Constraints beside what the scan enforces.
+  const moneyIn = (text) => { const m = text.replace(/,/g, '').match(/\$?\s*(\d{2,3})\s*k\b|\$\s*(\d{5,7})/i); return m ? (m[1] ? Number(m[1]) * 1000 : Number(m[2])) : null; };
+  const bullets = constraintsText.split(/\r?\n/).map((l) => l.replace(/^-\s*/, '').replace(/\*\*/g, '').trim()).filter(Boolean);
+  const bullet = (re) => bullets.find((b) => re.test(b)) || '';
+  const constraint = (label, re) => field(constraintsText, label) || bullet(re);
+  const payText = constraint('Pay floor', /floor|\bcomp\b|salary|\bpay\b|\$\s?\d/i);
+  const nums = payText ? [...payText.replace(/,/g, '').matchAll(/\$?\s*(\d{2,3})\s*k\b|\$\s*(\d{5,7})/gi)].map((m) => (m[1] ? Number(m[1]) * 1000 : Number(m[2]))) : [];
+  const profileFloor = nums[0] ?? null, profileStretch = nums[1] ?? null;
+  const critFloor = criteria.salary?.minAnnual ?? null, critStretch = criteria.salary?.stretchAnnual ?? null;
+  const workMode = constraint('Work mode', /\bremote\b|hybrid|on-?site/i);
+  const employmentText = constraint('Employment', /full-time|part-time|contract|freelance/i);
+  const startText = constraint('Earliest start', /\bstart\b|available|earliest|notice/i) || field(basicsText, 'Available from');
+  const stageText = constraint('Company stage', /stage|\bsize\b|headcount|startup|enterprise/i);
+  const avoidText = constraint('Industries to avoid', /avoid|industr|exclude|never/i);
+  // "Remote only. No hybrid, no relocation." is remote only: negated words are removed before the test.
+  const workModePlain = workMode.replace(/\b(no|not|never|without)\s+(hybrid|on-?site|office|relocation|relocating)\b/gi, '');
+  const profileRemoteOnly = /remote[\s-]*only|only remote/i.test(workMode) || (/^remote\b/i.test(workModePlain) && !/hybrid|on-?site|office|open to/i.test(workModePlain));
+  const fmt = (n) => (n == null ? '' : `$${Math.round(n / 1000)}k`);
+  const level = (ok, has) => (!has ? 'missing' : ok ? 'ok' : 'warn');
+  const constraints = [
+    { label: 'Pay floor', profile: profileFloor ? fmt(profileFloor) : payText, criteria: fmt(critFloor), level: level(profileFloor && critFloor && profileFloor === critFloor, !!(payText || critFloor)) },
+    { label: 'Stretch', profile: profileStretch ? fmt(profileStretch) : '', criteria: fmt(critStretch), level: profileStretch || critStretch ? level(profileStretch && critStretch && profileStretch === critStretch, true) : 'info' },
+    { label: 'Work mode', profile: workMode, criteria: criteria.location?.requireRemote ? 'remote only' : 'remote scores higher, on-site allowed', level: level(workMode ? profileRemoteOnly === !!criteria.location?.requireRemote : false, !!workMode) },
+    { label: 'Employment', profile: employmentText, criteria: '', level: employmentText ? 'info' : 'missing' },
+    { label: 'Company stage / size', profile: stageText, criteria: '', level: 'info' },
+    { label: 'Industries to avoid', profile: avoidText, criteria: (criteria.titleExclude || []).length ? `${criteria.titleExclude.length} excluded title words` : '', level: 'info' },
+    { label: 'Earliest start', profile: startText, criteria: '', level: startText ? 'info' : 'missing' },
+  ];
+  // Documents and their age.
+  const ageDays = (file) => safe(() => Math.round((Date.now() - fs.statSync(file).mtimeMs) / 864e5), null);
+  const resumeFile = path.join(VAULT, RESUME_NOTE);
+  const resumeAge = ageDays(resumeFile);
+  const resumes = safe(() => listResumes(), { files: [] });
+  const docState = (rel, label, freshDays) => { const file = path.join(VAULT, rel); const exists = fs.existsSync(file); const age = exists ? ageDays(file) : null; return { label, state: !exists ? 'missing' : freshDays && age > freshDays ? `${age} days old` : `updated ${age === 0 ? 'today' : age + 'd ago'}`, level: !exists ? 'missing' : freshDays && age > freshDays ? 'warn' : 'ok', where: rel }; };
+  const documents = [
+    docState(RESUME_NOTE, 'Resume of record', 60),
+    { label: 'Resume files', state: resumes.files.length ? `${resumes.files.length} file${resumes.files.length === 1 ? '' : 's'}${resumes.files.some((f) => f.current) ? ', one is the source' : ''}` : 'no folder yet', level: resumes.files.length ? 'ok' : 'info', where: resumes.dir || '' },
+    docState('Profile/Positioning.md', 'Positioning'),
+    docState('Profile/Voice.md', 'Voice'),
+    docState('Profile/Snippets.md', 'Snippets (copy panel)'),
+  ];
+  // What would trip a reader.
+  const attention = [];
+  if (!md) attention.push({ level: 'missing', note: 'Profile', text: 'Profile/Profile.md does not exist. Run the onboarding interview.' });
+  if (fm.status === 'draft') attention.push({ level: 'warn', note: 'Profile', text: 'The profile is still marked draft.' });
+  for (const [k, label] of [['name', 'Name'], ['location', 'Location'], ['email', 'Email'], ['currentRole', 'Current role']]) if (!basics[k]) attention.push({ level: 'missing', note: 'Profile', text: `Basics: ${label} is empty.` });
+  if (!summaryText) attention.push({ level: 'missing', note: 'Profile', text: 'The three-sentence summary is the template; every letter opens from it.' });
+  if (targets.length === 0) attention.push({ level: 'missing', note: 'Profile', text: 'No target roles in the table.' });
+  for (const t of targets.filter((t) => !t.term)) attention.push({ level: 'warn', note: 'Criteria', text: `"${t.title}" has no title term in the criteria, so the scan never finds it.` });
+  for (const c of constraints.filter((c) => c.level === 'missing')) attention.push({ level: 'missing', note: 'Profile', text: `Constraints: ${c.label} is empty.` });
+  for (const c of constraints.filter((c) => c.level === 'warn')) attention.push({ level: 'warn', note: 'Criteria', text: `${c.label}: the profile says ${c.profile}, the criteria say ${c.criteria || 'nothing'}.` });
+  // A profile without a Proof points section is not wrong (letters take their numbers from the resume of record); one with the section left empty is.
+  if (proofPoints.length === 0 && /^## Proof points/m.test(md)) attention.push({ level: 'warn', note: 'Profile', text: 'The Proof points section is empty; letters fall back to the resume of record for numbers.' });
+  for (const p of proofPoints.filter((p) => !p.hasNumber)) attention.push({ level: 'warn', note: 'Profile', text: `Proof point without a number: "${p.text.slice(0, 70)}${p.text.length > 70 ? '…' : ''}"` });
+  for (const d of documents.filter((d) => d.level !== 'ok' && d.level !== 'info')) attention.push({ level: d.level, note: d.label, text: d.level === 'missing' ? `${d.label} is missing (${d.where}).` : `${d.label} is ${d.state}; sync it if the file changed.` });
+  const feeds = [
+    { produces: 'Match scores and the daily scan', reads: 'Targets/Search Criteria.md only' },
+    { produces: 'Application packet: narrative, tailored summary and bullets, risks', reads: 'Profile, Positioning, the resume of record, the posting' },
+    { produces: 'Cover letters', reads: 'Voice for how it sounds; the resume of record as the only source of facts; Profile and Positioning for what leads' },
+    { produces: 'Tailored resumes', reads: 'The resume of record, reordered and pruned; never added to' },
+    { produces: 'The copy panel', reads: 'Snippets, seeded from Profile Basics' },
+    { produces: 'The onboarding interview', reads: 'Resume - Source, then writes Profile and the criteria' },
+  ];
+  return { exists: !!md, status: fm.status || '', updated: fm.updated || '', basics, summary: summaryText, targets, constraints, proofPoints, documents, attention, feeds, resumeAgeDays: resumeAge };
+}
+
 export function saveProfileNote(key, markdown) {
   const note = PROFILE_NOTES.find((n) => n.key === key);
   if (!note) throw Object.assign(new Error(`No profile note "${key}"`), { status: 404 });
