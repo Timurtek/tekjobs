@@ -347,7 +347,15 @@ export function runs() {
     const blocks = [...text.matchAll(/^## Run (.+?)\n([\s\S]*?)(?=^## Run |(?![\s\S]))/gm)].map((m) => {
       const b = m[2];
       const g = (re) => (b.match(re) || [])[1];
-      return { when: m[1].trim(), boardsOk: Number(g(/Boards: (\d+)\//)), boardsTotal: Number(g(/Boards: \d+\/(\d+)/)), scanned: Number((g(/postings scanned: ([\d,]+)/) || '0').replace(/,/g, '')), matched: Number(g(/scored ≥ \d+: (\d+)/)), newMatches: Number(g(/\*\*new: (\d+)\*\*/)), closed: Number(g(/closed: (\d+)/)), seconds: Number(g(/([\d.]+)s/)), failed: g(/Failed slugs: (.+)/) || '', criteria: g(/^- Criteria: (.+)$/m) || '' };
+      const head = m[1].trim();
+      const boardsOk = Number(g(/Boards: (\d+)\//)), boardsTotal = Number(g(/Boards: \d+\/(\d+)/));
+      // Feeds that failed are their own lines: "- Himalayas: failed: HTTP 503".
+      const feedsFailed = [...b.matchAll(/^- (.+?): failed: (.+)$/gm)].map((x) => `${x[1]} (${x[2]})`);
+      const dry = /\(dry\)/.test(head);
+      // Success: every board answered and every feed too. Partial: some did not. Failed: no board answered,
+      // which is a network or a broken install, not a bad slug.
+      const outcome = boardsTotal > 0 && boardsOk === 0 ? 'failed' : boardsOk === boardsTotal && feedsFailed.length === 0 ? 'success' : 'partial';
+      return { when: head.replace(/\s*\(dry\)\s*$/, ''), dry, via: g(/^- Via: (.+)$/m) || '', outcome, boardsOk, boardsTotal, scanned: Number((g(/postings scanned: ([\d,]+)/) || '0').replace(/,/g, '')), matched: Number(g(/scored ≥ \d+: (\d+)/)), newMatches: Number(g(/\*\*new: (\d+)\*\*/)), closed: Number(g(/closed: (\d+)/)), seconds: Number(g(/([\d.]+)s/)), failed: g(/Failed slugs: (.+)/) || '', feedsFailed, criteria: g(/^- Criteria: (.+)$/m) || '' };
     });
     return { date: f.replace(/\.md$/, ''), runs: blocks };
   });
@@ -976,12 +984,12 @@ export function scanPreview({ limit = 15 } = {}) {
   }));
   return { when: snap.when, minScore: snap.minScore, total: (snap.jobs || []).length, aboveBar: (snap.jobs || []).filter((j) => j.score >= (snap.minScore || 0)).length, failed: (snap.failed || []).length, rows };
 }
-export function runScan(args = [], { criteria = '', retryFailed = false } = {}) {
+export function runScan(args = [], { criteria = '', retryFailed = false, via = 'app' } = {}) {
   if (scan.running) return scanStatus();
   if (retryFailed) args = [...args, '--retry-failed'];
   if (criteria) getCriteriaPreset(criteria); // 404 now rather than a dead child process later
   scan.running = true; scan.startedAt = new Date().toISOString(); scan.finishedAt = null; scan.exitCode = null; scan.output = []; scan.criteria = criteria;
-  const child = spawn(process.execPath, [path.join(ROOT, 'run.mjs'), ...args, ...(criteria ? ['--criteria', criteria] : [])], { cwd: ROOT, env: process.env });
+  const child = spawn(process.execPath, [path.join(ROOT, 'run.mjs'), ...args, ...(criteria ? ['--criteria', criteria] : [])], { cwd: ROOT, env: { ...process.env, TEKJOBS_RUN_VIA: via } });
   const push = (d) => { for (const l of String(d).split(/\r?\n/)) if (l.trim()) scan.output.push(l); };
   child.stdout.on('data', push); child.stderr.on('data', push);
   child.on('close', (code) => { scan.running = false; scan.exitCode = code; scan.finishedAt = new Date().toISOString(); cache.key = ''; });

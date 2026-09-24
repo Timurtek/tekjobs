@@ -20,6 +20,6 @@ Some sites are not reachable from a scan and the docs say so rather than pretend
 
 ## A run
 
-`npm run scan` at the repository root. Around 25,000 postings fetched, deduplicated across sources on company and title, scored, and the ones that clear the bar written as notes. Listings that vanished from a board that fetched successfully are marked closed. A log note lands in `Logs/`, the dashboard `_Home.md` is regenerated, and the Runs page shows the history with a run button and a preset picker.
+`npm run scan` at the repository root. Around 25,000 postings fetched, deduplicated across sources on company and title, scored, and the ones that clear the bar written as notes. Listings that vanished from a board that fetched successfully are marked closed. A log note lands in `Logs/`, the dashboard `_Home.md` is regenerated, and the Runs page shows the history: each run as Success, Partial (some boards or feeds did not answer, with the list behind a disclosure) or Failed (nothing answered), whether it was the morning task, the app, an agent or the CLI, and dry runs marked; a run button, a preset picker, and Retry failed when the last run left boards behind.
 
 Flags: `--dry` scores without writing, `--only <slug>` fetches one board, `--check-slugs` reports boards that answer with nothing, `--criteria <name|file>` scores this run with a preset.

@@ -72,7 +72,7 @@ async function call(name, a = {}) {
     case 'save_cover_letter': return letter.save(a.id, a.text, 'mcp');
     case 'application_materials': return { job: store.getJob(a.id), packet: store.applicationPacket(a.id), ...store.profile() };
     case 'summary': return store.summary();
-    case 'run_scan': return store.runScan(a.dry ? ['--dry'] : [], { criteria: a.criteria || '' });
+    case 'run_scan': return store.runScan(a.dry ? ['--dry'] : [], { criteria: a.criteria || '', via: 'mcp' });
     case 'mail_check': return mail.start({ sinceDays: a.days });
     case 'mail_items': return mail.items();
     case 'preview_criteria': return store.previewCriteria(a.raw);

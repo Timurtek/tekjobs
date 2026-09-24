@@ -1163,3 +1163,28 @@
     display: none;
   }
 }
+
+/* Runs: the outcome word with the kind of run under it; the problems a partial run left, behind a click. */
+.runs__outcome {
+  display: grid;
+  gap: var(--spacing-1);
+  justify-items: start;
+}
+
+.runs__outcome small {
+  font-size: var(--text-xs);
+}
+
+.runs__live {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.runs__problems {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: 0 0 var(--spacing-2);
+  padding-left: var(--spacing-5);
+  font-size: var(--text-xs);
+}

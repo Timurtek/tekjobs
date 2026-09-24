@@ -42,7 +42,7 @@ const routes = [
   ['PATCH', /^\/api\/jobs\/([^/]+)$/, async (m, _, req) => { const b = await readBody(req); let job; if (b.status) job = store.setStatus(decodeURIComponent(m[1]), b.status, 'app', b.reason || ''); if (b.note) job = store.addNote(decodeURIComponent(m[1]), b.note, 'app'); if (b.application) job = store.saveApplicationDraft(decodeURIComponent(m[1]), b.application); return job || store.getJob(decodeURIComponent(m[1])); }],
   ['GET', /^\/api\/runs$/, () => store.runs()],
   ['GET', /^\/api\/scan$/, () => store.scanStatus()],
-  ['POST', /^\/api\/scan$/, async (_, __, req) => { const b = await readBody(req); return store.runScan(b.dry ? ['--dry'] : [], { criteria: b.criteria || '', retryFailed: !!b.retryFailed }); }],
+  ['POST', /^\/api\/scan$/, async (_, __, req) => { const b = await readBody(req); return store.runScan(b.dry ? ['--dry'] : [], { criteria: b.criteria || '', retryFailed: !!b.retryFailed, via: 'app' }); }],
   ['GET', /^\/api\/outcomes$/, () => store.outcomes()],
   ['GET', /^\/api\/views$/, () => store.getViews()],
   ['GET', /^\/api\/views\/defaults$/, () => store.defaultViews()],

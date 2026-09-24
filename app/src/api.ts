@@ -100,9 +100,17 @@ export interface Summary {
   companies: number;
   vault: string;
 }
+export type RunOutcome = "success" | "partial" | "failed";
 export interface RunEntry {
   date?: string;
   when: string;
+  /** A dry run scored but wrote nothing. */
+  dry: boolean;
+  /** schedule (the morning task), app, mcp (an agent), cli, or "" for logs written before this was recorded. */
+  via: string;
+  outcome: RunOutcome;
+  /** Feeds that failed, each "Name (reason)". */
+  feedsFailed: string[];
   boardsOk: number;
   boardsTotal: number;
   scanned: number;
