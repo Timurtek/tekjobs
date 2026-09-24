@@ -93,6 +93,6 @@ npm run dev         # the app on http://localhost:5173`;
 /** Screens on the landing, captured from a running vault. */
 export const SCREENS = [
   { src: "/screens/today.png", alt: "Today: the decision queue, in-flight applications, and what has gone quiet", caption: "Today" },
-  { src: "/screens/jobs.png", alt: "Jobs: filters as chips, saved views, the matches table", caption: "Jobs" },
+  { src: "/screens/jobs.png", alt: "Jobs: the match list beside the open note, with every reason it scored and the points each one earned", caption: "Jobs" },
   { src: "/screens/pipeline.png", alt: "Pipeline: committed work as columns from reviewing to offer", caption: "Pipeline" },
 ];
