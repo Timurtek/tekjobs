@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.25.0 (2026-09-24)
+
+* feat(site): who it is for, counted numbers, an AI-clients page, and honest privacy copy ([e809942](https://github.com/Timurtek/tekjobs/commit/e809942))
+* chore(deps): typescript 7 in the app and the site ([164fcf9](https://github.com/Timurtek/tekjobs/commit/164fcf9))
+* chore(npm): write the bin path the way npm normalises it ([b695e4f](https://github.com/Timurtek/tekjobs/commit/b695e4f))
+
 ## <small>0.24.2 (2026-09-24)</small>
 
 * fix(docs): the readme said nothing is published to npm ([7475812](https://github.com/Timurtek/tekjobs/commit/7475812))
