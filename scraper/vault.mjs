@@ -166,7 +166,9 @@ export function writeDashboard(summary) {
   out.push('');
   out.push('## Needs you');
   out.push(`- **${newOpen.length}** new matches waiting for a first look (below).`);
-  out.push(`- Open profile questions in [[Profile/Profile]] (comp, remote vs hybrid, which narrative leads).`);
+  // Only while the profile is still the template: a finished profile has no open questions to nag about.
+  const profileMd = (() => { try { return fs.readFileSync(P.profile, 'utf8'); } catch { return ''; } })();
+  if (!profileMd || /^status: draft$/m.test(profileMd) || profileMd.includes('(The interview fills this in')) out.push(`- The profile is not written yet: run the onboarding interview, or fill in [[Profile/Profile]] by hand.`);
   if (summary.companiesFailed) out.push(`- ${summary.companiesFailed} company slugs failed; see the Status column in [[Targets/Companies]].`);
   out.push('');
   out.push('## Pipeline');

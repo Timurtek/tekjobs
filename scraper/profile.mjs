@@ -91,7 +91,10 @@ export function saveProfile(markdown, dir = VAULT) {
 export async function fetchLink(url, { maxChars = 20000 } = {}) {
   const u = new URL(url);
   if (!/^https?:$/.test(u.protocol)) throw Object.assign(new Error('Only http(s) URLs.'), { status: 400 });
-  const res = await fetch(u, { headers: { 'user-agent': 'TekJobs/1.0 (onboarding; fetching a link the user gave)', accept: 'text/html,text/plain,application/json' }, signal: AbortSignal.timeout(20000), redirect: 'follow' });
+  // A link that does not resolve should say so in words the interviewer can pass on, not "fetch failed".
+  let res;
+  try { res = await fetch(u, { headers: { 'user-agent': 'TekJobs/1.0 (onboarding; fetching a link the user gave)', accept: 'text/html,text/plain,application/json' }, signal: AbortSignal.timeout(20000), redirect: 'follow' }); }
+  catch (e) { const why = e.name === 'TimeoutError' ? 'no answer in 20 seconds' : (e.cause && e.cause.code) || e.message; throw Object.assign(new Error(`Could not fetch ${u.hostname}: ${why}. Ask the person to check the link, or to paste the page's text instead.`), { status: 502 }); }
   const html = await res.text();
   const text = html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, '').replace(/<\/(p|div|li|h[1-6]|tr|section|article)>/gi, '\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n\n').trim();
   return { url, status: res.status, chars: text.length, text: text.slice(0, maxChars), truncated: text.length > maxChars };
