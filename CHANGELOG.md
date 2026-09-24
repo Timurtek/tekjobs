@@ -2,6 +2,11 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.24.1 (2026-09-24)</small>
+
+* fix(cli): publish as @timurtekb/tekjobs ([b573310](https://github.com/Timurtek/tekjobs/commit/b573310))
+* ci: publish to npm through trusted publishing, switched on by a variable ([36a0d56](https://github.com/Timurtek/tekjobs/commit/36a0d56))
+
 ## 0.24.0 (2026-09-24)
 
 * feat(cli): tekjobs --version ([0ed168a](https://github.com/Timurtek/tekjobs/commit/0ed168a))
