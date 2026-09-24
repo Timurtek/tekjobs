@@ -1,7 +1,8 @@
-// semantic-release. Releases are cut from commit messages on every push to main. Publishing to npm happens
-// only when NPM_TOKEN is present in the release job; without it the release still tags, writes the changelog
-// and publishes the GitHub notes, and `npx tekjobs` keeps serving the last published version.
-const publish = !!process.env.NPM_TOKEN;
+// semantic-release. Releases are cut from commit messages on every push to main. Publishing to npm uses Trusted
+// Publishing (the release job proves it is this repository's workflow over OIDC; no token exists anywhere) and is
+// switched on by the repository variable NPM_PUBLISH=true once npm has the workflow registered as the package's
+// trusted publisher. Off, the release still tags, writes the changelog and publishes the GitHub notes.
+const publish = process.env.NPM_PUBLISH === 'true';
 module.exports = {
   "branches": [
     "main"

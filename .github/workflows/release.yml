@@ -51,6 +51,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      id-token: write   # npm Trusted Publishing: the job proves its identity to npm over OIDC
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,6 +61,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://registry.npmjs.org
+      # Trusted Publishing needs npm 11.5.1 or newer; Node 22 ships an older one.
+      - run: npm install -g npm@latest
       - run: npm ci --ignore-scripts
       # The package ships the built UI (app/dist), so the release job builds it before publishing.
       - run: npm ci --ignore-scripts
@@ -69,4 +73,4 @@ jobs:
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_PUBLISH: ${{ vars.NPM_PUBLISH }}
