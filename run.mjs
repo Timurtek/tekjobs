@@ -8,6 +8,7 @@ import { scoreJob, parseSalary } from './scraper/score.mjs';
 import { loadSeen, saveSeen, writeJobNote, markClosedListings, appendLog, writeDashboard, readFrontmatter } from './scraper/vault.mjs';
 import { weightsFingerprint } from './scraper/rescore.mjs';
 import { loadHealth, saveHealth, record, healthState } from './scraper/health.mjs';
+import { writeStatus } from './scraper/scan-status.mjs';
 
 const args = process.argv.slice(2);
 const flag = (f) => args.includes(f);
@@ -28,6 +29,11 @@ async function pool(items, n, fn) {
 
 const t0 = Date.now();
 ensureDirs();
+// The scan's status lives on disk (scan-status.json in the data dir) so the app, the MCP server and a later
+// process all read the same answer to "is a scan running", whichever of them started it and whether or not
+// that process is still around. The finish record is written on every exit path, including process.exit().
+writeStatus({ pid: process.pid, started: new Date().toISOString(), dry: DRY, criteria: opt('--criteria') || '', via: process.env.TEKJOBS_RUN_VIA || 'cli', retryFailed: RETRY });
+process.on('exit', (code) => { try { writeStatus({ finished: new Date().toISOString(), exitCode: code }); } catch { /* a failed status write must not mask the exit code */ } });
 // Which criteria this run scores with: the active note, or a named preset / any criteria file for this run only.
 let criteriaFile = P.criteria, criteriaName = 'Search Criteria';
 if (opt('--criteria')) {

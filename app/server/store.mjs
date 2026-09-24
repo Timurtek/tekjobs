@@ -4,8 +4,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { readStatus as readScanStatus, writeStatus as writeScanStatus, scanState, tail as tailLog, logFile } from '../../scraper/scan-status.mjs';
 import { fileURLToPath } from 'node:url';
-import { P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
+import { DATA_DIR, P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
 import { loadHealth, healthState } from '../../scraper/health.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../scraper/vault.mjs';
 import { weightsFingerprint, titlePoints, recencyPoints, payPoints, rescoreFull } from '../../scraper/rescore.mjs';
@@ -1102,8 +1103,13 @@ export function saveProfileNote(key, markdown) {
 }
 
 // ---------- scan ----------
-const scan = { running: false, startedAt: null, finishedAt: null, exitCode: null, output: [], criteria: '' };
-export function scanStatus() { return { ...scan, output: scan.output.slice(-200) }; }
+// The scan runs as a detached child with its output in the data dir's scan.log, and it writes scan-status.json
+// itself at start and at exit. Nothing about it lives in this process, so a one-shot MCP client (claude -p,
+// codex exec) whose server exits after every turn still gets the truth on the next turn, and so does the app
+// after a restart.
+export function scanStatus() {
+  return scanState(readScanStatus(), tailLog(logFile(), 200));
+}
 /**
  * The top of the last scan's ranking, dry or real, from the snapshot every run writes. This is how the
  * onboarding shows "here is what your criteria find" before a single note exists: a dry run writes no notes,
@@ -1119,13 +1125,18 @@ export function scanPreview({ limit = 15 } = {}) {
   return { when: snap.when, minScore: snap.minScore, total: (snap.jobs || []).length, aboveBar: (snap.jobs || []).filter((j) => j.score >= (snap.minScore || 0)).length, failed: (snap.failed || []).length, rows };
 }
 export function runScan(args = [], { criteria = '', retryFailed = false, via = 'app' } = {}) {
-  if (scan.running) return scanStatus();
+  if (scanStatus().running) return scanStatus();
   if (retryFailed) args = [...args, '--retry-failed'];
   if (criteria) getCriteriaPreset(criteria); // 404 now rather than a dead child process later
-  scan.running = true; scan.startedAt = new Date().toISOString(); scan.finishedAt = null; scan.exitCode = null; scan.output = []; scan.criteria = criteria;
-  const child = spawn(process.execPath, [path.join(ROOT, 'run.mjs'), ...args, ...(criteria ? ['--criteria', criteria] : [])], { cwd: ROOT, env: { ...process.env, TEKJOBS_RUN_VIA: via } });
-  const push = (d) => { for (const l of String(d).split(/\r?\n/)) if (l.trim()) scan.output.push(l); };
-  child.stdout.on('data', push); child.stderr.on('data', push);
-  child.on('close', (code) => { scan.running = false; scan.exitCode = code; scan.finishedAt = new Date().toISOString(); cache.key = ''; });
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  const log = fs.openSync(logFile(), 'w');
+  const child = spawn(process.execPath, [path.join(ROOT, 'run.mjs'), ...args, ...(criteria ? ['--criteria', criteria] : [])], {
+    cwd: ROOT, env: { ...process.env, TEKJOBS_RUN_VIA: via }, detached: true, stdio: ['ignore', log, log], windowsHide: true,
+  });
+  fs.closeSync(log);
+  child.unref();
+  // A provisional start record, so a second run_scan in the next few milliseconds sees this one; the child
+  // overwrites it with its own as soon as it is up.
+  writeScanStatus({ pid: child.pid, started: new Date().toISOString(), dry: args.includes('--dry'), criteria, via, retryFailed });
   return scanStatus();
 }
