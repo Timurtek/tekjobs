@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.18.1 (2026-09-24)</small>
+
+* fix: what the interview meets on a dead link and on the first dashboard ([0f3ff65](https://github.com/Timurtek/tekjobs/commit/0f3ff65))
+
 ## 0.18.0 (2026-09-23)
 
 * feat(cli): tekjobs schedule, and the first-run path as a stranger meets it ([07ef3ea](https://github.com/Timurtek/tekjobs/commit/07ef3ea))
