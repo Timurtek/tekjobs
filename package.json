@@ -1,5 +1,5 @@
 {
-  "name": "tekjobs",
+  "name": "@timurtekb/tekjobs",
   "version": "0.24.0",
   "description": "A local-first job-search machine: watches hundreds of company job boards, scores every posting against your profile, and files matches into a folder of markdown notes you own. Bring your own LLM through MCP.",
   "type": "module",

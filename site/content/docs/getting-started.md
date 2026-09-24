@@ -19,10 +19,10 @@ Nothing personal lives in the repository. Your profile folder, criteria, watchli
 Without cloning:
 
 ```
-npx tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
+npx @timurtekb/tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
 ```
 
-The folder can be anywhere; inside an Obsidian vault is the nicest place. For the morning task, install rather than run from npx's cache: `npm install -g tekjobs`, then `tekjobs schedule`. From a clone, to change the code:
+The folder can be anywhere; inside an Obsidian vault is the nicest place. For the morning task, install rather than run from npx's cache: `npm install -g @timurtekb/tekjobs`, then `tekjobs schedule`. From a clone, to change the code:
 
 ```
 git clone https://github.com/Timurtek/tekjobs && cd tekjobs

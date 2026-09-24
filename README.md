@@ -26,10 +26,10 @@ Nothing personal lives in this repository. Your profile folder (profile, resume,
 Without cloning:
 
 ```
-npx tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
+npx @timurtekb/tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
 ```
 
-The folder can be anywhere; inside an Obsidian vault is the nicest place. For the daily task, install it rather than running from npx's cache, so the scheduled command has a home that lasts: `npm install -g tekjobs`, then `tekjobs schedule`.
+The folder can be anywhere; inside an Obsidian vault is the nicest place. For the daily task, install it rather than running from npx's cache, so the scheduled command has a home that lasts: `npm install -g @timurtekb/tekjobs`, then `tekjobs schedule`.
 
 From a clone (to change the code, or to run the app from source):
 
@@ -138,7 +138,7 @@ tools/                     board and source discovery scripts
 
 ## Releases
 
-The package on npm is `tekjobs`; every release that changes the scan, the CLI or the app is published there by the release workflow (`npx tekjobs` runs the latest). Versions come from the commit messages, by [semantic-release](https://semantic-release.gitbook.io/) on every push to `main` (`.github/workflows/release.yml`): tests, the app's type check and `zengin check` run first; then `feat:` commits make a minor release and `fix:` and `perf:` a patch. The project is at 0.x on purpose, so a `BREAKING CHANGE:` footer or a `!` after the type also bumps the minor (the `releaseRules` line in `.releaserc.json`); delete that line when 1.0 is earned and breaking changes become majors. The release bumps `package.json`, writes `CHANGELOG.md`, tags `vX.Y.Z` and publishes the notes on GitHub. Nothing is published to npm. Commit messages are checked locally by commitlint through a husky hook (`npm install` at the root sets it up), in the [Conventional Commits](https://www.conventionalcommits.org/) shape: `type(scope): summary`, scope optional, and a prose body is welcome. The app's sidebar footer shows the running version.
+The package on npm is [`@timurtekb/tekjobs`](https://www.npmjs.com/package/@timurtekb/tekjobs) (the bare name was too close to an existing package for npm's liking); every release that changes the scan, the CLI or the app is published there by the release workflow, and `npx @timurtekb/tekjobs` runs the latest. Versions come from the commit messages, by [semantic-release](https://semantic-release.gitbook.io/) on every push to `main` (`.github/workflows/release.yml`): tests, the app's type check and `zengin check` run first; then `feat:` commits make a minor release and `fix:` and `perf:` a patch. The project is at 0.x on purpose, so a `BREAKING CHANGE:` footer or a `!` after the type also bumps the minor (the `releaseRules` line in `.releaserc.json`); delete that line when 1.0 is earned and breaking changes become majors. The release bumps `package.json`, writes `CHANGELOG.md`, tags `vX.Y.Z` and publishes the notes on GitHub. Nothing is published to npm. Commit messages are checked locally by commitlint through a husky hook (`npm install` at the root sets it up), in the [Conventional Commits](https://www.conventionalcommits.org/) shape: `type(scope): summary`, scope optional, and a prose body is welcome. The app's sidebar footer shows the running version.
 
 ## Contributing
 
