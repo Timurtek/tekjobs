@@ -2,6 +2,11 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.24.2 (2026-09-24)</small>
+
+* fix(docs): the readme said nothing is published to npm ([7475812](https://github.com/Timurtek/tekjobs/commit/7475812))
+* fix(release): make semantic-release use the npm plugin that knows trusted publishing ([6ee8f48](https://github.com/Timurtek/tekjobs/commit/6ee8f48))
+
 ## <small>0.24.1 (2026-09-24)</small>
 
 * fix(cli): publish as @timurtekb/tekjobs ([b573310](https://github.com/Timurtek/tekjobs/commit/b573310))
