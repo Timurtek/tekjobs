@@ -4,7 +4,7 @@ order: 9
 summary: 42 tools over stdio, so an agent can run the whole search against the same notes.
 ---
 
-`node app/server/mcp.mjs` speaks JSON-RPC over stdio, no SDK. The `app/.mcp.json` wires it for Claude Code; Claude Desktop, Cursor and ChatGPT take the same command.
+`tekjobs mcp` (from a clone, `node app/server/mcp.mjs`) speaks JSON-RPC over stdio, no SDK. Claude Code, Codex, Cursor and Claude Desktop all run that one command; [Connect your AI client](/docs/ai-clients) has the exact line for each. ChatGPT's web app cannot reach a local stdio server; for an OpenAI model, use Codex.
 
 | Area | Tools |
 | --- | --- |

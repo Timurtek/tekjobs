@@ -7,10 +7,10 @@ export function Proof() {
         <div className="section__head">
           <span className="eyebrow">Numbers</span>
           <div className="section__head-text">
-            <h2 className="title">From one real search</h2>
+            <h2 className="title">Counted, not claimed</h2>
             <p className="lead">
-              The author's own vault, on 22 September 2026. The board registry that produces the first two numbers is in the repository as{" "}
-              <a href={`${REPO}/blob/main/src/starter/companies-table.md`} target="_blank" rel="noreferrer">a markdown table</a>, and pull requests to it are the most useful contribution.
+              The board and tool counts are read from the repository on every build. The postings figure is from the author's own vault on 22 September 2026. The board registry is in the repository as{" "}
+              <a href={`${REPO}/blob/main/scraper/starter/companies-table.md`} target="_blank" rel="noreferrer">a markdown table</a>, and pull requests to it are the most useful contribution.
             </p>
           </div>
         </div>

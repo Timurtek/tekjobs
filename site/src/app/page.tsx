@@ -6,6 +6,7 @@ import { PostAJob } from "@/sections/PostAJob";
 import { Proof } from "@/sections/Proof";
 import { Requirements } from "@/sections/Requirements";
 import { Screens } from "@/sections/Screens";
+import { WhoFor } from "@/sections/WhoFor";
 import { purchasesOpen } from "@/lib/flags";
 
 export default function Page() {
@@ -14,6 +15,7 @@ export default function Page() {
       <Hero />
       <HowItWorks />
       <Screens />
+      <WhoFor />
       <Boundary />
       <PostAJob open={purchasesOpen} />
       <Proof />

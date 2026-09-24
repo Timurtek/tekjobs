@@ -22,7 +22,8 @@
     "check": "node run.mjs --dry --check-slugs",
     "serve": "node app/server/index.mjs",
     "mcp": "node app/server/mcp.mjs",
-    "sample": "node tools/make-sample-vault.mjs"
+    "sample": "node tools/make-sample-vault.mjs",
+    "counts": "node tools/counts.mjs"
   },
   "dependencies": {
     "pdf-parse": "^2.4.5"

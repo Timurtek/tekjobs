@@ -62,7 +62,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
                   <div className="detail">
                     <p className="muted">The interview runs in your own LLM, not here. Open Claude Code in the app folder (its .mcp.json connects it) and paste:</p>
                     <CodeBlock code={INTERVIEW_PROMPT} language="text" wrap />
-                    <p className="muted">Claude Desktop, ChatGPT or Cursor work the same way once the tekjobs MCP server is added; see Agent access.</p>
+                    <p className="muted">Codex, Cursor or Claude Desktop work the same way once the tekjobs MCP server is added; see Agent access.</p>
                   </div>
                 )}
                 {!s.done && s.id === "scan" && (

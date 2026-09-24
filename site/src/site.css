@@ -347,6 +347,15 @@ body {
   font-size: var(--text-base);
 }
 
+/* The line under the lead: the one sentence the page is built around. */
+.hero__coda {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
@@ -549,6 +558,16 @@ body {
   font-size: var(--text-xl);
   font-weight: var(--font-weight-semibold);
   line-height: var(--leading-tight);
+}
+
+/* Who it is for: a plain list inside a cell, same voice as the cell body. */
+.cell__list {
+  margin: 0;
+  padding-inline-start: var(--spacing-5);
+  display: grid;
+  gap: var(--spacing-2);
+  color: var(--color-text-muted);
+  text-wrap: pretty;
 }
 
 .step p,

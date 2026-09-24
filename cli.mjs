@@ -35,7 +35,7 @@ const HELP = `tekjobs — a local job-search machine
                                          (07:30 by default), or prints the crontab or launchd line for macOS and
                                          Linux; --print shows the command without installing anything
   tekjobs serve                          the app + API on http://127.0.0.1:8787
-  tekjobs mcp                            the MCP server on stdio (for Claude Code, Claude Desktop, ChatGPT, Cursor)
+  tekjobs mcp                            the MCP server on stdio (Claude Code, Codex, Cursor, Claude Desktop)
 
 The profile folder is resolved from TEKJOBS_PROFILE, then ~/.tekjobs/config.json, then ~/.tekjobs/profile.
 `;

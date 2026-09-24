@@ -1,18 +1,43 @@
-/** Everything the landing page says. Numbers come from the repository and one real vault, named beside each. */
+/**
+ * Everything the landing page says. Two numbers are counted from the repository by `npm run counts` at the root
+ * (the MCP tool list and the starter board registry) and land in counts.json; the postings figure is from one real
+ * vault, named beside it.
+ */
+import counts from "./counts.json";
 
 export const REPO = "https://github.com/Timurtek/tekjobs";
+export const NPM = "https://www.npmjs.com/package/@timurtekb/tekjobs";
+export const PACKAGE = "@timurtekb/tekjobs";
 export const AUTHOR = "https://www.timurtek.com";
 export const ZENGIN = "https://zengin.timurtek.com";
+export const COUNTS: { tools: number; boards: number } = counts;
 
 export const NAV: { href: string; label: string; external?: boolean }[] = [
   { href: "/#how", label: "How it works" },
+  { href: "/#who", label: "Who it is for" },
   { href: "/#boundary", label: "The boundary" },
   { href: "/#post", label: "For employers" },
   { href: "/jobs", label: "Jobs" },
-  { href: "/#proof", label: "Numbers" },
   { href: "/docs/getting-started", label: "Docs" },
   { href: REPO, label: "GitHub", external: true },
 ];
+
+/** The first screen: what it is, in the reader's terms, and the four facts on the sheet beneath. */
+export const HERO = {
+  eyebrow: "Local-first job search",
+  title: "A job search that",
+  titleEm: "remembers who you are.",
+  consequence: "Stop refreshing forty job boards, and stop re-explaining yourself to a chatbot every session.",
+  lead:
+    "TekJobs turns your resume, your preferences, your decisions and your application history into a career record on your own machine that your AI works from. Every morning it scans hundreds of public company boards, says why each role matched, drafts truthful application material, and stops before anything is sent.",
+  coda: "The model can change. Your context stays with you.",
+  spec: [
+    ["Company boards", `${COUNTS.boards}`],
+    ["Postings a run", "25k"],
+    ["MCP tools", `${COUNTS.tools}`],
+    ["Accounts", "0"],
+  ] as const,
+};
 
 /** Posting a job: the price and the four steps, in the order an employer meets them. */
 export const POSTING = {
@@ -36,7 +61,7 @@ export const POSTING = {
 export const STEPS = [
   {
     title: "Scan",
-    body: "Every morning: 350-plus company boards on Greenhouse, Lever, Ashby, Workday and the rest, the Google and Apple career pages, and a dozen aggregator feeds. Around 25,000 postings a run, deduplicated. All public, all key-free.",
+    body: `Every morning: the ${COUNTS.boards} company boards in the starter registry (Greenhouse, Lever, Ashby, Workday and the rest), the Google and Apple career pages, a dozen aggregator feeds, and any boards you add. Tens of thousands of postings a run, deduplicated. All public, all key-free.`,
   },
   {
     title: "Score",
@@ -56,41 +81,66 @@ export const STEPS = [
   },
 ];
 
+/** Who should install it, and who should not. Written so a reader can rule themselves out in a minute. */
+export const WHO = {
+  title: "Built for people who want to stay in charge",
+  lead:
+    "Most AI job-search tools begin with an empty prompt. TekJobs begins with what you already know: your experience, what you want, what you turned down and why, where you applied. Your AI works from that record instead of rediscovering you every session, and the record gets better the longer you search.",
+  forTitle: "It fits if",
+  for: [
+    "You apply across more than one kind of role and want criteria you can read and change.",
+    "You want to know why a job was recommended, point by point, before you spend an evening on it.",
+    "You already use Claude Code, Codex, Cursor or another MCP client and want it working from your notes.",
+    "You keep career notes in Markdown or Obsidian, or would like to start.",
+    "You want help with applications without anything being submitted for you.",
+  ],
+  notTitle: "It does not fit if",
+  not: [
+    "You want a hosted service with nothing to install. TekJobs is a command and a folder on your machine.",
+    "You want one-click applications sent on your behalf. It stops before send, on purpose.",
+    "You do not want any AI provider to see your resume. The scan and the notes never leave your machine, but the interview and the drafting send what you choose to the model you connect.",
+  ],
+};
+
 /** What the software will not do, stated as plainly as the features. */
 export const BOUNDARY = [
   { title: "It never submits an application.", body: "Drafts are written into the note and stop there. Applied, interviewing and offer are statuses only a person can set, because only a person knows." },
   { title: "It never touches LinkedIn on your behalf.", body: "No profile scraping, no automated messages. A single job link you paste is read once, the way a browser would open it." },
   { title: "It never sends mail.", body: "The mail check runs with only Gmail's read tools allowed and every write tool denied by name. The model extracts; matching and every change to a note is ordinary code, and nothing changes until you confirm." },
-  { title: "Nothing leaves your computer.", body: "The scan runs on your machine, the notes live in your folder, and the LLM is the coding CLI you already pay for, signed in locally. No accounts, no API keys, no telemetry." },
+  {
+    title: "Your files stay with you.",
+    body: "The scan runs on your machine, the notes live in your folder, and there is no TekJobs account or server holding a copy. What does leave: the requests to public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under its own terms. No telemetry, no key, nothing sent on your behalf.",
+  },
 ];
 
-/** Facts a reader can check: the repository, the scan log of one real vault on 2026-09-22. */
+/** Facts a reader can check: two counted from the repository, two from the author's own vault on 2026-09-22. */
 export const PROOF = [
-  { figure: "356", title: "boards watched", body: "Company boards on nine platforms plus the Atlassian, GitHub, Spotify and Amazon career APIs and the Google and Apple pages, in one daily run." },
-  { figure: "25k", title: "postings a run", body: "Fetched, deduplicated across sources, scored, and cut to the ones that clear your bar. About a minute on a laptop." },
-  { figure: "39", title: "MCP tools", body: "Claude Code, Claude Desktop, Cursor or ChatGPT can run the whole search over the same notes: find, move, draft, add boards, start scans, read the mailbox." },
+  { figure: `${COUNTS.boards}`, title: "company boards", body: "In the starter registry every new profile folder begins with: eleven board platforms plus the Atlassian, GitHub, Spotify and Amazon career APIs and the Google and Apple pages. Add your own; the author's vault watches 356." },
+  { figure: "25k", title: "postings a run", body: "The author's vault, 22 September 2026: fetched, deduplicated across sources, scored, and cut to the ones that clear the bar. About a minute on a laptop." },
+  { figure: `${COUNTS.tools}`, title: "MCP tools", body: "Claude Code, Codex, Cursor or Claude Desktop can run the whole search over the same notes: find, move, draft, add boards, start scans, read the mailbox." },
   { figure: "0", title: "accounts", body: "No sign-up, no server, no key. A folder of markdown and a scheduled task." },
 ];
 
 export const REQUIREMENTS = [
-  ["Node 20 or newer", "The scraper has one dependency; the app has its own install."],
+  ["Node 20 or newer", "One command installs it. The scan has one dependency, for reading PDF resumes."],
   ["A folder for your profile", "Plain markdown. Obsidian is the nicest way to read it, and not required."],
-  ["A coding CLI, signed in", "Claude Code by default. It writes the letters and resumes and reads the mailbox, so there is no API key and nothing metered."],
-  ["Its Gmail connector, for mail", "Optional. Check mail is boxed to Gmail's three read tools."],
+  ["An AI client that speaks MCP, signed in", "Claude Code, Codex, Cursor or Claude Desktop. It runs the interview and, over MCP, the search. No API key, nothing metered. The setup for each is one page in the docs."],
+  ["Claude Code with its Gmail connector, for mail", "Optional, and the one thing that needs Claude Code specifically. Check mail is boxed to Gmail's three read tools."],
 ] as const;
 
-export const INSTALL = `git clone https://github.com/Timurtek/tekjobs && cd tekjobs
-npm install
-npm run init -- --resume ~/Downloads/resume.pdf   # the profile folder, with your resume imported
+export const INSTALL = `npx ${PACKAGE} init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
+npm install -g ${PACKAGE}         # so the morning task has a command that lasts
 
-# Then the interview: open Claude Code in app/ and say
+# Connect your AI client. Claude Code is one line; Codex, Cursor and Claude Desktop are in the docs.
+claude mcp add tekjobs -- tekjobs mcp
+
+# Then say:
 #   "Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script."
 
-cd app && npm install
-npm run server      # API on http://127.0.0.1:8787
-npm run dev         # the app on http://localhost:5173`;
+tekjobs serve        # the app on http://127.0.0.1:8787
+tekjobs schedule     # the morning scan, every day at 07:30`;
 
-/** Screens on the landing, captured from a running vault. */
+/** Screens on the landing, captured from the fictional sample vault. */
 export const SCREENS = [
   { src: "/screens/today.png", alt: "Today: the decision queue, in-flight applications, and what has gone quiet", caption: "Today" },
   { src: "/screens/jobs.png", alt: "Jobs: the match list beside the open note, with every reason it scored and the points each one earned", caption: "Jobs" },

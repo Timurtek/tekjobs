@@ -1,59 +1,67 @@
 # TekJobs
 
-A local-first job-search machine. It watches hundreds of company job boards every day, scores every posting against a profile you own, and files the matches as markdown notes in a folder on your machine. The LLM is whichever one you already pay for, connected through MCP. No accounts, no API keys, nothing leaves your computer.
+[![npm](https://img.shields.io/npm/v/%40timurtekb%2Ftekjobs?label=npm)](https://www.npmjs.com/package/@timurtekb/tekjobs)
+[![release](https://img.shields.io/github/v/release/Timurtek/tekjobs?label=release)](https://github.com/Timurtek/tekjobs/releases)
+[![release workflow](https://github.com/Timurtek/tekjobs/actions/workflows/release.yml/badge.svg)](https://github.com/Timurtek/tekjobs/actions/workflows/release.yml)
+[![node](https://img.shields.io/node/v/%40timurtekb%2Ftekjobs?label=node)](package.json)
+[![license](https://img.shields.io/github/license/Timurtek/tekjobs)](LICENSE)
 
-Working name. Built by one person for his own search first; the venture and the product come after.
+A local career memory for you and your AI. TekJobs scans hundreds of public company job boards every morning, scores each posting against criteria you control, and saves the results as readable markdown files on your machine. Connect it to Claude Code, Codex, Cursor or Claude Desktop over MCP and your agent can weigh roles, prepare truthful application material and track the search, without ever making the final submission.
 
-## Requirements
+[Website](https://tekjobs.timurtek.com) · [Getting started](https://tekjobs.timurtek.com/docs/getting-started) · [Connect your AI client](https://tekjobs.timurtek.com/docs/ai-clients) · [npm](https://www.npmjs.com/package/@timurtekb/tekjobs) · [Releases](https://github.com/Timurtek/tekjobs/releases)
 
-- **Node 20 or newer.** The scraper has one dependency (PDF reading); the app has its own `npm install`.
-- **A folder for your profile.** Plain markdown. Obsidian is the nicest way to read it, and not required.
-- **A coding CLI that can run MCP tools, signed in on this machine.** Claude Code by default. The interview and everything an agent does over MCP work with any MCP client (Codex, Cursor, Claude Desktop). The app's "Write cover letter" and "Tailor resume" buttons run a CLI with the prompt as an argument and read its output; the default is `claude -p --output-format text`, and another command goes under `"llm"` in `~/.tekjobs/config.json` or on the Settings page. No API key, nothing metered.
-- **"Check mail" needs Claude Code specifically**, with its Gmail connector enabled. The run allows exactly three Gmail read tools by name and denies every write and shell tool, which is what makes it safe to run unattended; another CLI would need a Gmail MCP with matching tool names. Everything else works without it.
-- Optional: free Adzuna and USAJOBS keys for those two feeds, and `"contact"` in `~/.tekjobs/config.json` so the user agent on scan requests names a way to reach you.
+## Why it exists
 
-Nothing personal lives in this repository. Your profile folder (profile, resume, criteria, watchlist, job notes, logs, mail state) and `~/.tekjobs/config.json` are outside it; the repository is the code and the starter notes a new profile folder begins with.
+Most job-search products keep what they learn about your search inside their platform. TekJobs keeps it with you. Your resume, preferences, decisions, job notes, application history and drafts form a record on your own disk that gets more useful the longer you search, and you can change models, editors and AI clients without rebuilding it from zero.
 
-## What you get
+## Who it is for
 
-- **A profile folder** (default `~/.tekjobs/profile`): your profile, your resume as text, the scoring criteria, the board watchlist, one note per matched job, and scan logs. Plain markdown, readable in Obsidian or anything else.
-- **A daily scan** over Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold boards, the Atlassian, GitHub, Spotify and Amazon career APIs, the Google and Apple career pages (keyword-searched; they have no API), and eleven aggregator feeds including Wellfound's and Built In's remote listing pages. All public, all key-free. Two optional feeds need a free key: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, which is every federal posting in the United States. Job alert emails saved into `Inbox/` are read too, which is how LinkedIn and Indeed listings get in without anything contacting those sites. Around 25,000 postings a run, deduplicated, scored, and cut to the ones that fit you.
-- **An app** (Zengin UI): a Today queue, filterable jobs table with a detail sheet, drag-and-drop pipeline, a Sources page with each board's health and a retry for the failed ones, criteria editor, scan history with a run button, and the agent setup page.
-- **An MCP server** with 42 tools, so Claude Code, Claude Desktop, ChatGPT or Cursor can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans.
+It fits if you apply across more than one kind of role and want criteria you can read and change; if you want to know why a job was recommended, point by point; if you already use Claude Code, Codex, Cursor or another MCP client and want it working from your notes; if you keep career notes in Markdown or Obsidian, or would like to; and if you want help with applications without anything being submitted for you.
 
-## Getting started
+It does not fit if you want a hosted service with nothing to install (TekJobs is a command and a folder), if you want one-click applications sent on your behalf (it stops before send, on purpose), or if you do not want any AI provider to see your resume (the scan and the notes never leave your machine, but the interview and the drafting send what you choose to the model you connect).
 
-Without cloning:
+## What it does
 
-```
-npx @timurtekb/tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
-```
+- **A profile folder** (default `~/.tekjobs/profile`): your profile, your resume as text, the scoring criteria, the board watchlist, one note per matched job, your application history, and scan logs. Plain markdown, readable in Obsidian or anything else.
+- **A daily scan** over Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold boards, the Atlassian, GitHub, Spotify and Amazon career APIs, the Google and Apple career pages (keyword-searched; they have no API), and eleven aggregator feeds including Wellfound's and Built In's remote listing pages. All public, all key-free. Two optional feeds need a free key: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, which is every federal posting in the United States. Job alert emails saved into `Inbox/` are read too, which is how LinkedIn and Indeed listings get in without anything contacting those sites. Tens of thousands of postings a run, deduplicated, scored with every point written down as a reason, and cut to the ones that fit you.
+- **An app** (Zengin UI): a Today queue, a filterable jobs table with a detail sheet, a drag-and-drop pipeline from reviewing to offer, a Sources page with each board's health and a retry for the failed ones, a criteria editor with a live preview of what a change would do, scan history with a run button, the profile pages, and the agent setup page.
+- **Application material** written from your resume of record and checked against it: a tailored resume, a cover letter in your voice, and a copy panel for the answers forms keep asking for. Nothing is ever submitted; you review and click.
+- **An MCP server** with 42 tools, so Claude Code, Codex, Cursor or Claude Desktop can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans, read the mailbox.
 
-The folder can be anywhere; inside an Obsidian vault is the nicest place. For the daily task, install it rather than running from npx's cache, so the scheduled command has a home that lasts: `npm install -g @timurtekb/tekjobs`, then `tekjobs schedule`.
+## Quick start
 
-From a clone (to change the code, or to run the app from source):
+1. Create your search. The folder can be anywhere; inside an Obsidian vault is the nicest place.
 
-```
-git clone https://github.com/Timurtek/tekjobs && cd tekjobs
-npm install                                   # one dependency, for reading PDF resumes
-npm run init -- --resume ~/Downloads/resume.pdf   # creates the profile folder and imports the resume
-```
+   ```
+   npx @timurtekb/tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
+   ```
 
-Then the interview. Open Claude Code in the `app/` folder (its `.mcp.json` connects the `tekjobs` server) and say:
+2. Install the command, so the morning task has a home that lasts (npx's cache does not).
 
-> Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script: interview me, write my profile, set the criteria, run a dry scan, and show me the top matches.
+   ```
+   npm install -g @timurtekb/tekjobs
+   ```
 
-Any MCP client works the same way: the server is `tekjobs mcp` (or `node app/server/mcp.mjs` from a clone) on stdio; in Codex, Cursor or Claude Desktop, add it as `{ "command": "tekjobs", "args": ["mcp"] }`. The interview reads your resume, asks the few things a resume cannot say (target titles, seniority, work mode, pay floor, hard exclusions, links), writes `Profile/Profile.md` and the criteria, and runs the first scan. LinkedIn: give it your LinkedIn data export, not a URL; it will not scrape profile pages.
+3. Connect your AI client. Claude Code is one line; [Codex, Cursor and Claude Desktop](https://tekjobs.timurtek.com/docs/ai-clients) each take the same command, `tekjobs mcp`.
 
-Then the app:
+   ```
+   claude mcp add tekjobs -- tekjobs mcp
+   ```
 
-```
-cd app && npm install
-npm run server      # API on http://127.0.0.1:8787
-npm run dev         # UI on http://localhost:5173
-```
+   Then say:
 
-`npm run start` in `app/` builds the UI and serves it from the API on one port. The scan itself is `npm run scan` at the root. `tekjobs schedule` makes it a morning task: the Windows Task Scheduler entry that runs `run.cmd`, or the crontab or launchd line that runs `run.sh`, daily at 07:30 (`--time` to change it, `--print` to see the command first).
+   > Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script: interview me, write my profile, set the criteria, run a dry scan, and show me the top matches.
+
+   The interview reads your resume, asks the few things a resume cannot say (target titles, seniority, work mode, pay floor, hard exclusions, links), writes `Profile/Profile.md` and the criteria, and runs the first scan. LinkedIn: give it your LinkedIn data export, not a URL; it will not scrape profile pages.
+
+4. Run the app, and schedule the mornings.
+
+   ```
+   tekjobs serve        # the app on http://127.0.0.1:8787
+   tekjobs schedule     # the scan and the read-only mail pass, daily at 07:30 (--time to change it)
+   ```
+
+About twenty-five minutes end to end on a fresh machine, most of it the interview. To change the code, or to run the app from source, clone instead: `git clone https://github.com/Timurtek/tekjobs && cd tekjobs && npm install`, then `npm run init -- --resume <file>`; the app is `cd app && npm install && npm run dev` with `npm run server` beside it. The clone's `app/.mcp.json` connects the server for Claude Code on its own.
 
 ## Try it without your own data
 
@@ -65,6 +73,37 @@ cd app && npm run dev
 ```
 
 Point the API at it and the app shows a search in progress instead of an empty folder. Nothing in it is a real person, company or posting.
+
+## What local-first means
+
+TekJobs keeps your profile, criteria, job notes, decisions and application history in files on your machine. It has no account and keeps no hosted copy of those records. There is no telemetry.
+
+Two kinds of request do leave: the scan's reads of public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under that provider's terms. Optional sources (Adzuna, USAJOBS) call their APIs with your key. Your files remain the durable record whichever model you use.
+
+## Requirements
+
+- **Node 20 or newer.** The scan has one dependency (PDF reading); the app ships built.
+- **A folder for your profile.** Plain markdown. Obsidian is the nicest way to read it, and not required.
+- **An AI client that speaks MCP, signed in on this machine.** Claude Code by default; Codex, Cursor and Claude Desktop work the same way. The interview and everything an agent does over MCP run there. The app's "Write cover letter" and "Tailor resume" buttons run a CLI with the prompt as an argument and read its output; the default is `claude -p --output-format text`, and another command goes under `"llm"` in `~/.tekjobs/config.json` or on the Settings page. No API key, nothing metered.
+- **"Check mail" needs Claude Code specifically**, with its Gmail connector enabled. The run allows exactly three Gmail read tools by name and denies every write and shell tool, which is what makes it safe to run unattended; another CLI would need a Gmail MCP with matching tool names. Everything else works without it.
+- Optional: free Adzuna and USAJOBS keys for those two feeds, and `"contact"` in `~/.tekjobs/config.json` so the user agent on scan requests names a way to reach you.
+
+Nothing personal lives in this repository. Your profile folder (profile, resume, criteria, watchlist, job notes, logs, mail state) and `~/.tekjobs/config.json` are outside it; the repository is the code and the starter notes a new profile folder begins with.
+
+## Known limitations
+
+- **LinkedIn and Indeed are not scanned.** Their listings arrive through job-alert emails saved into `Inbox/`, or through a link you paste. Indeed blocks signed-out reads, so paste the company's own link instead.
+- **Check mail is Claude Code only**, because it depends on that client's Gmail connector and on denying its tools by name.
+- **Boards go quiet.** Company boards move platforms, rename slugs and rate-limit. The Sources page shows each board's health and retries the failed ones, and the registry is a table anyone can fix.
+- **The app has no login.** It serves on 127.0.0.1 and is meant for one person on one machine. Do not expose the port to a network.
+- **Pay parsing reads posted ranges.** A posting that hides its pay scores lower rather than being guessed at, which is the point, and also means some good roles rank below a candid one.
+- **One person has run it in anger so far.** The onboarding has been rehearsed on the fictional sample resume and on a clean clone; the first report from another machine is welcome as an issue.
+
+## Roadmap
+
+- **Now**: the npm package, employer postings that enter the same scan, board health on the Sources page, a live preview when criteria change, the profile summary.
+- **Next**: a short recorded demo of install, interview and the first Today; a LinkedIn data-export import into People; criteria presets per role that ship with the repository.
+- **Later**: a command palette in the app, a desktop shell, and mail for clients other than Claude Code once they carry a Gmail connector with read-only tools.
 
 ## Cover letters
 
@@ -107,16 +146,20 @@ The **Profile** page edits the notes applications are written from: `Profile/Pro
 ## Commands
 
 ```
-node cli.mjs init [dir] [--resume <file>]   create (or adopt) a profile folder and remember it
-node cli.mjs resume <file>                  import or replace the resume (PDF, DOCX, Markdown, text)
-node cli.mjs status                         what the onboarding still needs
-node cli.mjs scan [--dry] [--min N] [--floor N] [--only <slug>] [--criteria <preset name | file>]
-node cli.mjs add <url> [<url>...] [--dry]  add postings you found yourself
-node cli.mjs serve                          the app + API
-node cli.mjs mcp                            the MCP server on stdio
+tekjobs init [dir] [--resume <file>]   create (or adopt) a profile folder and remember it
+tekjobs resume <file>                  import or replace the resume (PDF, DOCX, Markdown, text)
+tekjobs status                         what the onboarding still needs
+tekjobs scan [--dry] [--min N] [--floor N] [--only <slug>] [--criteria <preset name | file>] [--retry-failed]
+tekjobs add <url> [<url>...] [--dry]   add postings you found yourself
+tekjobs mail [--days N]                the read-only mail pass
+tekjobs rescore [--full] [--dry]       what existing notes score under the current criteria
+tekjobs schedule [--time HH:MM] [--print]   the morning task, for Windows, macOS or Linux
+tekjobs serve                          the app + API on http://127.0.0.1:8787
+tekjobs mcp                            the MCP server on stdio
+tekjobs --version
 ```
 
-The profile folder is resolved from `TEKJOBS_PROFILE`, then `~/.tekjobs/config.json`, then `~/.tekjobs/profile`.
+From a clone the same commands are `node cli.mjs <command>`. The profile folder is resolved from `TEKJOBS_PROFILE`, then `~/.tekjobs/config.json`, then `~/.tekjobs/profile`.
 
 ## Layout
 
@@ -129,11 +172,13 @@ scraper/resume.mjs         PDF / DOCX / Markdown text extraction
 scraper/sources.mjs        Greenhouse, Lever, Ashby, Workday, RemoteOK, HN
 scraper/sources-extra.mjs  the other platforms, career APIs, aggregators
 scraper/score.mjs          scoring and pay-range parsing
+scraper/health.mjs         per-board health for the Sources page
 scraper/vault.mjs          job notes, dedupe state, closed detection, log, dashboard
 scraper/starter/           the notes a new profile folder starts with (including the board registry)
 app/                       Zengin UI front end, API server, MCP server
 site/                      tekjobs.timurtek.com: the landing page and docs (Next.js on Zengin UI, deployed from this folder on Vercel)
-tools/                     board and source discovery scripts
+samples/vault/             the fictional profile folder
+tools/                     board discovery scripts, the sample-vault builder, the counts the README and the site print
 ```
 
 ## Releases
@@ -143,3 +188,5 @@ The package on npm is [`@timurtekb/tekjobs`](https://www.npmjs.com/package/@timu
 ## Contributing
 
 The two things that compound are data files: the board registry (`scraper/starter/companies-table.md`, platform + slug per company) and, soon, criteria presets per role. Pull requests to either are the most useful contribution. [CONTRIBUTING.md](CONTRIBUTING.md) has the mechanics (three installs, the design-system check, the commit format); [SECURITY.md](SECURITY.md) says where to report a vulnerability, and what counts as one.
+
+Built by [Timurtek](https://www.timurtek.com) for his own search first. MIT licensed.
