@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.23.0 (2026-09-24)
+
+* feat(cli): npx tekjobs init, and the docs say which CLI does what ([c6e318d](https://github.com/Timurtek/tekjobs/commit/c6e318d))
+
 ## 0.22.0 (2026-09-24)
 
 * feat(app): the profile page opens on a summary read from the notes ([576b473](https://github.com/Timurtek/tekjobs/commit/576b473))
