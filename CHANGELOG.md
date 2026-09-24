@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.26.1 (2026-09-24)</small>
+
+* fix(mcp): a scan outlives the server that started it, and its status lives on disk ([d6e4638](https://github.com/Timurtek/tekjobs/commit/d6e4638))
+
 ## 0.26.0 (2026-09-24)
 
 * feat(site): a recorded demo and a social preview card ([0c4666a](https://github.com/Timurtek/tekjobs/commit/0c4666a))
