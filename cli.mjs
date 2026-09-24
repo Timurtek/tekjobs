@@ -167,6 +167,8 @@ main().catch((e) => { console.error(e.message); process.exit(1); });
  * editing a crontab unasked is not this tool's place. --print shows the Windows command without running it.
  */
 function schedule() {
+  // A task that runs from npx's cache breaks the first time the cache is cleaned. Install first.
+  if (/[\\/]_npx[\\/]/.test(ROOT)) return console.error(`This copy of tekjobs runs from npx's cache, which does not last. Install it, then schedule from there:\n  npm install -g tekjobs\n  tekjobs schedule`);
   const time = opt('--time') || '07:30';
   if (!/^\d{2}:\d{2}$/.test(time)) return console.error('--time wants HH:MM, for example 07:30');
   const [hh, mm] = time.split(':').map(Number);

@@ -61,6 +61,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
+      # The package ships the built UI (app/dist), so the release job builds it before publishing.
+      - run: npm ci --ignore-scripts
+        working-directory: app
+      - run: npm run build
+        working-directory: app
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

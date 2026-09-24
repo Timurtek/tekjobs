@@ -1,0 +1,3 @@
+# npm reads this instead of app/.gitignore when packing. The root package.json "files" list already limits the
+# package to app/server and app/dist; this file exists so the ignored-in-git dist/ still ships.
+node_modules/

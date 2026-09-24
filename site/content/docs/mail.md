@@ -4,7 +4,7 @@ order: 6
 summary: Application emails, read once through your own CLI, matched to notes, confirmed by you.
 ---
 
-Applications come back as email: a confirmation, a rejection, an interview request. The mail check reads those through the same local CLI that writes the letters, using the Gmail connector already attached to it, with the run boxed: only Gmail's three read tools are allowed and every write tool is denied by name, so a run can read and nothing else, whatever the model decides.
+Applications come back as email: a confirmation, a rejection, an interview request. The mail check reads those through Claude Code and its Gmail connector (this is the one part that needs Claude Code specifically: the run allows three Gmail read tools by name and denies everything else).
 
 The model only extracts: company, role, kind, date, a one-line gist, the sender, the message id. Matching each email to a note and everything that changes a note is ordinary code, and nothing changes until you confirm an item on the Mail page.
 

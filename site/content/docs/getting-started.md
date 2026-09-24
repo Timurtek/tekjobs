@@ -8,13 +8,21 @@ summary: Clone, import a resume, be interviewed, and let the morning task take i
 
 - **Node 20 or newer.** The scraper has one dependency (PDF reading); the app has its own `npm install`.
 - **A folder for your profile.** Plain markdown. Obsidian is the nicest way to read it, and not required.
-- **A coding CLI that can run tools, signed in on this machine.** Claude Code by default. The onboarding interview, cover letters, tailored resumes and the mail check all go through it, so there is no API key and nothing metered. Another CLI can be set in Settings.
-- **Its Gmail connector**, if you want Check mail. Optional; the run is boxed to Gmail's three read tools.
+- **A coding CLI that can run MCP tools, signed in on this machine.** Claude Code by default; the interview and everything over MCP work with any MCP client (Codex, Cursor, Claude Desktop). The cover-letter and tailored-resume buttons run a CLI with the prompt as an argument; the default is Claude Code's `claude -p`, and another command goes in Settings. No API key, nothing metered.
+- **Check mail needs Claude Code specifically**, with its Gmail connector enabled: the run allows three Gmail read tools by name and denies everything else, which is what makes it safe to run unattended. Optional; everything else works without it.
 - **Git**, to clone. Windows, macOS or Linux; the morning task is set up for each by `tekjobs schedule`.
 
 Nothing personal lives in the repository. Your profile folder, criteria, watchlist, notes, mail state and `~/.tekjobs/config.json` are outside it.
 
 ## Install
+
+Without cloning:
+
+```
+npx tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
+```
+
+The folder can be anywhere; inside an Obsidian vault is the nicest place. For the morning task, install rather than run from npx's cache: `npm install -g tekjobs`, then `tekjobs schedule`. From a clone, to change the code:
 
 ```
 git clone https://github.com/Timurtek/tekjobs && cd tekjobs
@@ -41,7 +49,7 @@ Open Claude Code in the `app/` folder. Its `.mcp.json` connects the `tekjobs` se
 
 > Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script: interview me, write my profile, set the criteria, run a dry scan, and show me the top matches.
 
-Any MCP client works the same way: `node app/server/mcp.mjs` on stdio. The interview reads your resume, asks the few things a resume cannot say (target titles, seniority, work mode, pay floor, hard exclusions, links), writes `Profile/Profile.md` and the criteria, and runs the first scan. LinkedIn: give it your data export, not a URL; it will not scrape profile pages.
+Any MCP client works the same way: the server is `tekjobs mcp` on stdio (from a clone, `node app/server/mcp.mjs`); in Codex, Cursor or Claude Desktop, add it as `{ "command": "tekjobs", "args": ["mcp"] }`. The interview reads your resume, asks the few things a resume cannot say (target titles, seniority, work mode, pay floor, hard exclusions, links), writes `Profile/Profile.md` and the criteria, and runs the first scan. LinkedIn: give it your data export, not a URL; it will not scrape profile pages.
 
 ## The app
 

@@ -8,8 +8,8 @@ Working name. Built by one person for his own search first; the venture and the 
 
 - **Node 20 or newer.** The scraper has one dependency (PDF reading); the app has its own `npm install`.
 - **A folder for your profile.** Plain markdown. Obsidian is the nicest way to read it, and not required.
-- **An LLM that can write code and run tools, signed in on this machine.** Claude Code (`claude`) by default. Everything that drafts text goes through it (the onboarding interview, cover letters, tailored resumes), so there is no API key and nothing metered. Another CLI can be set under `"llm"` in `~/.tekjobs/config.json`.
-- **For "Check mail": a Gmail connector attached to that CLI** (Claude's Gmail connector). The run is boxed to Gmail's three read tools; nothing can send, label or delete.
+- **A coding CLI that can run MCP tools, signed in on this machine.** Claude Code by default. The interview and everything an agent does over MCP work with any MCP client (Codex, Cursor, Claude Desktop). The app's "Write cover letter" and "Tailor resume" buttons run a CLI with the prompt as an argument and read its output; the default is `claude -p --output-format text`, and another command goes under `"llm"` in `~/.tekjobs/config.json` or on the Settings page. No API key, nothing metered.
+- **"Check mail" needs Claude Code specifically**, with its Gmail connector enabled. The run allows exactly three Gmail read tools by name and denies every write and shell tool, which is what makes it safe to run unattended; another CLI would need a Gmail MCP with matching tool names. Everything else works without it.
 - Optional: free Adzuna and USAJOBS keys for those two feeds, and `"contact"` in `~/.tekjobs/config.json` so the user agent on scan requests names a way to reach you.
 
 Nothing personal lives in this repository. Your profile folder (profile, resume, criteria, watchlist, job notes, logs, mail state) and `~/.tekjobs/config.json` are outside it; the repository is the code and the starter notes a new profile folder begins with.
@@ -23,8 +23,18 @@ Nothing personal lives in this repository. Your profile folder (profile, resume,
 
 ## Getting started
 
+Without cloning:
+
 ```
-git clone <this repo> tekjobs && cd tekjobs
+npx tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf
+```
+
+The folder can be anywhere; inside an Obsidian vault is the nicest place. For the daily task, install it rather than running from npx's cache, so the scheduled command has a home that lasts: `npm install -g tekjobs`, then `tekjobs schedule`.
+
+From a clone (to change the code, or to run the app from source):
+
+```
+git clone https://github.com/Timurtek/tekjobs && cd tekjobs
 npm install                                   # one dependency, for reading PDF resumes
 npm run init -- --resume ~/Downloads/resume.pdf   # creates the profile folder and imports the resume
 ```
@@ -33,7 +43,7 @@ Then the interview. Open Claude Code in the `app/` folder (its `.mcp.json` conne
 
 > Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script: interview me, write my profile, set the criteria, run a dry scan, and show me the top matches.
 
-Any MCP client works the same way: `node app/server/mcp.mjs` on stdio. The interview reads your resume, asks the few things a resume cannot say (target titles, seniority, work mode, pay floor, hard exclusions, links), writes `Profile/Profile.md` and the criteria, and runs the first scan. LinkedIn: give it your LinkedIn data export, not a URL; it will not scrape profile pages.
+Any MCP client works the same way: the server is `tekjobs mcp` (or `node app/server/mcp.mjs` from a clone) on stdio; in Codex, Cursor or Claude Desktop, add it as `{ "command": "tekjobs", "args": ["mcp"] }`. The interview reads your resume, asks the few things a resume cannot say (target titles, seniority, work mode, pay floor, hard exclusions, links), writes `Profile/Profile.md` and the criteria, and runs the first scan. LinkedIn: give it your LinkedIn data export, not a URL; it will not scrape profile pages.
 
 Then the app:
 
@@ -128,7 +138,7 @@ tools/                     board and source discovery scripts
 
 ## Releases
 
-Versions come from the commit messages, by [semantic-release](https://semantic-release.gitbook.io/) on every push to `main` (`.github/workflows/release.yml`): tests, the app's type check and `zengin check` run first; then `feat:` commits make a minor release and `fix:` and `perf:` a patch. The project is at 0.x on purpose, so a `BREAKING CHANGE:` footer or a `!` after the type also bumps the minor (the `releaseRules` line in `.releaserc.json`); delete that line when 1.0 is earned and breaking changes become majors. The release bumps `package.json`, writes `CHANGELOG.md`, tags `vX.Y.Z` and publishes the notes on GitHub. Nothing is published to npm. Commit messages are checked locally by commitlint through a husky hook (`npm install` at the root sets it up), in the [Conventional Commits](https://www.conventionalcommits.org/) shape: `type(scope): summary`, scope optional, and a prose body is welcome. The app's sidebar footer shows the running version.
+The package on npm is `tekjobs`; every release that changes the scan, the CLI or the app is published there by the release workflow (`npx tekjobs` runs the latest). Versions come from the commit messages, by [semantic-release](https://semantic-release.gitbook.io/) on every push to `main` (`.github/workflows/release.yml`): tests, the app's type check and `zengin check` run first; then `feat:` commits make a minor release and `fix:` and `perf:` a patch. The project is at 0.x on purpose, so a `BREAKING CHANGE:` footer or a `!` after the type also bumps the minor (the `releaseRules` line in `.releaserc.json`); delete that line when 1.0 is earned and breaking changes become majors. The release bumps `package.json`, writes `CHANGELOG.md`, tags `vX.Y.Z` and publishes the notes on GitHub. Nothing is published to npm. Commit messages are checked locally by commitlint through a husky hook (`npm install` at the root sets it up), in the [Conventional Commits](https://www.conventionalcommits.org/) shape: `type(scope): summary`, scope optional, and a prose body is welcome. The app's sidebar footer shows the running version.
 
 ## Contributing
 
