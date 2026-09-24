@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.26.0 (2026-09-24)
+
+* feat(site): a recorded demo and a social preview card ([0c4666a](https://github.com/Timurtek/tekjobs/commit/0c4666a))
+
 ## 0.25.0 (2026-09-24)
 
 * feat(site): who it is for, counted numbers, an AI-clients page, and honest privacy copy ([e809942](https://github.com/Timurtek/tekjobs/commit/e809942))
