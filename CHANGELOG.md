@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.20.0 (2026-09-24)
+
+* feat(app): overview answers whether the search is working ([8d21437](https://github.com/Timurtek/tekjobs/commit/8d21437))
+
 ## 0.19.0 (2026-09-24)
 
 * feat(app): runs read as success, partial or failed, with the problems behind a click ([2285b7a](https://github.com/Timurtek/tekjobs/commit/2285b7a))
