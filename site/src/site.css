@@ -570,6 +570,32 @@ body {
   text-wrap: pretty;
 }
 
+/* The demo: one video, framed like the screenshots, with a line under it saying what it is. */
+.demo {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.demo__frame {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+  box-shadow: var(--shadow-lg);
+}
+
+.demo__frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.demo__note {
+  margin: 0;
+  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+}
+
 .step p,
 .cell__body {
   color: var(--color-text-muted);

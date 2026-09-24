@@ -1,4 +1,5 @@
 import { Boundary } from "@/sections/Boundary";
+import { Demo } from "@/sections/Demo";
 import { GetStarted } from "@/sections/GetStarted";
 import { Hero } from "@/sections/Hero";
 import { HowItWorks } from "@/sections/HowItWorks";
@@ -13,6 +14,7 @@ export default function Page() {
   return (
     <>
       <Hero />
+      <Demo />
       <HowItWorks />
       <Screens />
       <WhoFor />

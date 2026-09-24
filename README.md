@@ -10,6 +10,10 @@ A local career memory for you and your AI. TekJobs scans hundreds of public comp
 
 [Website](https://tekjobs.timurtek.com) · [Getting started](https://tekjobs.timurtek.com/docs/getting-started) · [Connect your AI client](https://tekjobs.timurtek.com/docs/ai-clients) · [npm](https://www.npmjs.com/package/@timurtekb/tekjobs) · [Releases](https://github.com/Timurtek/tekjobs/releases)
 
+[![Fifty-seven seconds: the init command, the interview in Claude Code, the first scan, and the Today page it produced](site/public/demo/tekjobs-demo-poster.png)](https://tekjobs.timurtek.com/#demo)
+
+*Fifty-seven seconds, recorded from one real run on the fictional sample resume: install, interview, first scan, first Today. [Watch it on the site.](https://tekjobs.timurtek.com/#demo)*
+
 ## Why it exists
 
 Most job-search products keep what they learn about your search inside their platform. TekJobs keeps it with you. Your resume, preferences, decisions, job notes, application history and drafts form a record on your own disk that gets more useful the longer you search, and you can change models, editors and AI clients without rebuilding it from zero.

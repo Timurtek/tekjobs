@@ -140,6 +140,16 @@ claude mcp add tekjobs -- tekjobs mcp
 tekjobs serve        # the app on http://127.0.0.1:8787
 tekjobs schedule     # the morning scan, every day at 07:30`;
 
+/** The recording on the landing: one real run on the fictional sample resume, 57 seconds. */
+export const DEMO = {
+  title: "Install, be interviewed, see your first Today",
+  lead: "Fifty-seven seconds, recorded from one real run on the fictional sample resume: the init command, the interview in Claude Code, the first scan of 304 boards, and the Today page it produced.",
+  src: "/demo/tekjobs-demo.mp4",
+  poster: "/demo/tekjobs-demo-poster.png",
+  alt: "TekJobs demo: the init command, the onboarding interview, the first scan, and the Today page with seven matches to decide on",
+  note: "Nothing in it is staged: the terminal output, the interview transcript and the screenshots are from the same run, and only the folder path was shortened. The companies on the Today page are real postings found that morning.",
+};
+
 /** Screens on the landing, captured from the fictional sample vault. */
 export const SCREENS = [
   { src: "/screens/today.png", alt: "Today: the decision queue, in-flight applications, and what has gone quiet", caption: "Today" },

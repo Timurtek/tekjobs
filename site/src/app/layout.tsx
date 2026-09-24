@@ -7,10 +7,17 @@ import { SiteFrame } from "@/components/SiteFrame";
 
 export const metadata: Metadata = {
   title: { default: "TekJobs", template: "%s · TekJobs" },
-  description: "A local-first job-search machine. It watches hundreds of company boards every day, scores every posting against a profile you own, and files the matches as markdown notes on your machine.",
+  description: "A job search that remembers who you are. Your resume, criteria, decisions and applications as markdown on your own machine; your AI works from it over MCP. Scans hundreds of company boards, says why each role matched, stops before anything is sent.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://tekjobs.timurtek.com"),
   icons: { icon: "/brand/tekjobs-avatar-192.png" },
-  openGraph: { title: "TekJobs", description: "A local-first job-search machine. Your notes are the record.", images: ["/brand/tekjobs-avatar-512.png"] },
+  openGraph: {
+    title: "TekJobs",
+    description: "A job search that remembers who you are. Local-first, open source, your AI over MCP.",
+    siteName: "TekJobs",
+    type: "website",
+    images: [{ url: "/brand/social-preview.png", width: 1280, height: 640, alt: "TekJobs: a job search that remembers who you are" }],
+  },
+  twitter: { card: "summary_large_image", title: "TekJobs", description: "A job search that remembers who you are. Local-first, open source, your AI over MCP.", images: ["/brand/social-preview.png"] },
 };
 
 // The theme is applied before paint from what the visitor chose last time, or the system's preference.
