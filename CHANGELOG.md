@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.22.0 (2026-09-24)
+
+* feat(app): the profile page opens on a summary read from the notes ([576b473](https://github.com/Timurtek/tekjobs/commit/576b473))
+
 ## 0.21.0 (2026-09-24)
 
 * feat(app): criteria edits preview their effect live, and notes rescore from the page ([918a36e](https://github.com/Timurtek/tekjobs/commit/918a36e))
