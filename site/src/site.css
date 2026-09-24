@@ -596,6 +596,28 @@ body {
   font-size: var(--text-sm);
 }
 
+.demo__transcript {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.demo__transcript summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.demo__transcript ol {
+  margin: var(--spacing-3) 0 0;
+  padding-inline-start: var(--spacing-5);
+  display: grid;
+  gap: var(--spacing-2);
+  max-width: 72ch;
+}
+
 .step p,
 .cell__body {
   color: var(--color-text-muted);

@@ -1,7 +1,7 @@
 ---
 title: The daily scan
 order: 4
-summary: Hundreds of boards, tens of thousands of postings, a minute, no keys.
+summary: Hundreds of boards, tens of thousands of postings, a minute, no API key for the company boards.
 ---
 
 ## Sources

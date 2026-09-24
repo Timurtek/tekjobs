@@ -35,7 +35,7 @@ export const HERO = {
     ["Company boards", `${COUNTS.boards}`],
     ["Postings a run", "25k"],
     ["MCP tools", `${COUNTS.tools}`],
-    ["Accounts", "0"],
+    ["TekJobs accounts", "0"],
   ] as const,
 };
 
@@ -61,7 +61,7 @@ export const POSTING = {
 export const STEPS = [
   {
     title: "Scan",
-    body: `Every morning: the ${COUNTS.boards} company boards in the starter registry (Greenhouse, Lever, Ashby, Workday and the rest), the Google and Apple career pages, a dozen aggregator feeds, and any boards you add. Tens of thousands of postings a run, deduplicated. All public, all key-free.`,
+    body: `Every morning: the ${COUNTS.boards} company boards in the starter registry (Greenhouse, Lever, Ashby, Workday and the rest), the Google and Apple career pages, a dozen aggregator feeds, and any boards you add. Tens of thousands of postings a run, deduplicated. All public; the company-board scan needs no API key, and the two optional feeds that do (Adzuna, USAJOBS) bring their own free ones.`,
   },
   {
     title: "Score",
@@ -73,7 +73,7 @@ export const STEPS = [
   },
   {
     title: "Decide",
-    body: "Today shows the few worth a decision and what is about to close. Shortlist or pass, with a reason. Mail says reads your inbox for confirmations, rejections and interviews and asks you to confirm each one.",
+    body: "Today shows the few worth a decision and what is about to close. Shortlist or pass, with a reason. The mail pass reads your inbox for confirmations, rejections and interview invitations, then asks you to confirm each change before a note moves.",
   },
   {
     title: "Apply",
@@ -109,7 +109,7 @@ export const BOUNDARY = [
   { title: "It never sends mail.", body: "The mail check runs with only Gmail's read tools allowed and every write tool denied by name. The model extracts; matching and every change to a note is ordinary code, and nothing changes until you confirm." },
   {
     title: "Your files stay with you.",
-    body: "The scan runs on your machine, the notes live in your folder, and there is no TekJobs account or server holding a copy. What does leave: the requests to public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under its own terms. No telemetry, no key, nothing sent on your behalf.",
+    body: "The scan runs on your machine, the notes live in your folder, and there is no TekJobs account or server holding a copy. What does leave: the requests to public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under its own terms. No telemetry, no separate model API key, nothing sent on your behalf.",
   },
 ];
 
@@ -118,13 +118,13 @@ export const PROOF = [
   { figure: `${COUNTS.boards}`, title: "company boards", body: "In the starter registry every new profile folder begins with: eleven board platforms plus the Atlassian, GitHub, Spotify and Amazon career APIs and the Google and Apple pages. Add your own; the author's vault watches 356." },
   { figure: "25k", title: "postings a run", body: "The author's vault, 22 September 2026: fetched, deduplicated across sources, scored, and cut to the ones that clear the bar. About a minute on a laptop." },
   { figure: `${COUNTS.tools}`, title: "MCP tools", body: "Claude Code, Codex, Cursor or Claude Desktop can run the whole search over the same notes: find, move, draft, add boards, start scans, read the mailbox." },
-  { figure: "0", title: "accounts", body: "No sign-up, no server, no key. A folder of markdown and a scheduled task." },
+  { figure: "0", title: "TekJobs accounts", body: "No TekJobs account, no hosted search database, no separate model API key. A folder of markdown, a scheduled task, and the AI client you already have." },
 ];
 
 export const REQUIREMENTS = [
   ["Node 20 or newer", "One command installs it. The scan has one dependency, for reading PDF resumes."],
   ["A folder for your profile", "Plain markdown. Obsidian is the nicest way to read it, and not required."],
-  ["An AI client that speaks MCP, signed in", "Claude Code, Codex, Cursor or Claude Desktop. It runs the interview and, over MCP, the search. No API key, nothing metered. The setup for each is one page in the docs."],
+  ["An AI client that speaks MCP, signed in", "Claude Code, Codex, Cursor or Claude Desktop. It runs the interview and, over MCP, the search. No separate model API key: TekJobs adds no per-call AI billing, and usage follows the client you already have. The setup for each is one page in the docs."],
   ["Claude Code with its Gmail connector, for mail", "Optional, and the one thing that needs Claude Code specifically. Check mail is boxed to Gmail's three read tools."],
 ] as const;
 
@@ -147,6 +147,13 @@ export const DEMO = {
   src: "/demo/tekjobs-demo.mp4",
   poster: "/demo/tekjobs-demo-poster.png",
   alt: "TekJobs demo: the init command, the onboarding interview, the first scan, and the Today page with seven matches to decide on",
+  transcript: [
+    "Install. In a terminal: npx @timurtekb/tekjobs init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf. The output names the profile folder, the four starter notes it created, the resume it imported, and the onboarding steps still open. Then: claude mcp add tekjobs -- tekjobs mcp, which connects the server to Claude Code.",
+    "Interview. In Claude Code: \"Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script.\" The model reads the resume and asks eight questions in one message: target titles, seniority, work mode, pay floor and stretch, keywords and exclusions, company stage, links, earliest start. The answers go back in one message; it writes the profile and the criteria and starts a dry scan.",
+    "Scan. In the terminal: tekjobs scan. 304 boards in about two minutes, then the top fifteen still open with their scores, companies, titles and locations.",
+    "Today. The app's Today page: seven matches to decide on, best fit first, each with company, role, pay band and a Shortlist or Pass button. Then the Jobs page with one note open: every point it scored, written down as a reason.",
+    "Closing card: A job search that remembers who you are. Your notes, your criteria, your AI. Nothing is ever submitted for you.",
+  ],
   note: "Nothing in it is staged: the terminal output, the interview transcript and the screenshots are from the same run, and only the folder path was shortened. The companies on the Today page are real postings found that morning.",
 };
 

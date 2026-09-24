@@ -8,7 +8,7 @@ summary: Install, import a resume, be interviewed, and let the morning task take
 
 - **Node 20 or newer.** One command installs TekJobs; the scan has one dependency (PDF reading).
 - **A folder for your profile.** Plain markdown. Obsidian is the nicest way to read it, and not required.
-- **An AI client that speaks MCP, signed in on this machine.** Claude Code by default; Codex, Cursor and Claude Desktop work the same way, and [Connect your AI client](/docs/ai-clients) has the exact lines for each. The interview and everything over MCP run there. The app's cover-letter and tailored-resume buttons run a CLI with the prompt as an argument; the default is Claude Code's `claude -p`, and another command goes in Settings. No API key, nothing metered.
+- **An AI client that speaks MCP, signed in on this machine.** Claude Code by default; Codex, Cursor and Claude Desktop work the same way, and [Connect your AI client](/docs/ai-clients) has the exact lines for each. The interview and everything over MCP run there. The app's cover-letter and tailored-resume buttons run a CLI with the prompt as an argument; the default is Claude Code's `claude -p`, and another command goes in Settings. No separate model API key: TekJobs adds no per-call AI billing, and usage follows the client you already have.
 - **Check mail needs Claude Code specifically**, with its Gmail connector enabled: the run allows three Gmail read tools by name and denies everything else, which is what makes it safe to run unattended. Optional; everything else works without it.
 - Windows, macOS or Linux. The morning task is set up for each by `tekjobs schedule`. Git only if you clone to change the code.
 

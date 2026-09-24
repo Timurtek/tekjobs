@@ -4,7 +4,7 @@ order: 1.5
 summary: One command, tekjobs mcp, and the exact lines for Claude Code, Codex, Cursor and Claude Desktop. ChatGPT's web app is the one that cannot.
 ---
 
-TekJobs exposes its tools through a local MCP server, `tekjobs mcp`, speaking JSON-RPC over stdio. Every client below runs that command and talks to it; none of them needs an API key, and nothing is metered. The server finds your profile folder the same way the CLI does: `TEKJOBS_PROFILE` if set, else `~/.tekjobs/config.json` (which `tekjobs init` wrote), so it does not matter which folder your client is opened in.
+TekJobs exposes its tools through a local MCP server, `tekjobs mcp`, speaking JSON-RPC over stdio. Every client below runs that command and talks to it. None of them needs a separate model API key: TekJobs adds no per-call AI billing, and usage follows the client you already have. The server finds your profile folder the same way the CLI does: `TEKJOBS_PROFILE` if set, else `~/.tekjobs/config.json` (which `tekjobs init` wrote), so it does not matter which folder your client is opened in.
 
 Install the command first, and check it answers:
 

@@ -40,7 +40,7 @@ export function Nav({ theme, onToggleTheme }: { theme: "light" | "dark"; onToggl
           <Button className="nav__github" asChild variant="ghost" size="sm">
             <a href={REPO} {...EXTERNAL}>GitHub</a>
           </Button>
-          <Button className="nav__post" asChild tone="primary" size="sm">
+          <Button className="nav__post" asChild variant="soft" size="sm">
             <a href="/post-a-job">Post a job</a>
           </Button>
           <AccountMenu />

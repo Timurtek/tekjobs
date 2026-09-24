@@ -10,7 +10,9 @@ export function Hero() {
         <div className="hero__grid">
           <div className="hero__copy">
             <span className="eyebrow">{HERO.eyebrow}</span>
-            <h1 className="hero__title">
+            {/* The accent span is styled as its own line, and some screen readers join adjacent inline boxes without a
+                space; the label carries the whole sentence so it is read as one. */}
+            <h1 className="hero__title" aria-label={`${HERO.title} ${HERO.titleEm}`}>
               {HERO.title} <em>{HERO.titleEm}</em>
             </h1>
             <p className="hero__consequence">{HERO.consequence}</p>

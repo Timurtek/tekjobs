@@ -19,6 +19,14 @@ export function Demo() {
             </video>
           </div>
           <p className="demo__note">{DEMO.note}</p>
+          <details className="demo__transcript">
+            <summary>Transcript</summary>
+            <ol>
+              {DEMO.transcript.map((line) => (
+                <li key={line.slice(0, 24)}>{line}</li>
+              ))}
+            </ol>
+          </details>
         </div>
       </div>
     </section>
