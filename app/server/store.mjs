@@ -385,12 +385,14 @@ const safe = (fn, d) => { try { return fn(); } catch { return d; } };
 export function fitCeiling(c = {}) {
   const top = (o) => Math.max(0, ...Object.values(o || {}).map(Number).filter(Number.isFinite));
   return Math.max(1, Math.round(
-    top(c.titleTerms) + 2 * 5 +
+    // Every point the scorer can award: the top title term plus the capped extras, the top seniority boost, the
+    // description cap, the location boosts, the pay bonus plus the capped above-floor points, the freshest recency.
+    top(c.titleTerms) + (c.titleExtraCap ?? 10) +
     top(c.seniority?.boost) +
     (c.descCap ?? 35) +
     (c.location?.remoteBoost ?? 0) + (c.location?.bayAreaBoost ?? 0) +
-    (c.salary?.meetsBonus ?? 10) +
-    (c.recency?.days7 ?? 0),
+    (c.salary?.meetsBonus ?? 10) + (c.salary?.aboveCap ?? 0) +
+    Math.max(c.recency?.days2 ?? 0, c.recency?.days7 ?? 0, c.recency?.days30 ?? 0),
   ));
 }
 const toFit = (raw, ceiling) => Math.max(0, Math.min(100, Math.round((Number(raw) || 0) / ceiling * 100)));

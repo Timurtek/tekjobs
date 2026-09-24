@@ -223,7 +223,8 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   // bring them back; the choice is this browser's own. The table's density does not change.
   const [condensed, setCondensed] = useState(() => { try { return localStorage.getItem("tekjobs.jobs.condensed") === "1"; } catch { return false; } });
   const toggleCondensed = () => setCondensed((d) => { try { localStorage.setItem("tekjobs.jobs.condensed", d ? "0" : "1"); } catch { /* fine */ } return !d; });
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // `#/jobs?open=<id>` opens a note on arrival: a link to one job, and the way a screenshot gets the split view.
+  const [selectedId, setSelectedId] = useState<string | null>(() => hashParams().get("open"));
   const [reload, setReload] = useState(0);
   useEffect(() => {
     api.views().then(setViews).catch(() => {});
