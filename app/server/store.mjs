@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
 import { loadHealth, healthState } from '../../scraper/health.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../scraper/vault.mjs';
-import { weightsFingerprint, titlePoints, recencyPoints, payPoints } from '../../scraper/rescore.mjs';
+import { weightsFingerprint, titlePoints, recencyPoints, payPoints, rescoreFull } from '../../scraper/rescore.mjs';
 import { RESUME_NOTE, LEGACY_RESUME_NOTES } from '../../scraper/resume-sync.mjs';
 import { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile } from '../../scraper/profile.mjs';
 export { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile };
@@ -80,6 +80,8 @@ function rowOf(fm, text = '') {
     status: fm.status || 'new', listing: String(fm.listing || 'open').startsWith('open') ? 'open' : String(fm.listing),
     kind: DE.test(fm.title || '') ? 'design-eng' : 'adjacent', department: fm.department || '', jobId: fm.job_id || '',
     passedReason: fm.passed_reason || '',
+    // Which criteria weights scored this note; `rescore --full` brings the ones that differ over.
+    weights: fm.weights || '',
     // "link" when the person pasted it (Add by link); scanned notes carry no added_by line.
     addedBy: fm.added_by || 'scan',
     packet: countPacketFields(text),
@@ -528,6 +530,9 @@ export function setCriteria(raw) {
   let parsed; try { parsed = JSON.parse(raw); } catch (e) { throw Object.assign(new Error(`Not valid JSON: ${e.message}`), { status: 400 }); }
   const md = fs.readFileSync(P.criteria, 'utf8');
   if (!JSON_BLOCK.test(md)) throw new Error('No ```json block in Search Criteria.md');
+  // The previous version is kept beside the note, once per day: the change history the person can read.
+  const before = P.criteria.replace(/\.md$/, `.before-${isoDay()}.md`);
+  if (!fs.existsSync(before)) fs.copyFileSync(P.criteria, before);
   fs.writeFileSync(P.criteria, replaceJsonBlock(md, parsed).replace(/^updated: .*$/m, `updated: ${isoDay()}`));
   return getCriteria();
 }
@@ -553,7 +558,21 @@ export function previewCriteria(raw) {
   const top = (key) => [...scored].sort((a, b) => b[key] - a[key]).slice(0, 20).map((r) => r.id);
   const topBefore = top('before'), topAfter = top('after');
   const brief = (r) => ({ id: r.id, company: r.company, title: r.title, status: r.status, before: r.before, after: r.after, delta: r.delta });
+  // Who moves, by role family and by the board that surfaced the job: a change that empties one family or one
+  // source is the kind a person wants to see before saving.
+  const byRow = new Map(rows.map((r) => [r.id, r]));
+  const group = (key) => {
+    const out = {};
+    for (const r of scored) { const k = byRow.get(r.id)?.[key] || 'unknown'; const g = out[k] ||= { key: k, notes: 0, aboveBefore: 0, aboveAfter: 0, changed: 0 }; g.notes++; if (r.before >= barBefore) g.aboveBefore++; if (r.after >= barAfter) g.aboveAfter++; if (r.delta !== 0) g.changed++; }
+    return Object.values(out).sort((x, y) => y.notes - x.notes);
+  };
+  const fingerprintBefore = weightsFingerprint(current), fingerprintAfter = weightsFingerprint(proposed);
   return {
+    fingerprintBefore, fingerprintAfter,
+    weightsChange: fingerprintBefore !== fingerprintAfter,
+    notesAtCurrent: rows.filter((r) => r.weights === fingerprintBefore).length,
+    byKind: group('kind'),
+    bySource: group('source').slice(0, 8),
     openNotes: rows.length,
     changed: scored.filter((r) => r.delta !== 0).length,
     barBefore, barAfter,
@@ -567,6 +586,13 @@ export function previewCriteria(raw) {
     down: [...scored].filter((r) => r.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 10).map(brief),
     covers: 'title terms, recency and pay; description terms, seniority words and location rules show only after a scan',
   };
+}
+
+/** Score every note again under the saved criteria (the CLI's `rescore --full`), from the app. */
+export function rescoreNotes({ dry = false } = {}) {
+  const r = rescoreFull({ dry: !!dry });
+  cache.key = '';
+  return { total: r.total, considered: r.considered, alreadyCurrent: r.alreadyCurrent, changed: r.changed, fingerprint: r.fingerprint, dry: !!dry, sample: (r.changes || []).slice(0, 10) };
 }
 
 // ---------- outcomes ----------

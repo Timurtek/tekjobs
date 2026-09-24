@@ -37,6 +37,7 @@ const TOOLS = [
   { name: 'save_criteria_preset', description: 'Create or update a named criteria preset from a full criteria JSON string (same shape as get_criteria). Does not change the active criteria; use activate_criteria_preset for that, or run_scan with criteria=<name> for one run.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, raw: { type: 'string' } }, required: ['name', 'raw'] } },
   { name: 'activate_criteria_preset', description: 'Copy a named preset into Targets/Search Criteria.md so the daily scan and everything else use it.', inputSchema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
   { name: 'scan_status', description: 'Whether a scan is running, and its last output lines.', inputSchema: { type: 'object', properties: {} } },
+  { name: 'rescore_notes', description: 'Score every existing note again under the saved criteria (the CLI\'s rescore --full): score, pay band, match reasons and a status-log line on each note that moved; notes already at the current weights are left alone. dry previews the count.', inputSchema: { type: 'object', properties: { dry: { type: 'boolean' } } } },
   { name: 'scan_preview', description: 'The top of the last scan\'s ranking, dry or real, with score, pay band and the first reasons: what the criteria find, before or without notes. Use after a dry run_scan.', inputSchema: { type: 'object', properties: { limit: { type: 'number', description: '1 to 50, default 15' } } } },
   { name: 'get_criteria', description: 'The scoring criteria JSON from Targets/Search Criteria.md.', inputSchema: { type: 'object', properties: {} } },
   { name: 'set_criteria', description: 'Replace the criteria JSON block. Pass the full JSON as a string; it is validated before writing.', inputSchema: { type: 'object', properties: { raw: { type: 'string' } }, required: ['raw'] } },
@@ -76,6 +77,7 @@ async function call(name, a = {}) {
     case 'mail_check': return mail.start({ sinceDays: a.days });
     case 'mail_items': return mail.items();
     case 'preview_criteria': return store.previewCriteria(a.raw);
+    case 'rescore_notes': return store.rescoreNotes({ dry: !!a.dry });
     case 'outcomes': return store.outcomes();
     case 'list_criteria_presets': return store.criteriaPresets();
     case 'save_criteria_preset': return store.saveCriteriaPreset(a.name, a.raw);

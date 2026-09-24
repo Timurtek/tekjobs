@@ -164,8 +164,12 @@ export interface OnboardingStep { id: string; label: string; done: boolean; how:
 export interface Onboarding { dir: string; steps: OnboardingStep[]; complete: boolean; jobs: number; profilePath: string }
 
 /** One note in a criteria preview: its stored score and what the proposed set would make it. */
+export interface PreviewGroup { key: string; notes: number; aboveBefore: number; aboveAfter: number; changed: number }
 export interface PreviewRow { id: string; company: string; title: string; status: Status; before: number; after: number; delta: number }
 export interface CriteriaPreview {
+  /** The weights fingerprints: when they differ, saving means the existing notes were scored under other rules. */
+  fingerprintBefore: string; fingerprintAfter: string; weightsChange: boolean; notesAtCurrent: number;
+  byKind: PreviewGroup[]; bySource: PreviewGroup[];
   openNotes: number; changed: number; barBefore: number; barAfter: number; aboveBefore: number; aboveAfter: number;
   rise: PreviewRow[]; fall: PreviewRow[]; enterTop20: PreviewRow[]; leaveTop20: PreviewRow[]; up: PreviewRow[]; down: PreviewRow[];
   covers: string;
@@ -360,6 +364,7 @@ export const api = {
   mailConfirmSafe: () => request<MailState & { confirmed: number }>("/api/mail/confirm-safe", { method: "POST" }),
   mailDismiss: (id: string) => request<MailState>(`/api/mail/${encodeURIComponent(id)}/dismiss`, { method: "POST" }),
   previewCriteria: (raw: string) => request<CriteriaPreview>("/api/criteria/preview", { method: "POST", body: JSON.stringify({ raw }) }),
+  rescoreNotes: (dry = false) => request<{ total: number; considered: number; alreadyCurrent: number; changed: number; fingerprint: string; dry: boolean }>("/api/rescore", { method: "POST", body: JSON.stringify({ dry }) }),
   criteriaPresets: () => request<CriteriaPreset[]>("/api/criteria/presets"),
   criteriaPreset: (name: string) => request<CriteriaPresetDoc>(`/api/criteria/presets/${encodeURIComponent(name)}`),
   saveCriteriaPreset: (name: string, raw: string) => request<CriteriaPresetDoc>(`/api/criteria/presets/${encodeURIComponent(name)}`, { method: "PUT", body: JSON.stringify({ raw }) }),

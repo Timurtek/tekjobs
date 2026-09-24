@@ -25,6 +25,6 @@ Named criteria sets live under `Targets/Criteria/`. Save the current form as one
 
 ## Changing the rules after the fact
 
-`tekjobs rescore --full --dry` shows what the existing notes would score under the new rules, rebuilt from each note, with recency judged at the day the note was found and description points kept where the note holds only part of the posting. Without `--dry` it applies: score, pay band, the match reasons, and a status-log line on every note that moved. Notes already at the target weights are skipped, so a second run does nothing.
+On the Criteria page, unsaved changes show their effect as you type: how many open notes cross the bar upward or downward, who enters or leaves the top 20, and the same counts by role family and by source, with Details for the names; nothing is written until you save. After a save that changed the weights, the page offers to rescore the notes that were scored under the old ones. From the shell, `tekjobs rescore --full --dry` shows what the existing notes would score under the new rules, rebuilt from each note, with recency judged at the day the note was found and description points kept where the note holds only part of the posting. Without `--dry` it applies: score, pay band, the match reasons, and a status-log line on every note that moved. Notes already at the target weights are skipped, so a second run does nothing.
 
 **Preview impact** on the Criteria page does the same arithmetic for a proposed set before you save it: who rises above the bar, who falls below, the biggest movers.

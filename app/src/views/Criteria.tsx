@@ -1,6 +1,22 @@
 import { Badge, Button, Card, Dialog, Select, Skeleton, Switch, Tabs, TextArea, TextField, toast } from "@/components/ui";
-import { useEffect, useMemo, useState } from "react";
-import { api, money, type CriteriaPreset, type CriteriaPreview, type PreviewRow } from "../api";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { api, money, type CriteriaPreset, type CriteriaPreview, type PreviewGroup, type PreviewRow } from "../api";
+
+const KIND_LABEL: Record<string, string> = { "design-eng": "design engineering", adjacent: "adjacent titles" };
+/** Above-the-bar counts before and after, per role family or per source, so a change that empties one group shows. */
+function Groups({ title, rows, barBefore, barAfter }: { title: string; rows: PreviewGroup[]; barBefore: number; barAfter: number }) {
+  return (
+    <div className="preview__block">
+      <h3>{title} <span className="muted">above the bar, {barBefore === barAfter ? `bar ${barAfter}` : `bar ${barBefore} → ${barAfter}`}</span></h3>
+      <ul className="preview__list">
+        {rows.map((g) => (
+          <li key={g.key}><span className="preview__score">{g.aboveBefore} → {g.aboveAfter}</span> {KIND_LABEL[g.key] ?? g.key} <span className="muted">· {g.notes} notes, {g.changed} change</span></li>
+        ))}
+        {rows.length === 0 && <li className="muted">Nothing to group.</li>}
+      </ul>
+    </div>
+  );
+}
 
 /** A short list of notes with before → after scores, for the impact preview. */
 function Movers({ title, rows, empty }: { title: string; rows: PreviewRow[]; empty: string }) {
@@ -90,10 +106,29 @@ export function Criteria() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [preview, setPreview] = useState<CriteriaPreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
+  // The impact of the unsaved changes, recomputed a moment after each edit, so the effect on the notes is on
+  // the page while the person types rather than behind a button. Cleared when nothing is unsaved.
+  const [live, setLive] = useState<CriteriaPreview | null>(null);
+  const liveTimer = useRef<number | null>(null);
+  // After a save that changed the weights: how many notes still carry the old ones, and a way to bring them over.
+  const [rescore, setRescore] = useState<{ notes: number } | null>(null);
+  const [rescoring, setRescoring] = useState(false);
 
   const raw = useMemo(() => (doc ? JSON.stringify(doc, null, 2) : ""), [doc]);
   const dirty = doc !== null && raw !== savedRaw;
   const isPreset = editing !== ACTIVE;
+  useEffect(() => {
+    if (liveTimer.current) window.clearTimeout(liveTimer.current);
+    if (!dirty || isPreset) { setLive(null); return; }
+    liveTimer.current = window.setTimeout(() => { api.previewCriteria(raw).then(setLive).catch(() => setLive(null)); }, 700);
+    return () => { if (liveTimer.current) window.clearTimeout(liveTimer.current); };
+  }, [raw, dirty, isPreset]);
+  useEffect(() => {
+    if (!dirty) return;
+    const on = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener("beforeunload", on);
+    return () => window.removeEventListener("beforeunload", on);
+  }, [dirty]);
 
   const loadPresets = () => api.criteriaPresets().then(setPresets).catch(() => setPresets([]));
   const load = async (which: string) => {
@@ -112,7 +147,12 @@ export function Criteria() {
     setBusy(true);
     try {
       if (isPreset) { const p = await api.saveCriteriaPreset(editing, raw); setSavedRaw(JSON.stringify(p.parsed, null, 2)); toast({ title: `Preset "${editing}" saved`, description: "Run a scan with it from here or from Runs; make it active to have the daily scan use it.", tone: "success" }); }
-      else { const c = await api.saveCriteria(raw); setSavedRaw(JSON.stringify(c.parsed, null, 2)); toast({ title: "Criteria saved", description: "Targets/Search Criteria.md updated. The next scan uses it.", tone: "success" }); }
+      else {
+        const weightsChanged = !!live?.weightsChange; const behind = live ? live.notesAtCurrent : 0;
+        const c = await api.saveCriteria(raw); setSavedRaw(JSON.stringify(c.parsed, null, 2));
+        toast({ title: "Criteria saved", description: "Targets/Search Criteria.md updated. The next scan uses it.", tone: "success" });
+        setRescore(weightsChanged && behind > 0 ? { notes: behind } : null);
+      }
       loadPresets();
     } catch (e) { toast({ title: "Not saved", description: (e as Error).message, tone: "danger" }); }
     setBusy(false);
@@ -140,7 +180,14 @@ export function Criteria() {
     try { await api.startScan(dry, isPreset ? editing : undefined); toast({ title: dry ? "Dry run started" : "Scan started", description: `Scoring with ${isPreset ? `"${editing}"` : "the active criteria"}. Watch it on Runs.`, tone: "success" }); }
     catch (e) { toast({ title: "Could not start", description: (e as Error).message, tone: "danger" }); }
   };
+  const rescoreNow = async () => {
+    setRescoring(true);
+    try { const r = await api.rescoreNotes(false); setRescore(null); toast({ title: `${r.changed} note${r.changed === 1 ? "" : "s"} rescored`, description: `${r.alreadyCurrent} were already at these weights. Each moved note carries the new score, band and reasons, and a status-log line saying so.`, tone: "success" }); }
+    catch (e) { toast({ title: "Rescore failed", description: (e as Error).message, tone: "danger" }); }
+    setRescoring(false);
+  };
   const previewImpact = async () => {
+    if (live) { setPreview(live); return; }
     setPreviewing(true);
     try { setPreview(await api.previewCriteria(raw)); }
     catch (e) { toast({ title: "Could not preview", description: (e as Error).message, tone: "danger" }); }
@@ -190,6 +237,28 @@ export function Criteria() {
           </div>
         </div>
         {isPreset && current && <p className="muted">Preset · {current.titles} title terms · updated {current.updated} · {current.file}</p>}
+        {live && (
+          <div className="impact" role="status" aria-live="polite">
+            <span className="microlabel">If saved</span>
+            <Badge size="sm" tone={live.aboveAfter >= live.aboveBefore ? "success" : "warning"}>above the bar {live.aboveBefore} → {live.aboveAfter}</Badge>
+            <Badge size="sm" tone={live.changed ? "primary" : "neutral"}>{live.changed} of {live.openNotes} change score</Badge>
+            <Badge size="sm" tone={live.rise.length ? "success" : "neutral"}>{live.rise.length} rise</Badge>
+            <Badge size="sm" tone={live.fall.length ? "warning" : "neutral"}>{live.fall.length} fall</Badge>
+            <Badge size="sm" tone="neutral">top 20: {live.enterTop20.length} in, {live.leaveTop20.length} out</Badge>
+            {live.weightsChange && <Badge size="sm" tone="neutral" variant="outline"><span className="num">{live.fingerprintBefore} → {live.fingerprintAfter}</span></Badge>}
+            <span className="toolbar__spacer" />
+            <Button size="sm" variant="ghost" tone="neutral" onClick={() => setPreview(live)}>Details</Button>
+          </div>
+        )}
+        {rescore && !dirty && (
+          <div className="impact impact--after">
+            <span className="microlabel">Saved</span>
+            <span>{rescore.notes} open note{rescore.notes === 1 ? " was" : "s were"} scored under the previous weights. The next scan scores new postings with the new ones; the existing notes keep their scores until you rescore them.</span>
+            <span className="toolbar__spacer" />
+            <Button size="sm" variant="soft" tone="primary" loading={rescoring} disabled={rescoring} onClick={rescoreNow}>Rescore {rescore.notes} notes</Button>
+            <Button size="sm" variant="ghost" tone="neutral" disabled={rescoring} onClick={() => setRescore(null)}>Later</Button>
+          </div>
+        )}
       </Card>
 
       <Tabs defaultValue="fields" variant="line" size="sm">
@@ -198,7 +267,7 @@ export function Criteria() {
           <Tabs.Trigger value="titles">Titles and terms</Tabs.Trigger>
           <Tabs.Trigger value="location">Location and pay</Tabs.Trigger>
           <Tabs.Trigger value="sources">Sources</Tabs.Trigger>
-          <Tabs.Trigger value="json">JSON</Tabs.Trigger>
+          <Tabs.Trigger value="json">JSON (advanced)</Tabs.Trigger>
         </Tabs.List>
 
         <Tabs.Content value="fields">
@@ -314,7 +383,7 @@ export function Criteria() {
         <Dialog.Content>
           <Dialog.Title>What this set would do to the notes you have</Dialog.Title>
           <Dialog.Description>
-            Against the active criteria. Covers {preview?.covers}. Nothing is written by a preview.
+            Against the active criteria. Covers {preview?.covers}. Nothing is written by a preview.{preview?.weightsChange ? ` The weights change (${preview.fingerprintBefore} → ${preview.fingerprintAfter}); ${preview.notesAtCurrent} open notes were scored under the current ones and can be rescored after saving.` : " The weights do not change; only the bar or the sources do."}
           </Dialog.Description>
           {preview && (
             <div className="preview">
@@ -335,6 +404,10 @@ export function Criteria() {
               <div className="form__row">
                 <Movers title="Biggest gains" rows={preview.up} empty="No note gains points." />
                 <Movers title="Biggest losses" rows={preview.down} empty="No note loses points." />
+              </div>
+              <div className="form__row">
+                <Groups title="By role family" rows={preview.byKind} barBefore={preview.barBefore} barAfter={preview.barAfter} />
+                <Groups title="By source" rows={preview.bySource} barBefore={preview.barBefore} barAfter={preview.barAfter} />
               </div>
             </div>
           )}

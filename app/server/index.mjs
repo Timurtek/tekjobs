@@ -53,6 +53,7 @@ const routes = [
   ['POST', /^\/api\/mail\/([^/]+)\/confirm$/, async (m, _, req) => mail.confirm(decodeURIComponent(m[1]), await readBody(req))],
   ['POST', /^\/api\/mail\/([^/]+)\/dismiss$/, (m) => mail.dismiss(decodeURIComponent(m[1]))],
   ['POST', /^\/api\/criteria\/preview$/, async (_, __, req) => { const b = await readBody(req); return store.previewCriteria(b.raw); }],
+  ['POST', /^\/api\/rescore$/, async (_, __, req) => { const b = await readBody(req); return store.rescoreNotes({ dry: !!b.dry }); }],
   ['GET', /^\/api\/criteria\/presets$/, () => store.criteriaPresets()],
   ['GET', /^\/api\/criteria\/presets\/([^/]+)$/, (m) => store.getCriteriaPreset(decodeURIComponent(m[1]))],
   ['PUT', /^\/api\/criteria\/presets\/([^/]+)$/, async (m, _, req) => { const b = await readBody(req); return store.saveCriteriaPreset(decodeURIComponent(m[1]), b.raw); }],

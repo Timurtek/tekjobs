@@ -1,7 +1,7 @@
 ---
 title: The MCP server
 order: 9
-summary: 41 tools over stdio, so an agent can run the whole search against the same notes.
+summary: 42 tools over stdio, so an agent can run the whole search against the same notes.
 ---
 
 `node app/server/mcp.mjs` speaks JSON-RPC over stdio, no SDK. The `app/.mcp.json` wires it for Claude Code; Claude Desktop, Cursor and ChatGPT take the same command.

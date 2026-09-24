@@ -1214,3 +1214,19 @@ p.panel--pad,
 .chips.panel--pad {
   padding-bottom: var(--spacing-4);
 }
+
+/* Criteria: the impact of unsaved changes, on the page while the person edits; and the rescore offer after a save. */
+.impact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+}
+
+.impact--after {
+  color: var(--color-text-muted);
+}
