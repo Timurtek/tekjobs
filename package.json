@@ -1,6 +1,6 @@
 {
   "name": "@timurtekb/tekjobs",
-  "version": "0.27.0",
+  "version": "0.27.1",
   "description": "A local-first job-search machine: watches hundreds of company job boards, scores every posting against your profile, and files matches into a folder of markdown notes you own. Bring your own LLM through MCP.",
   "type": "module",
   "license": "MIT",

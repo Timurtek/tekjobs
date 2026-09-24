@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.27.1 (2026-09-24)</small>
+
+* fix(site): the demo shows the character, not the T ([bc083f7](https://github.com/Timurtek/tekjobs/commit/bc083f7))
+
 ## 0.27.0 (2026-09-24)
 
 * feat(brand): the character is the mark everywhere, and the copy says exactly what is free ([4cf2139](https://github.com/Timurtek/tekjobs/commit/4cf2139))
