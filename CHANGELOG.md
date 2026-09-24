@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.24.0 (2026-09-24)
+
+* feat(cli): tekjobs --version ([0ed168a](https://github.com/Timurtek/tekjobs/commit/0ed168a))
+
 ## 0.23.0 (2026-09-24)
 
 * feat(cli): npx tekjobs init, and the docs say which CLI does what ([c6e318d](https://github.com/Timurtek/tekjobs/commit/c6e318d))
