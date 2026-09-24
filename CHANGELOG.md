@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.27.0 (2026-09-24)
+
+* feat(brand): the character is the mark everywhere, and the copy says exactly what is free ([4cf2139](https://github.com/Timurtek/tekjobs/commit/4cf2139))
+
 ## <small>0.26.1 (2026-09-24)</small>
 
 * fix(mcp): a scan outlives the server that started it, and its status lives on disk ([d6e4638](https://github.com/Timurtek/tekjobs/commit/d6e4638))
