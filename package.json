@@ -70,5 +70,10 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "overrides": {
+    "semantic-release": {
+      "@semantic-release/npm": "$@semantic-release/npm"
+    }
   }
 }
