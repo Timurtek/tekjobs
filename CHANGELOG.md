@@ -2,6 +2,11 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.18.2 (2026-09-24)</small>
+
+* chore(site): screenshots from the sample vault ([9ca6ec4](https://github.com/Timurtek/tekjobs/commit/9ca6ec4))
+* fix(app): the fit ceiling counts every point the scorer can award ([6500f3f](https://github.com/Timurtek/tekjobs/commit/6500f3f))
+
 ## <small>0.18.1 (2026-09-24)</small>
 
 * fix: what the interview meets on a dead link and on the first dashboard ([0f3ff65](https://github.com/Timurtek/tekjobs/commit/0f3ff65))
