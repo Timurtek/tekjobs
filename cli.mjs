@@ -16,6 +16,7 @@ const HELP = `tekjobs — a local job-search machine
                                          Google Doc, a public page, or a file); remembers the source; flags drafts
                                          that quote claims you removed (--dry to preview)
   tekjobs status                         what the onboarding still needs
+  tekjobs --version                      the installed version
   tekjobs scan [--dry] [--criteria <name|file>]
                                          fetch every board, score, write matches; --criteria scores this one run
                                          with a named preset from Targets/Criteria/ instead of Search Criteria.md
@@ -41,6 +42,7 @@ The profile folder is resolved from TEKJOBS_PROFILE, then ~/.tekjobs/config.json
 
 async function main() {
   if (!cmd || cmd === 'help' || cmd === '--help') return console.log(HELP);
+  if (cmd === '--version' || cmd === '-v' || cmd === 'version') return console.log(JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version);
   if (cmd === 'schedule') return schedule();
   if (cmd === 'init') {
     const dirArg = rest.find((a) => !a.startsWith('--') && a !== opt('--resume'));
