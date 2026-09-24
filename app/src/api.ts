@@ -228,6 +228,10 @@ export interface JobPerson { id: string; name: string; role: string; email: stri
 
 /** What the search is producing, read from the notes. */
 export interface Outcomes {
+  /** Found → reviewed → shortlisted → applied → interviewing → offer; rate is the share of the stage before. */
+  stages: { stage: string; count: number; rate: number | null }[];
+  byKind: { kind: Kind; found: number; applied: number; responded: number; interviewing: number }[];
+  thisWeek: { followUps: { id: string; company: string; title: string; due: string; inDays: number }[]; interviewing: { id: string; company: string; title: string }[] };
   funnel: { found: number; reviewed: number; shortlisted: number; applied: number; interviewing: number; offer: number };
   responded: number;
   responseRate: number | null;

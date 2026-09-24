@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CodeBlock, Icon, Loader, Select, Skeleton, Table, Tooltip, toast } from "@/components/ui";
+import { Badge, Button, Card, CodeBlock, Icon, LineChart, Loader, Select, Skeleton, Table, Tooltip, toast } from "@/components/ui";
 import { useEffect, useState } from "react";
 import { api, type CriteriaPreset, type RunDay, type RunEntry, type RunOutcome, type ScanState } from "../api";
 
@@ -95,6 +95,43 @@ export function Runs() {
             <CodeBlock code={scan.output.slice(-40).join("\n") || "…"} language="text" showCopy={false} wrap />
           </div>
         </Card>
+      )}
+
+      {rows.length > 1 && (
+        <div className="charts">
+          <Card padding="md">
+            <div className="panel">
+              <div className="panel__head">
+                <div>
+                  <h2>New matches per scan</h2>
+                  <p>What each of the last twelve runs added, most recent on the right.</p>
+                </div>
+              </div>
+              <LineChart series={[{ name: "New matches", values: [...rows].slice(0, 12).reverse().map((r) => r.newMatches) }]} labels={[...rows].slice(0, 12).reverse().map((r) => r.when.slice(5, 16))} area height={200} aria-label="New matches per scan" />
+            </div>
+          </Card>
+          <Card padding="md">
+            <div className="panel">
+              <div className="panel__head">
+                <div>
+                  <h2>Last scan</h2>
+                  <p>{latest ? latest.when : ""}</p>
+                </div>
+                {latest && <Badge tone={OUTCOME[latest.outcome].tone} size="sm">{OUTCOME[latest.outcome].label}</Badge>}
+              </div>
+              {latest && (
+                <dl className="detail__grid">
+                  <div><dt>Postings scanned</dt><dd>{latest.scanned.toLocaleString()}</dd></div>
+                  <div><dt>Above the bar</dt><dd>{latest.matched}</dd></div>
+                  <div><dt>New notes</dt><dd>{latest.dry ? "dry run" : latest.newMatches}</dd></div>
+                  <div><dt>Closed listings</dt><dd>{latest.dry ? "—" : latest.closed}</dd></div>
+                  <div><dt>Duration</dt><dd>{latest.seconds}s</dd></div>
+                  <div><dt>Boards</dt><dd>{latest.boardsOk}/{latest.boardsTotal}</dd></div>
+                </dl>
+              )}
+            </div>
+          </Card>
+        </div>
       )}
 
       <Card padding="none">

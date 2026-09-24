@@ -587,7 +587,9 @@ export function outcomes({ agingDays = [7, 14, 21] } = {}) {
     const appliedOn = (text.match(/^- \*\*Applied on:\*\*\s*(\d{4}-\d{2}-\d{2})/m) || [])[1] || moves.find((m) => m.to === 'applied')?.date || (fm.status === 'applied' ? fm.found : '') || '';
     const applied = reached('applied') || !!appliedOn || (fm.status === 'rejected' && moves.some((m) => m.to === 'applied'));
     const responded = applied && (reached('interviewing') || fm.status === 'rejected');
-    return { id: fm._name, company: fm.company || '', title: fm.title || '', source: fm.source || '', status: fm.status || 'new', found: fm.found || '', appliedOn, reviewed: fm.status !== 'new', shortlisted: reached('reviewing') || fm.status === 'applying' || fm.status === 'ready', applied, interviewing: reached('interviewing'), offer: reached('offer'), responded };
+    const inFlight = fm.status === 'applied' || fm.status === 'interviewing';
+    const followUpDue = inFlight ? ((text.match(/^- \*\*Follow-up due:\*\*\s*(\d{4}-\d{2}-\d{2})/m) || [])[1] || '') : '';
+    return { id: fm._name, company: fm.company || '', title: fm.title || '', source: fm.source || '', kind: DE.test(fm.title || '') ? 'design-eng' : 'adjacent', status: fm.status || 'new', found: fm.found || '', appliedOn, followUpDue, reviewed: fm.status !== 'new', shortlisted: reached('reviewing') || fm.status === 'applying' || fm.status === 'ready', applied, interviewing: reached('interviewing'), offer: reached('offer'), responded };
   });
   const appliedJobs = jobs.filter((j) => j.applied);
   const waiting = appliedJobs.filter((j) => j.status === 'applied' && j.appliedOn).map((j) => ({ ...j, days: dayDiff(j.appliedOn, today) })).sort((a, b) => b.days - a.days);
@@ -596,7 +598,16 @@ export function outcomes({ agingDays = [7, 14, 21] } = {}) {
   const weekOf = (d) => { const x = new Date(d); const day = (x.getUTCDay() + 6) % 7; x.setUTCDate(x.getUTCDate() - day); return x.toISOString().slice(0, 10); };
   const perWeek = {};
   for (const j of appliedJobs) if (j.appliedOn) perWeek[weekOf(j.appliedOn)] = (perWeek[weekOf(j.appliedOn)] || 0) + 1;
+  // The funnel as stages, each with its share of the stage before, so "62% of what you shortlist gets applied to"
+  // is a number on the page rather than arithmetic the person does in their head.
+  const counts = [['found', jobs.length], ['reviewed', jobs.filter((j) => j.reviewed).length], ['shortlisted', jobs.filter((j) => j.shortlisted).length], ['applied', appliedJobs.length], ['interviewing', jobs.filter((j) => j.interviewing).length], ['offer', jobs.filter((j) => j.offer).length]];
+  const stages = counts.map(([stage, count], i) => ({ stage, count, rate: i === 0 ? null : counts[i - 1][1] ? count / counts[i - 1][1] : null }));
+  const byKind = ['design-eng', 'adjacent'].map((kind) => { const k = jobs.filter((j) => j.kind === kind); const ka = k.filter((j) => j.applied); return { kind, found: k.length, applied: ka.length, responded: ka.filter((j) => j.responded).length, interviewing: k.filter((j) => j.interviewing).length }; });
+  // What needs a hand this week: follow-ups due within seven days or already past, and the interviews in progress.
+  const followUps = jobs.filter((j) => j.followUpDue && dayDiff(today, j.followUpDue) <= 7).map((j) => ({ id: j.id, company: j.company, title: j.title, due: j.followUpDue, inDays: dayDiff(today, j.followUpDue) })).sort((x, y) => x.inDays - y.inDays);
+  const interviewing = jobs.filter((j) => j.status === 'interviewing').map((j) => ({ id: j.id, company: j.company, title: j.title }));
   return {
+    stages, byKind, thisWeek: { followUps: followUps.slice(0, 8), interviewing: interviewing.slice(0, 8) },
     funnel: { found: jobs.length, reviewed: jobs.filter((j) => j.reviewed).length, shortlisted: jobs.filter((j) => j.shortlisted).length, applied: appliedJobs.length, interviewing: jobs.filter((j) => j.interviewing).length, offer: jobs.filter((j) => j.offer).length },
     responded: appliedJobs.filter((j) => j.responded).length,
     responseRate: appliedJobs.length ? appliedJobs.filter((j) => j.responded).length / appliedJobs.length : null,

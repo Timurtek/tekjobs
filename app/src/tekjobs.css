@@ -1188,3 +1188,29 @@
   padding-left: var(--spacing-5);
   font-size: var(--text-xs);
 }
+
+/* Overview: the funnel's share bar in its table cell, and padding for the head of a padding-none card. */
+.funnel__bar {
+  width: 100%;
+  min-width: 6rem;
+  height: var(--spacing-2);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.funnel__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color-primary);
+}
+
+.panel--pad {
+  padding: var(--spacing-4) var(--spacing-4) 0;
+}
+
+p.panel--pad,
+.chips.panel--pad {
+  padding-bottom: var(--spacing-4);
+}
