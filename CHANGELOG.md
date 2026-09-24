@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.21.0 (2026-09-24)
+
+* feat(app): criteria edits preview their effect live, and notes rescore from the page ([918a36e](https://github.com/Timurtek/tekjobs/commit/918a36e))
+
 ## 0.20.0 (2026-09-24)
 
 * feat(app): overview answers whether the search is working ([8d21437](https://github.com/Timurtek/tekjobs/commit/8d21437))
