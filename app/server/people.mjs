@@ -63,8 +63,8 @@ function ensureSection(text, heading) {
   return `${text.trimEnd()}\n\n## ${heading}\n`;
 }
 
-function row(fm, text) {
-  const jobs = new Map(store.listJobs().map((j) => [j.id, j]));
+const jobMap = () => new Map(store.listJobs().map((j) => [j.id, j]));
+function row(fm, text, jobs = jobMap()) {
   const threads = wikiJobs(section(text, 'Threads')).map((t) => { const j = jobs.get(t.id); return { id: t.id, role: t.role, title: j ? `${j.company} - ${j.title}` : t.id, status: j ? j.status : '' }; });
   return {
     id: fm._name, name: fm.name || fm._name, role: fm.role || 'other', company: fm.company || '', email: fm.email || '', links: fm.links || '',
@@ -75,10 +75,11 @@ function row(fm, text) {
 
 export function listPeople() {
   if (!fs.existsSync(PEOPLE_DIR)) return [];
+  const jobs = jobMap();
   return fs.readdirSync(PEOPLE_DIR).filter((f) => f.endsWith('.md')).map((f) => {
     const p = path.join(PEOPLE_DIR, f);
     const fm = readFrontmatter(p);
-    return fm ? row(fm, fs.readFileSync(p, 'utf8')) : null;
+    return fm ? row(fm, fs.readFileSync(p, 'utf8'), jobs) : null;
   }).filter(Boolean).sort((a, b) => (b.lastContact || '').localeCompare(a.lastContact || '') || a.name.localeCompare(b.name));
 }
 
