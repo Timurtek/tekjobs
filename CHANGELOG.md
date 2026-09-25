@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.29.3 (2026-09-25)</small>
+
+* fix(app): scrollbars in the brand, and the copy panel scrolls one way ([a87b43c](https://github.com/Timurtek/tekjobs/commit/a87b43c))
+
 ## <small>0.29.2 (2026-09-25)</small>
 
 * fix(people): the LinkedIn import leaves the copy panel alone ([fa0e136](https://github.com/Timurtek/tekjobs/commit/fa0e136))
