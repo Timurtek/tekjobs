@@ -16,7 +16,8 @@
     "add": "zengin add",
     "mock": "zengin mock --schema mock.json",
     "storybook": "zengin tokens && storybook dev -p 6006 --no-open",
-    "build-storybook": "zengin tokens && storybook build"
+    "build-storybook": "zengin tokens && storybook build",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.2.6",
@@ -36,6 +37,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@storybook/addon-a11y": "^10.6.0",
     "@storybook/addon-docs": "^10.6.0",
     "@storybook/react-vite": "^10.6.0",

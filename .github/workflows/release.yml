@@ -35,6 +35,11 @@ jobs:
         working-directory: app
       - run: npx zengin check
         working-directory: app
+      # One browser run of the built app on a copy of the sample vault (app/e2e).
+      - run: npx playwright install --with-deps chromium
+        working-directory: app
+      - run: npm run test:e2e
+        working-directory: app
       # The site: types and the design-system rules. Vercel does the build.
       - run: npm ci --ignore-scripts
         working-directory: site

@@ -63,3 +63,16 @@ Things that will not be merged, and why:
 ## Reporting a problem
 
 Use the issue templates. For a board that stopped fetching, the Sources page's health line (state, last success, last error) is most of the report. For a security problem, read `SECURITY.md` instead of opening an issue.
+
+## Tests
+
+Four layers, all against fictional data (the sample vault, the LinkedIn fixture, invented postings); none touches a real profile folder.
+
+| Layer | What it proves | Run |
+| --- | --- | --- |
+| Unit, root (`test/*.test.mjs`) | Scoring, note writing, salary parsing, the LinkedIn reader and writer, mail matching, people, health, rescoring, resume sync, the counts the site prints | `npm test` |
+| API (`test/api.test.mjs`) | The server spawned like `tekjobs serve` on a copy of the sample vault: every read route, the job routes on a real note, people, criteria preview, snippets, the LinkedIn preview, the 404 and static fallbacks | part of `npm test` |
+| MCP and CLI (`test/mcp.test.mjs`, `test/cli.test.mjs`) | Every advertised tool has a handler and the read-only ones answer; `init`, `status`, `--version`, `import linkedin --preview` in a temp home | part of `npm test` |
+| Browser (`app/e2e`) | The built app on the sample vault: Today, Jobs and a note's reasons, the People tab, the copy panel, People, Sources, Criteria | `cd app && npm run build && npm run test:e2e` (once: `npx playwright install chromium`) |
+
+CI runs all four on every push and pull request. A change to a route, a tool or a CLI command should come with a line in the matching file; a change to what a posting scores should come with a case in `test/scoring.test.mjs`.
