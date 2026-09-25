@@ -2,7 +2,7 @@
 title: Privacy Policy
 order: 2
 summary: What tekjobs.timurtek.com collects, why, who processes it, and what the TekJobs software does not send anywhere.
-updated: 2026-09-23
+updated: 2026-09-24
 ---
 
 This policy covers **tekjobs.timurtek.com** and the accounts and job-posting service on it, operated by **Timurtek LLC**, Everett, Washington, USA (hello@timurtek.com). It also says, because people ask, what the TekJobs software does with your data: nothing that leaves your computer.
@@ -19,9 +19,11 @@ TekJobs, the software in the repository, runs locally. Your profile, resume, cri
 
 **Postings.** The posting text you submit, the employer it names, and the dates it ran.
 
-**Server logs.** Our host, Vercel, keeps standard request logs (IP address, user agent, path, time) for a short period for security and debugging. We do not run analytics or advertising trackers on the Site.
+**Server logs.** Our host, Vercel, keeps standard request logs (IP address, user agent, path, time) for a short period for security and debugging.
 
-**Cookies.** One cookie, `tj_session`, keeps you signed in for up to fourteen days. It is strictly necessary for the account to work and holds no tracking. The theme you pick is remembered in your browser's local storage and never sent to us.
+**Analytics.** The Site uses Google Analytics 4 to count visits and see which pages are read: page views, the referring site, approximate location from the IP address (Google does not store the address itself), browser and device type. It runs only on the public site at tekjobs.timurtek.com, not in preview builds and never in the TekJobs software on your computer. We do not send it your account email, your postings, or anything you type. Google processes this data under [its privacy policy](https://policies.google.com/privacy); its [browser add-on](https://tools.google.com/dlpage/gaoptout) opts you out everywhere, and a browser that blocks the `googletagmanager.com` script has the same effect here. We do not run advertising trackers.
+
+**Cookies.** One cookie of ours, `tj_session`, keeps you signed in for up to fourteen days. It is strictly necessary for the account to work and holds no tracking. Google Analytics sets its own cookies (`_ga` and `_ga_*`) to tell a returning browser from a new one; they hold a random id, not your name or email. The theme you pick is remembered in your browser's local storage and never sent to us.
 
 ## Why, and on what basis
 
@@ -32,6 +34,7 @@ To provide the account and the posting you bought (performance of a contract); t
 - **Google Firebase** (Authentication and Firestore): accounts and purchase records, in the United States.
 - **Stripe**: payments, under Stripe's privacy policy.
 - **Vercel**: hosting and request logs, in the United States.
+- **Google Analytics**: visit counts and page views on the Site, in the United States.
 - **GitHub**: the repository and its issues, if you interact with them.
 
 Each processes data under its own terms and security programme. Data is stored in the United States; if you are elsewhere, using the Site means it is transferred there.

@@ -3,6 +3,7 @@ import "@/theme/brand.css";
 import "@/site.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { GoogleTag } from "@/components/GoogleTag";
 import { SiteFrame } from "@/components/SiteFrame";
 
 export const metadata: Metadata = {
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <SiteFrame>{children}</SiteFrame>
+        <GoogleTag />
       </body>
     </html>
   );

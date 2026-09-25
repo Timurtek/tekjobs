@@ -8,3 +8,10 @@ export const authConfigured = !!(process.env.NEXT_PUBLIC_FIREBASE_API_KEY && pro
 export const purchasesOpen = process.env.NEXT_PUBLIC_PURCHASES_OPEN === "1";
 
 export const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tekjobs.timurtek.com";
+
+/**
+ * Google Analytics 4 on the marketing site, production deployments only: not in development, not on preview
+ * URLs, so local work and pull-request builds never count. The measurement id is public by nature (it ships in
+ * the page), so it lives here rather than in the environment. Empty string means the tag is not rendered.
+ */
+export const analyticsId = process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ? "G-DX8B8DCTGF" : "";
