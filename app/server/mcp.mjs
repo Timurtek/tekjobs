@@ -2,6 +2,8 @@
 // TekJobs MCP server (stdio, JSON-RPC 2.0). Lets Claude Code / Claude Desktop run the job search without the UI:
 // search and read matches, move them through the pipeline, add notes, edit criteria, add boards, trigger a scan,
 // and pull the materials needed to tailor an application. Hand-rolled: no SDK dependency.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as store from './store.mjs';
 import * as letter from './cover-letter.mjs';
 import * as tailored from './tailored-resume.mjs';
@@ -9,7 +11,7 @@ import * as mail from './mail-check.mjs';
 import * as people from './people.mjs';
 import * as linkedin from './linkedin-import.mjs';
 
-const TOOLS = [
+export const TOOLS = [
   { name: 'list_snippets', description: 'The copy panel: the person\'s standard answers for application forms (name, email, phone, links, availability, salary answer, anything they added), grouped, from Profile/Snippets.md. Use these verbatim when drafting form answers; never invent a value that is empty here.', inputSchema: { type: 'object', properties: {} } },
   { name: 'list_people', description: 'The people in the search: recruiters, hiring managers, interviewers and referrals, one note each under People/, with role, company, email, last contact and the job notes they are on. Newest contact first.', inputSchema: { type: 'object', properties: {} } },
   { name: 'get_person', description: 'One person in full: the row plus their About text and dated Log of contacts.', inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] } },
@@ -56,7 +58,7 @@ const TOOLS = [
   { name: 'add_company', description: 'Append a board to the watchlist. ats is the platform (greenhouse, lever, ashby, workday, rippling, smartrecruiters, workable, bamboohr, breezy, personio, teamtailor, eightfold, atlassian, github, spotify, amazon); slug is the board token.', inputSchema: { type: 'object', properties: { name: { type: 'string' }, ats: { type: 'string' }, slug: { type: 'string' }, tier: { type: 'string' }, notes: { type: 'string' } }, required: ['name', 'ats', 'slug'] } },
 ];
 
-async function call(name, a = {}) {
+export async function call(name, a = {}) {
   switch (name) {
     case 'onboarding_status': return store.onboardingStatus();
     case 'onboarding_materials': return store.onboardingMaterials();
@@ -108,8 +110,9 @@ async function call(name, a = {}) {
 
 const write = (o) => process.stdout.write(JSON.stringify(o) + '\n');
 let buf = '';
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', (chunk) => {
+const isMain = !!process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) process.stdin.setEncoding('utf8');
+if (isMain) process.stdin.on('data', (chunk) => {
   buf += chunk; let i;
   while ((i = buf.indexOf('\n')) >= 0) {
     const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
@@ -131,4 +134,4 @@ function handle(msg) {
   }
   if (id !== undefined) write({ jsonrpc: '2.0', id, error: { code: -32601, message: `method not found: ${method}` } });
 }
-process.stderr.write(`tekjobs-mcp: vault ${store.VAULT}\n`);
+if (isMain) process.stderr.write(`tekjobs-mcp: vault ${store.VAULT}\n`);
