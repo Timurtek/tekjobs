@@ -1,8 +1,7 @@
 // Reading a LinkedIn data export (the "larger archive" from linkedin.com/mypreferences/d/download-my-data),
 // as a zip or an unpacked folder, into the few things a job search can use: who you know at which company,
-// who has written to you lately, the answers you have typed into application forms, what you applied to and
-// saved. Nothing here writes; app/server/linkedin-import.mjs does, into the profile folder only. The archive
-// is read in place and never copied. Files this module does not name (ads, reactions, searches, phone numbers,
+// who has written to you lately, what you applied to and saved. Nothing here writes; app/server/linkedin-import.mjs
+// does, into the profile folder only. The archive is read in place and never copied. Files this module does not name (ads, reactions, searches, phone numbers,
 // birth date, addresses) are never opened.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -68,7 +67,6 @@ const WANT = {
   applications: [/^Jobs\/Job Applications(_\d+)?\.csv$/],
   savedJobs: [/^Jobs\/Saved Jobs(_\d+)?\.csv$/],
   preferences: ['Jobs/Job Seeker Preferences.csv'],
-  answers: ['Jobs/Job Applicant Saved Answers.csv', /^Job Applicant Saved Screening Question Responses(_\d+)?\.csv$/],
   profile: ['Profile.csv'],
   positions: ['Positions.csv'],
   skills: ['Skills.csv'],
@@ -117,7 +115,7 @@ const clip = (s, n) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); 
 
 /**
  * Everything the app needs later, in one JSON the size of a small spreadsheet: connections with a company key,
- * conversations and invitations since `since`, applications, saved jobs, the saved form answers. Message text is
+ * conversations and invitations since `since`, applications, saved jobs. Message text is
  * kept only for messages since `since`, clipped, so the file stays about your search and not your history.
  */
 export function buildIndex(ex, { since = '', now = new Date() } = {}) {
@@ -150,15 +148,13 @@ export function buildIndex(ex, { since = '', now = new Date() } = {}) {
   const invitations = (ex.invitations || []).map((r) => ({ from: r.From || '', to: r.To || '', sentAt: day(r['Sent At']), direction: r.Direction || '', message: clip(r.Message, 240), url: r.Direction === 'INCOMING' ? (r.inviterProfileUrl || '') : (r.inviteeProfileUrl || '') })).filter((i) => recent(i.sentAt));
   const applications = (ex.applications || []).map((r) => ({ date: day(r['Application Date']), company: r['Company Name'] || '', companyKey: companyKey(r['Company Name']), title: r['Job Title'] || '', url: r['Job Url'] || '', resume: r['Resume Name'] || '' })).filter((a) => a.date).sort((a, b) => b.date.localeCompare(a.date));
   const savedJobs = (ex.savedJobs || []).map((r) => ({ date: day(r['Saved Date']), company: r['Company Name'] || '', title: r['Job Title'] || '', url: r['Job Url'] || '' })).filter((s) => s.date).sort((a, b) => b.date.localeCompare(a.date));
-  const seenQ = new Set();
-  const answers = (ex.answers || []).map((r) => ({ question: String(r.Question || '').trim(), answer: String(r.Answer || '').trim() })).filter((a) => a.question && a.answer && !seenQ.has(a.question.toLowerCase()) && seenQ.add(a.question.toLowerCase()));
   const pref = ex.preferences?.[0] || {};
   const preferences = pref ? { locations: pref.Locations || '', industries: pref.Industries || '', companySize: pref['Company Employee Count'] || '', jobTypes: pref['Preferred Job Types'] || '', titles: pref['Job Titles'] || '', openToRecruiters: pref['Open To Recruiters'] || '', dreamCompanies: pref['Dream Companies'] || '', startTime: pref['Preferred Start Time Range'] || '' } : {};
 
   return {
     built: now.toISOString(), since, source: ex.source, self,
-    counts: { connections: connections.length, threads: threads.length, invitations: invitations.length, applications: applications.length, savedJobs: savedJobs.length, answers: answers.length },
-    connections, threads, invitations, applications, savedJobs, answers, preferences,
+    counts: { connections: connections.length, threads: threads.length, invitations: invitations.length, applications: applications.length, savedJobs: savedJobs.length },
+    connections, threads, invitations, applications, savedJobs, preferences,
   };
 }
 
@@ -197,11 +193,4 @@ export function peopleCandidates(index, { since = index?.since || '' } = {}) {
     add({ ...who, company: rec?.company, title: rec?.title }, i.sentAt, i.direction === 'INCOMING' ? 'linkedin invitation received' : 'linkedin invitation sent', i.message);
   }
   return [...out.values()].map((c) => ({ ...c, log: c.log.sort((a, b) => a.date.localeCompare(b.date)).slice(-8) })).sort((a, b) => b.last.localeCompare(a.last));
-}
-
-/** Saved form answers as copy-panel items, minus labels the panel already has. */
-export function snippetSuggestions(index, existing = []) {
-  const have = new Set(existing.map((s) => String(s.label || '').toLowerCase()));
-  const label = (q) => clip(q.replace(/[?:]+$/, ''), 60);
-  return (index.answers || []).filter((a) => !/^(yes|no|y|n)$/i.test(a.answer)).map((a) => ({ group: 'From LinkedIn', label: label(a.question), value: a.answer })).filter((s) => !have.has(s.label.toLowerCase()));
 }

@@ -38,7 +38,7 @@ const routes = [
   ['GET', /^\/api\/jobs\/([^/]+)\/connections$/, (m) => linkedin.connectionsAt(store.getJob(decodeURIComponent(m[1])).company)],
   ['GET', /^\/api\/linkedin$/, () => linkedin.status()],
   ['POST', /^\/api\/linkedin\/preview$/, async (_, __, req) => { const b = await readBody(req); return linkedin.preview(b.source, { since: b.since || undefined, everyone: !!b.everyone }); }],
-  ['POST', /^\/api\/linkedin\/import$/, async (_, __, req) => { const b = await readBody(req); return linkedin.runImport(b.source, { since: b.since || undefined, everyone: !!b.everyone, writePeople: b.writePeople !== false, writeSnippets: b.writeSnippets !== false, dry: !!b.dry }); }],
+  ['POST', /^\/api\/linkedin\/import$/, async (_, __, req) => { const b = await readBody(req); return linkedin.runImport(b.source, { since: b.since || undefined, everyone: !!b.everyone, writePeople: b.writePeople !== false, dry: !!b.dry }); }],
   ['GET', /^\/api\/people$/, () => people.listPeople()],
   ['POST', /^\/api\/people$/, async (_, __, req) => { const b = await readBody(req); const p = people.createPerson(b); if (b.jobId) people.attachPerson(b.jobId, p.id, { role: b.role, context: b.context }); return people.getPerson(p.id); }],
   ['GET', /^\/api\/people\/([^/]+)$/, (m) => people.getPerson(decodeURIComponent(m[1]))],

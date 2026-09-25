@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseCsv, table, companyKey, sameCompany, roleGuess, readExport, buildIndex, warmPaths, peopleCandidates, snippetSuggestions } from '../scraper/linkedin.mjs';
+import { parseCsv, table, companyKey, sameCompany, roleGuess, readExport, buildIndex, warmPaths, peopleCandidates } from '../scraper/linkedin.mjs';
 import { openZip } from '../scraper/zip.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -44,7 +44,6 @@ for (const [kind, source] of [['folder', folder], ['zip', zip]]) {
     const ex = readExport(source);
     assert.equal(ex.connections.length, 4);
     assert.equal(ex.messages.length, 3);
-    assert.equal(ex.answers.length, 5, 'saved answers and screening responses both count');
     const index = buildIndex(ex, { since: '2026-06-01', now: new Date('2026-09-25T00:00:00Z') });
     assert.equal(index.self, 'Avery Sample');
     assert.equal(index.counts.connections, 4);
@@ -52,7 +51,6 @@ for (const [kind, source] of [['folder', folder], ['zip', zip]]) {
     assert.equal(index.threads[0].with[0].company, 'Northwind Traders, Inc.', 'the sender is joined to their connection record');
     assert.equal(index.applications.length, 2);
     assert.equal(index.applications[0].date, '2026-09-15');
-    assert.equal(index.answers.length, 4, 'the duplicate salary question is kept once');
     assert.equal(index.preferences.titles, 'Design Engineer;Design Systems Engineer');
   });
 }
@@ -77,12 +75,4 @@ test('people candidates: senders and inviters since the date, never yourself, wi
   assert.equal(jane.count, 1, 'only her message counts, not the reply');
   assert.match(jane.log[0].text, /Staff Design Engineer at Northwind/);
   assert.equal(c.find((p) => p.name === 'Mina Park').log[0].via, 'linkedin invitation received');
-});
-
-test('snippet suggestions skip yes/no answers and labels the panel already has', () => {
-  const index = buildIndex(readExport(folder));
-  const s = snippetSuggestions(index, [{ group: 'Answers', label: 'What is your desired salary', value: 'x' }]);
-  // Files are read in name order, so the screening responses come before Jobs/Job Applicant Saved Answers.
-  assert.deepEqual(s.map((x) => x.label), ['How many years of experience do you have with design systems', 'Website']);
-  assert.equal(s[0].group, 'From LinkedIn');
 });

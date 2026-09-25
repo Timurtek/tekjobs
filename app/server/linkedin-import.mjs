@@ -1,11 +1,11 @@
 // The LinkedIn import: reads the export in place (scraper/linkedin.mjs) and writes only into the profile folder:
-// the index the app answers "who do I know there" from, People notes for the recruiters and hiring managers who
-// wrote lately, and your saved form answers into the copy panel. Re-running is safe: people are recognised, not
-// duplicated; log lines already present are not appended again; snippets already there are left alone.
+// the index the app answers "who do I know there" from, and People notes for the recruiters and hiring managers
+// who wrote lately. Re-running is safe: people are recognised, not duplicated; log lines already present are not
+// appended again.
 import fs from 'node:fs';
 import path from 'node:path';
 import { P, DATA_DIR } from '../../scraper/config.mjs';
-import { readExport, buildIndex, peopleCandidates, snippetSuggestions, warmPaths, companyKey } from '../../scraper/linkedin.mjs';
+import { readExport, buildIndex, peopleCandidates, warmPaths, companyKey } from '../../scraper/linkedin.mjs';
 import * as people from './people.mjs';
 import * as store from './store.mjs';
 
@@ -49,8 +49,6 @@ export function preview(source, { since = daysAgo(90), roles = ['recruiter', 'hi
   const index = buildIndex(ex, { since });
   const candidates = peopleCandidates(index, { since });
   const picked = chosen(candidates, { roles, everyone });
-  const existing = store.getSnippets().items;
-  const snippets = snippetSuggestions(index, existing);
   const jobs = store.listJobs();
   const jobKeys = new Map(jobs.map((j) => [companyKey(j.company), j]));
   const withNotes = picked.filter((c) => c.company && jobKeys.has(companyKey(c.company)));
@@ -59,7 +57,6 @@ export function preview(source, { since = daysAgo(90), roles = ['recruiter', 'hi
   return {
     source: ex.source, kind: ex.kind, files: ex.files, since, self: index.self, counts: index.counts,
     people: { candidates: candidates.length, chosen: picked.length, onJobNotes: withNotes.length, sample: picked.slice(0, 12).map((c) => ({ name: c.name, role: c.role, company: c.company, title: c.title, last: c.last, messages: c.count })) },
-    snippets: { new: snippets.length, sample: snippets.slice(0, 8).map((s) => s.label) },
     warmPaths: { jobsWithConnections: knownAt.length, top: knownAt.slice(0, 10) },
     applicationsSince: index.applications.filter((a) => a.date >= since).length,
     savedJobsSince: index.savedJobs.filter((s) => s.date >= since).length,
@@ -69,12 +66,12 @@ export function preview(source, { since = daysAgo(90), roles = ['recruiter', 'hi
 // ---------- writing ----------
 /**
  * Run the import. Writes the index, then (unless told not to) People notes with their LinkedIn log and a link to
- * any open job note at their company, then the copy-panel suggestions. `dry` does everything but write.
+ * any open job note at their company. `dry` does everything but write.
  */
-export function runImport(source, { since = daysAgo(90), roles = ['recruiter', 'hiring-manager'], everyone = false, writePeople = true, writeSnippets = true, dry = false } = {}) {
+export function runImport(source, { since = daysAgo(90), roles = ['recruiter', 'hiring-manager'], everyone = false, writePeople = true, dry = false } = {}) {
   const ex = readExport(source);
   const index = buildIndex(ex, { since });
-  const summary = { source: ex.source, since, self: index.self, counts: index.counts, dry, indexPath: P.linkedin, people: { created: 0, recognised: 0, attached: 0, skipped: 0, logged: 0 }, snippets: { added: 0 } };
+  const summary = { source: ex.source, since, self: index.self, counts: index.counts, dry, indexPath: P.linkedin, people: { created: 0, recognised: 0, attached: 0, skipped: 0, logged: 0 } };
 
   if (!dry) { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(P.linkedin, JSON.stringify(index, null, 1)); cached = { mtime: 0, index: null }; }
 
@@ -108,11 +105,5 @@ export function runImport(source, { since = daysAgo(90), roles = ['recruiter', '
     }
   }
 
-  if (writeSnippets) {
-    const existing = store.getSnippets().items;
-    const add = snippetSuggestions(index, existing);
-    summary.snippets.added = add.length;
-    if (add.length && !dry) store.saveSnippets([...existing, ...add]);
-  }
   return summary;
 }

@@ -247,19 +247,17 @@ export interface JobPerson { id: string; name: string; role: string; email: stri
 /** From the LinkedIn import: who you know at a company. `imported` is null before the first import. */
 export interface Connection { name: string; title: string; url: string; connectedOn: string; role: string }
 export interface Connections { company: string; count: number; people: Connection[]; imported: string | null }
-export interface LinkedInCounts { connections: number; threads: number; invitations: number; applications: number; savedJobs: number; answers: number }
+export interface LinkedInCounts { connections: number; threads: number; invitations: number; applications: number; savedJobs: number }
 export interface LinkedInStatus { imported: string | null; since?: string; source?: string; counts?: LinkedInCounts; self?: string }
 export interface LinkedInPreview {
   source: string; kind: string; files: string[]; since: string; self: string; counts: LinkedInCounts;
   people: { candidates: number; chosen: number; onJobNotes: number; sample: { name: string; role: string; company: string; title: string; last: string; messages: number }[] };
-  snippets: { new: number; sample: string[] };
   warmPaths: { jobsWithConnections: number; top: { company: string; count: number }[] };
   applicationsSince: number; savedJobsSince: number;
 }
 export interface LinkedInImportSummary {
   source: string; since: string; dry: boolean; counts: LinkedInCounts; indexPath: string;
   people: { created: number; recognised: number; attached: number; skipped: number; logged: number };
-  snippets: { added: number };
 }
 
 /** What the search is producing, read from the notes. */
@@ -416,7 +414,7 @@ export const api = {
   jobConnections: (id: string) => request<Connections>(`/api/jobs/${encodeURIComponent(id)}/connections`),
   linkedinStatus: () => request<LinkedInStatus>("/api/linkedin"),
   linkedinPreview: (source: string, since?: string, everyone?: boolean) => request<LinkedInPreview>("/api/linkedin/preview", { method: "POST", body: JSON.stringify({ source, since, everyone }) }),
-  linkedinImport: (source: string, o: { since?: string; everyone?: boolean; writePeople?: boolean; writeSnippets?: boolean; dry?: boolean } = {}) => request<LinkedInImportSummary>("/api/linkedin/import", { method: "POST", body: JSON.stringify({ source, ...o }) }),
+  linkedinImport: (source: string, o: { since?: string; everyone?: boolean; writePeople?: boolean; dry?: boolean } = {}) => request<LinkedInImportSummary>("/api/linkedin/import", { method: "POST", body: JSON.stringify({ source, ...o }) }),
   companies: () => request<Company[]>("/api/companies"),
   addCompany: (c: Omit<Company, "status" | "health">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
   feeds: () => request<Feed[]>("/api/feeds"),

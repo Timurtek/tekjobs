@@ -329,7 +329,7 @@ function LinkedInImport({ onDone }: { onDone: () => void }) {
     setBusy("import");
     try {
       const s = await api.linkedinImport(source.trim(), { since: since || undefined, everyone });
-      toast({ title: "LinkedIn export imported", description: `${s.people.created} people created, ${s.people.recognised} already there, ${s.people.attached} put on job notes; ${s.snippets.added} answers into the copy panel; ${s.counts.connections} connections indexed.`, tone: "success" });
+      toast({ title: "LinkedIn export imported", description: `${s.people.created} people created, ${s.people.recognised} already there, ${s.people.attached} put on job notes; ${s.counts.connections} connections indexed.`, tone: "success" });
       setPreview(null); onDone(); refresh();
     } catch (e) { toast({ title: "Import failed", description: (e as Error).message, tone: "danger" }); }
     setBusy("");
@@ -342,10 +342,10 @@ function LinkedInImport({ onDone }: { onDone: () => void }) {
           <h3 className="connections__title">Bring your LinkedIn history</h3>
           <p className="muted">
             Request the larger archive at <a href="https://www.linkedin.com/mypreferences/d/download-my-data" target="_blank" rel="noreferrer">linkedin.com/mypreferences/d/download-my-data</a>, download the zip when LinkedIn emails it (a partial in about ten minutes, the complete one within a day), and paste its path here.
-            It is read in place and never copied. It writes, into this profile folder only: who you know at each company (shown on every job), People notes for the recruiters and hiring managers who wrote, and your saved application answers into the copy panel.
+            It is read in place and never copied. It writes, into this profile folder only: who you know at each company (shown on every job) and People notes for the recruiters and hiring managers who wrote.
           </p>
           {status?.imported && status.counts && (
-            <p className="muted">Last imported {status.imported.slice(0, 10)}{file ? ` from ${file}` : ""}: {status.counts.connections} connections, {status.counts.threads} conversations and {status.counts.invitations} invitations since {status.since}, {status.counts.answers} saved answers.</p>
+            <p className="muted">Last imported {status.imported.slice(0, 10)}{file ? ` from ${file}` : ""}: {status.counts.connections} connections, {status.counts.threads} conversations and {status.counts.invitations} invitations since {status.since}.</p>
           )}
         </div>
         <div className="linkedin__form">
@@ -361,10 +361,10 @@ function LinkedInImport({ onDone }: { onDone: () => void }) {
         {preview && (
           <div className="linkedin__preview">
             <p>
-              <strong>{preview.self || "You"}</strong>, {preview.kind === "zip" ? "zip" : "folder"} with {preview.files.length} files read. {preview.counts.connections} connections; {preview.counts.threads} conversations and {preview.counts.invitations} invitations since {preview.since}; {preview.counts.applications} applications ({preview.applicationsSince} since then); {preview.counts.savedJobs} saved jobs ({preview.savedJobsSince} since then); {preview.counts.answers} saved answers.
+              <strong>{preview.self || "You"}</strong>, {preview.kind === "zip" ? "zip" : "folder"} with {preview.files.length} files read. {preview.counts.connections} connections; {preview.counts.threads} conversations and {preview.counts.invitations} invitations since {preview.since}; {preview.counts.applications} applications ({preview.applicationsSince} since then); {preview.counts.savedJobs} saved jobs ({preview.savedJobsSince} since then).
             </p>
             <p>
-              Would write <strong>{preview.people.chosen}</strong> {everyone ? "people who wrote" : "recruiters and hiring managers"} of {preview.people.candidates} senders ({preview.people.onJobNotes} at companies on your job notes), and <strong>{preview.snippets.new}</strong> new answers into the copy panel. {preview.warmPaths.jobsWithConnections} companies on your job notes have connections{preview.warmPaths.top.length ? `: ${preview.warmPaths.top.slice(0, 6).map((t) => `${t.company} (${t.count})`).join(", ")}` : ""}.
+              Would write <strong>{preview.people.chosen}</strong> {everyone ? "people who wrote" : "recruiters and hiring managers"} of {preview.people.candidates} senders ({preview.people.onJobNotes} at companies on your job notes). {preview.warmPaths.jobsWithConnections} companies on your job notes have connections{preview.warmPaths.top.length ? `: ${preview.warmPaths.top.slice(0, 6).map((t) => `${t.company} (${t.count})`).join(", ")}` : ""}.
             </p>
             {preview.people.sample.length > 0 && (
               <ul className="people__list">

@@ -35,8 +35,8 @@ const HELP = `tekjobs — a local job-search machine
                                          (07:30 by default), or prints the crontab or launchd line for macOS and
                                          Linux; --print shows the command without installing anything
   tekjobs import linkedin <zip|folder>   your LinkedIn data export into the search: who you know at each
-                                         company, the recruiters who wrote, your saved form answers
-                                         [--since YYYY-MM-DD] [--everyone] [--no-people] [--no-snippets] [--preview] [--dry]
+                                         company, and the recruiters who wrote
+                                         [--since YYYY-MM-DD] [--everyone] [--no-people] [--preview] [--dry]
   tekjobs serve                          the app + API on http://127.0.0.1:8787
   tekjobs mcp                            the MCP server on stdio (Claude Code, Codex, Cursor, Claude Desktop)
 
@@ -156,15 +156,14 @@ async function main() {
   }
   if (cmd === 'import' && rest[0] === 'linkedin') {
     const source = rest.slice(1).find((x) => !x.startsWith('--'));
-    if (!source) return console.error('Usage: tekjobs import linkedin <path to the export zip or unpacked folder> [--since YYYY-MM-DD] [--everyone] [--no-people] [--no-snippets] [--preview] [--dry]\nRequest the larger archive at https://www.linkedin.com/mypreferences/d/download-my-data');
+    if (!source) return console.error('Usage: tekjobs import linkedin <path to the export zip or unpacked folder> [--since YYYY-MM-DD] [--everyone] [--no-people] [--preview] [--dry]\nRequest the larger archive at https://www.linkedin.com/mypreferences/d/download-my-data');
     const li = await import('./app/server/linkedin-import.mjs');
-    const o = { since: opt('--since') || undefined, everyone: rest.includes('--everyone'), writePeople: !rest.includes('--no-people'), writeSnippets: !rest.includes('--no-snippets'), dry: rest.includes('--dry') };
+    const o = { since: opt('--since') || undefined, everyone: rest.includes('--everyone'), writePeople: !rest.includes('--no-people'), dry: rest.includes('--dry') };
     if (rest.includes('--preview')) return console.log(JSON.stringify(li.preview(source, o), null, 2));
     const s = li.runImport(source, o);
     console.log(`LinkedIn export read from ${s.source}${s.dry ? ' (dry run, nothing written)' : ''}`);
     console.log(`  ${s.counts.connections} connections indexed, ${s.counts.threads} conversations and ${s.counts.invitations} invitations since ${s.since}, ${s.counts.applications} applications, ${s.counts.savedJobs} saved jobs`);
     console.log(`  People: ${s.people.created} created, ${s.people.recognised} already there, ${s.people.attached} put on job notes, ${s.people.logged} log lines; ${s.people.skipped} senders skipped (not recruiters or hiring managers; --everyone includes them)`);
-    console.log(`  Copy panel: ${s.snippets.added} answers added under "From LinkedIn"`);
     if (!s.dry) console.log(`  Index: ${s.indexPath}. Job notes now show who you know at each company.`);
     return;
   }

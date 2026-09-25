@@ -29,13 +29,12 @@ test('preview reads without writing', () => {
   assert.equal(status().imported, null);
 });
 
-test('the import writes the index, a People note with its log, a link on the job note, and the snippets', () => {
+test('the import writes the index, a People note with its log, and a link on the job note', () => {
   const s = runImport(fixture, { since: '2026-06-01' });
   assert.ok(fs.existsSync(P.linkedin));
   assert.equal(s.people.created, 1);
   assert.equal(s.people.attached, 1);
   assert.equal(s.people.logged, 1);
-  assert.ok(s.snippets.added >= 2, `snippets added: ${s.snippets.added}`);
   const jane = people.listPeople().find((p) => p.name === 'Jane Doe');
   assert.ok(jane, 'Jane Doe exists');
   assert.equal(jane.role, 'recruiter');
@@ -45,7 +44,6 @@ test('the import writes the index, a People note with its log, a link on the job
   assert.match(note, /## Threads\n- \[\[Jobs\/Northwind Traders - Staff Design Engineer \(1\)/);
   const job = fs.readFileSync(path.join(P.jobs, 'Northwind Traders - Staff Design Engineer (1).md'), 'utf8');
   assert.match(job, /## People\n- \[\[People\/Jane Doe \(Northwind Traders, Inc.\)\|Jane Doe\]\] · recruiter · LinkedIn, 2026-09-18/);
-  assert.ok(store.getSnippets().items.some((x) => x.group === 'From LinkedIn' && x.label === 'Website'));
   assert.equal(connectionsAt('Northwind Traders').count, 2);
   assert.equal(status().counts.connections, 4);
   assert.ok(loadIndex().threads.length >= 1);
@@ -53,15 +51,12 @@ test('the import writes the index, a People note with its log, a link on the job
 
 test('running it again recognises everyone and appends nothing twice', () => {
   const before = fs.readFileSync(people.listPeople().find((p) => p.name === 'Jane Doe').path, 'utf8');
-  const snippetsBefore = store.getSnippets().items.length;
   const s = runImport(fixture, { since: '2026-06-01' });
   assert.equal(s.people.created, 0);
   assert.equal(s.people.recognised, 1);
   assert.equal(s.people.logged, 0);
   assert.equal(s.people.attached, 0);
-  assert.equal(s.snippets.added, 0);
   assert.equal(fs.readFileSync(people.listPeople().find((p) => p.name === 'Jane Doe').path, 'utf8'), before);
-  assert.equal(store.getSnippets().items.length, snippetsBefore);
 });
 
 test('everyone=true also writes the people whose title is not a search role, and dry writes nothing', () => {
