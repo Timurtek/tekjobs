@@ -58,6 +58,8 @@ export const P = {
   runsLog: path.join(DATA_DIR, 'runs.log'),
   // What each board and feed did the last time the scan tried it (scraper/health.mjs).
   health: path.join(DATA_DIR, 'board-health.json'),
+  // The index the LinkedIn import builds: connections by company, threads by person (scraper/linkedin.mjs).
+  linkedin: path.join(DATA_DIR, 'linkedin.json'),
 };
 
 export const ALL_ATS = ['greenhouse', 'lever', 'ashby', 'workday', 'rippling', 'smartrecruiters', 'workable', 'bamboohr', 'breezy', 'personio', 'teamtailor', 'eightfold', 'atlassian', 'github', 'spotify', 'amazon', 'google', 'apple'];

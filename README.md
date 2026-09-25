@@ -32,7 +32,7 @@ It does not fit if you want a hosted service with nothing to install (TekJobs is
 - **A daily scan** over Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold boards, the Atlassian, GitHub, Spotify and Amazon career APIs, the Google and Apple career pages (keyword-searched; they have no API), and eleven aggregator feeds including Wellfound's and Built In's remote listing pages. All public; the company-board scan needs no API key. Two optional feeds need a free key of their own: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, which is every federal posting in the United States. Job alert emails saved into `Inbox/` are read too, which is how LinkedIn and Indeed listings get in without anything contacting those sites. Tens of thousands of postings a run, deduplicated, scored with every point written down as a reason, and cut to the ones that fit you.
 - **An app** (Zengin UI): a Today queue, a filterable jobs table with a detail sheet, a drag-and-drop pipeline from reviewing to offer, a Sources page with each board's health and a retry for the failed ones, a criteria editor with a live preview of what a change would do, scan history with a run button, the profile pages, and the agent setup page.
 - **Application material** written from your resume of record and checked against it: a tailored resume, a cover letter in your voice, and a copy panel for the answers forms keep asking for. Nothing is ever submitted; you review and click.
-- **An MCP server** with 42 tools, so Claude Code, Codex, Cursor or Claude Desktop can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans, read the mailbox.
+- **An MCP server** with 44 tools, so Claude Code, Codex, Cursor or Claude Desktop can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans, read the mailbox.
 
 ## Quick start
 
@@ -79,6 +79,16 @@ cd app && npm run dev
 ```
 
 Point the API at it and the app shows a search in progress instead of an empty folder. Nothing in it is a real person, company or posting.
+
+## Bring your LinkedIn history
+
+LinkedIn will give you everything it holds about you as a zip. Request the **larger archive** at [linkedin.com/mypreferences/d/download-my-data](https://www.linkedin.com/mypreferences/d/download-my-data) (the smaller one has no connections or messages); a partial arrives by email in about ten minutes and the complete one within a day. Then:
+
+```
+tekjobs import linkedin ~/Downloads/Complete_LinkedInDataExport_2026-09-24.zip
+```
+
+The archive is read in place and never copied. Into your profile folder, and nowhere else, go: an index of who you know at which company, so every job note and the Jobs sheet show your connections there, recruiters first; People notes for the recruiters and hiring managers who wrote to you since a date (90 days by default, `--since` to change), with the thread as their log and a link to any open job note at that company; and your saved application answers into the copy panel. Applications and saved jobs are indexed for what comes next. Ads, reactions, searches, phone numbers and birth date are never opened. Re-running is safe. `--preview` shows the numbers first; over MCP the same is `import_linkedin` and `connections_at`. [The docs page](https://tekjobs.timurtek.com/docs/linkedin-import) has the walk-through.
 
 ## What local-first means
 

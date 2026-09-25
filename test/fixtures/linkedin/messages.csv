@@ -1,0 +1,4 @@
+CONVERSATION ID,CONVERSATION TITLE,FROM,SENDER PROFILE URL,TO,RECIPIENT PROFILE URLS,DATE,SUBJECT,CONTENT,FOLDER,ATTACHMENTS
+c-1,,Jane Doe,https://www.linkedin.com/in/jane-doe-example,Avery Sample,https://www.linkedin.com/in/avery-sample,2026-09-18 14:02:11 UTC,Staff Design Engineer at Northwind,"Hi Avery, we have a Staff Design Engineer role open. Would you be open to a chat this week?",INBOX,
+c-1,,Avery Sample,https://www.linkedin.com/in/avery-sample,Jane Doe,https://www.linkedin.com/in/jane-doe-example,2026-09-18 16:40:00 UTC,,"Happy to talk. Thursday works.",INBOX,
+c-2,,Sam Lee,https://www.linkedin.com/in/sam-lee-example,Avery Sample,https://www.linkedin.com/in/avery-sample,2021-03-05 09:00:00 UTC,,"Good to connect!",INBOX,

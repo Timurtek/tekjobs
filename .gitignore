@@ -40,3 +40,9 @@ yarn-error.log*
 Thumbs.db
 .idea/
 *.swp
+
+# Personal data archives never belong in the repository; the importers read them in place by path.
+*LinkedInDataExport*
+*.zip
+linkedin-export/
+!test/fixtures/*.zip

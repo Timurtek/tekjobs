@@ -1,7 +1,7 @@
 ---
 title: The MCP server
 order: 9
-summary: 42 tools over stdio, so an agent can run the whole search against the same notes.
+summary: 44 tools over stdio, so an agent can run the whole search against the same notes.
 ---
 
 `tekjobs mcp` (from a clone, `node app/server/mcp.mjs`) speaks JSON-RPC over stdio, no SDK. Claude Code, Codex, Cursor and Claude Desktop all run that one command; [Connect your AI client](/docs/ai-clients) has the exact line for each. ChatGPT's web app cannot reach a local stdio server; for an OpenAI model, use Codex.
@@ -12,6 +12,7 @@ summary: 42 tools over stdio, so an agent can run the whole search against the s
 | Finding | `search_jobs` (every Jobs filter), `get_job`, `today`, `summary`, `outcomes` |
 | Moving | `set_status` (as far as `ready`), `add_note`, `save_application_field`, `application_packet`, `application_materials` |
 | Writing | `cover_letter_materials`, `save_cover_letter`, `tailored_resume_materials`, `save_tailored_resume`, `list_snippets` |
+| LinkedIn | `import_linkedin` (the data export, in place), `connections_at` (who you know at a company) |
 | Adding | `add_job`, `attach_posting`, `add_company`, `list_companies`, `list_feeds` |
 | Mail | `mail_check`, `mail_items` (read and start only) |
 | People | `list_people`, `get_person`, `add_person`, `attach_person`, `log_contact` |

@@ -1,6 +1,6 @@
 import { Badge, Button, Card, Dialog, EmptyState, Icon, Markdown, Select, Sheet, Skeleton, Table, TextArea, TextField, toast } from "@/components/ui";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { api, daysAgo, PERSON_ROLES, STATUS_TONE, type Job, type JobPerson, type Person, type PersonDetail, type PersonRole, type Status } from "../api";
+import { api, daysAgo, PERSON_ROLES, STATUS_TONE, type Connections, type Job, type JobPerson, type LinkedInPreview, type LinkedInStatus, type Person, type PersonDetail, type PersonRole, type Status } from "../api";
 
 const ROLE_LABEL: Record<PersonRole, string> = { recruiter: "recruiter", "hiring-manager": "hiring manager", interviewer: "interviewer", referral: "referral", other: "contact" };
 const ROLE_TONE: Record<PersonRole, "primary" | "success" | "warning" | "neutral"> = { recruiter: "primary", "hiring-manager": "warning", interviewer: "neutral", referral: "success", other: "neutral" };
@@ -72,6 +72,7 @@ export function People() {
         )}
       </Card>
       <p className="muted">{visible.length} of {rows?.length ?? 0} people. Notes live in <code className="mono">People/</code>; a job note lists its people under <code className="mono">## People</code>.</p>
+      <LinkedInImport onDone={load} />
       <PersonSheet id={selected} onClose={() => setSelected(null)} onChanged={load} />
     </>
   );
@@ -246,6 +247,7 @@ export function JobPeople({ job }: { job: Job }) {
           ))}
         </ul>
       )}
+      <JobConnections job={job} />
       <div className="people__add">
         <div className="form__row">
           <Select size="sm" label="Someone already in People" value={pick || "__none__"} onValueChange={(v) => setPick(v === "__none__" ? "" : v)}>
@@ -267,5 +269,116 @@ export function JobPeople({ job }: { job: Job }) {
         </div>
       </div>
     </div>
+  );
+}
+
+
+/** Who you know at this job's company, from the LinkedIn import. Nothing shows before the first import. */
+function JobConnections({ job }: { job: Job }) {
+  const [c, setC] = useState<Connections | null>(null);
+  useEffect(() => { api.jobConnections(job.id).then(setC).catch(() => setC(null)); }, [job.id]);
+  if (!c || !c.imported) return null;
+  const shown = c.people.slice(0, 8);
+  return (
+    <div className="connections">
+      <h4 className="connections__title">{c.count === 0 ? `No connections at ${job.company}` : `${c.count} connection${c.count === 1 ? "" : "s"} at ${job.company}`}</h4>
+      {shown.length > 0 && (
+        <ul className="people__list">
+          {shown.map((x) => (
+            <li key={x.url || x.name} className="people__row">
+              <div>
+                <span>{x.name}</span>
+                {x.role !== "other" && <Badge size="sm" tone={ROLE_TONE[roleOf(x.role)]} variant="soft">{ROLE_LABEL[roleOf(x.role)]}</Badge>}
+                {x.title && <div className="reasons__detail">{x.title}</div>}
+              </div>
+              <div className="pager__buttons">
+                {x.connectedOn && <span className="num muted">since {x.connectedOn.slice(0, 4)}</span>}
+                {x.url && <a className="muted" href={x.url} target="_blank" rel="noreferrer">LinkedIn ↗</a>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {c.count > shown.length && <p className="muted">and {c.count - shown.length} more.</p>}
+      <p className="muted">From your LinkedIn export, imported {c.imported.slice(0, 10)}. A warm introduction beats a cold apply.</p>
+    </div>
+  );
+}
+
+/**
+ * The LinkedIn import, from the People page: the path to the export, how far back, whom to write, a preview
+ * before anything is written. The archive is read in place; everything it writes lands in this profile folder.
+ */
+function LinkedInImport({ onDone }: { onDone: () => void }) {
+  const [status, setStatus] = useState<LinkedInStatus | null>(null);
+  const [source, setSource] = useState("");
+  const [since, setSince] = useState("");
+  const [who, setWho] = useState<"roles" | "everyone">("roles");
+  const [preview, setPreview] = useState<LinkedInPreview | null>(null);
+  const [busy, setBusy] = useState<"" | "preview" | "import">("");
+  const refresh = () => api.linkedinStatus().then(setStatus).catch(() => setStatus({ imported: null }));
+  useEffect(() => { refresh(); }, []);
+  const everyone = who === "everyone";
+  const doPreview = async () => {
+    setBusy("preview");
+    try { setPreview(await api.linkedinPreview(source.trim(), since || undefined, everyone)); }
+    catch (e) { toast({ title: "Could not read the export", description: (e as Error).message, tone: "danger" }); }
+    setBusy("");
+  };
+  const doImport = async () => {
+    setBusy("import");
+    try {
+      const s = await api.linkedinImport(source.trim(), { since: since || undefined, everyone });
+      toast({ title: "LinkedIn export imported", description: `${s.people.created} people created, ${s.people.recognised} already there, ${s.people.attached} put on job notes; ${s.snippets.added} answers into the copy panel; ${s.counts.connections} connections indexed.`, tone: "success" });
+      setPreview(null); onDone(); refresh();
+    } catch (e) { toast({ title: "Import failed", description: (e as Error).message, tone: "danger" }); }
+    setBusy("");
+  };
+  const file = status?.source ? status.source.split(/[\\/]/).pop() : "";
+  return (
+    <Card>
+      <div className="linkedin">
+        <div>
+          <h3 className="connections__title">Bring your LinkedIn history</h3>
+          <p className="muted">
+            Request the larger archive at <a href="https://www.linkedin.com/mypreferences/d/download-my-data" target="_blank" rel="noreferrer">linkedin.com/mypreferences/d/download-my-data</a>, download the zip when LinkedIn emails it (a partial in about ten minutes, the complete one within a day), and paste its path here.
+            It is read in place and never copied. It writes, into this profile folder only: who you know at each company (shown on every job), People notes for the recruiters and hiring managers who wrote, and your saved application answers into the copy panel.
+          </p>
+          {status?.imported && status.counts && (
+            <p className="muted">Last imported {status.imported.slice(0, 10)}{file ? ` from ${file}` : ""}: {status.counts.connections} connections, {status.counts.threads} conversations and {status.counts.invitations} invitations since {status.since}, {status.counts.answers} saved answers.</p>
+          )}
+        </div>
+        <div className="linkedin__form">
+          <TextField className="linkedin__path" size="sm" label="Path to the export" placeholder="C:\Users\you\Downloads\Complete_LinkedInDataExport_2026-09-24.zip" value={source} onChange={(e) => setSource(e.target.value)} />
+          <TextField size="sm" type="date" label="Since" value={since} onChange={(e) => setSince(e.target.value)} description="Default: 90 days ago" />
+          <Select size="sm" label="Write as People" value={who} onValueChange={(v) => setWho(v as "roles" | "everyone")}>
+            <Select.Item value="roles">Recruiters and hiring managers</Select.Item>
+            <Select.Item value="everyone">Everyone who wrote</Select.Item>
+          </Select>
+          <Button size="sm" variant="soft" onClick={doPreview} loading={busy === "preview"} disabled={!source.trim() || busy !== ""}>Preview</Button>
+          <Button size="sm" tone="primary" onClick={doImport} loading={busy === "import"} disabled={!source.trim() || busy !== ""}>Import</Button>
+        </div>
+        {preview && (
+          <div className="linkedin__preview">
+            <p>
+              <strong>{preview.self || "You"}</strong>, {preview.kind === "zip" ? "zip" : "folder"} with {preview.files.length} files read. {preview.counts.connections} connections; {preview.counts.threads} conversations and {preview.counts.invitations} invitations since {preview.since}; {preview.counts.applications} applications ({preview.applicationsSince} since then); {preview.counts.savedJobs} saved jobs ({preview.savedJobsSince} since then); {preview.counts.answers} saved answers.
+            </p>
+            <p>
+              Would write <strong>{preview.people.chosen}</strong> {everyone ? "people who wrote" : "recruiters and hiring managers"} of {preview.people.candidates} senders ({preview.people.onJobNotes} at companies on your job notes), and <strong>{preview.snippets.new}</strong> new answers into the copy panel. {preview.warmPaths.jobsWithConnections} companies on your job notes have connections{preview.warmPaths.top.length ? `: ${preview.warmPaths.top.slice(0, 6).map((t) => `${t.company} (${t.count})`).join(", ")}` : ""}.
+            </p>
+            {preview.people.sample.length > 0 && (
+              <ul className="people__list">
+                {preview.people.sample.slice(0, 6).map((s) => (
+                  <li key={`${s.name}-${s.last}`} className="people__row">
+                    <div><span>{s.name}</span> <Badge size="sm" tone={ROLE_TONE[roleOf(s.role)]} variant="soft">{ROLE_LABEL[roleOf(s.role)]}</Badge>{(s.title || s.company) && <div className="reasons__detail">{[s.title, s.company].filter(Boolean).join(" · ")}</div>}</div>
+                    <div className="pager__buttons"><span className="num muted">{s.last} · {s.messages} message{s.messages === 1 ? "" : "s"}</span></div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }
