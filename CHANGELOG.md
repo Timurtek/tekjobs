@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.29.0 (2026-09-25)
+
+* feat(people): import your LinkedIn data export, who you know at each company ([c51ece1](https://github.com/Timurtek/tekjobs/commit/c51ece1))
+
 ## 0.28.0 (2026-09-25)
 
 * feat(site): google analytics on the marketing site, production only ([69472f5](https://github.com/Timurtek/tekjobs/commit/69472f5))
