@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.29.1 (2026-09-25)</small>
+
+* perf(people): read the job list once per People listing, not once per person ([47c48f5](https://github.com/Timurtek/tekjobs/commit/47c48f5))
+
 ## 0.29.0 (2026-09-25)
 
 * feat(people): import your LinkedIn data export, who you know at each company ([c51ece1](https://github.com/Timurtek/tekjobs/commit/c51ece1))
