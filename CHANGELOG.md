@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.29.2 (2026-09-25)</small>
+
+* fix(people): the LinkedIn import leaves the copy panel alone ([fa0e136](https://github.com/Timurtek/tekjobs/commit/fa0e136))
+
 ## <small>0.29.1 (2026-09-25)</small>
 
 * perf(people): read the job list once per People listing, not once per person ([47c48f5](https://github.com/Timurtek/tekjobs/commit/47c48f5))
