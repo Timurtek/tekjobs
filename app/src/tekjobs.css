@@ -1,5 +1,31 @@
 /* TekJobs layout on top of the template's app.css. Tokens only; the components own their own appearance. */
 
+/* Scrollbars, everywhere: thin, the track invisible, the thumb the border colour, the accent under the pointer.
+   scrollbar-color is the standard; the ::-webkit rules shape the thumb in Chromium and Electron. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary);
+}
+
 .toolbar__filter--narrow {
   width: 7rem;
 }
@@ -493,6 +519,7 @@
 .copy {
   display: grid;
   gap: var(--spacing-3);
+  width: min(26rem, calc(100vw - var(--spacing-8)));
   min-width: 0;
 }
 
@@ -500,7 +527,8 @@
   display: grid;
   gap: var(--spacing-3);
   max-height: min(24rem, calc(100vh - 14rem));
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .copy__group {
@@ -511,10 +539,17 @@
 /* A row is a ghost Button laid out start-aligned; the value takes the rest and truncates. */
 .copy__row {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .copy__label {
-  flex-shrink: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: var(--font-weight-regular);
 }
 
