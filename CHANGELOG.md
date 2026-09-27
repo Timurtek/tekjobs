@@ -2,6 +2,13 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.30.0 (2026-09-27)
+
+* feat(site): a 45-second showreel, on the landing and in the README ([ac1aa62](https://github.com/Timurtek/tekjobs/commit/ac1aa62))
+* chore(app): let the site preview take any free port ([36bef43](https://github.com/Timurtek/tekjobs/commit/36bef43))
+* test: the API, the MCP tools, the CLI and scoring, against the sample vault ([732ff2f](https://github.com/Timurtek/tekjobs/commit/732ff2f))
+* test(app): a browser run of the built app on the sample vault, in CI ([8399912](https://github.com/Timurtek/tekjobs/commit/8399912))
+
 ## <small>0.29.3 (2026-09-25)</small>
 
 * fix(app): scrollbars in the brand, and the copy panel scrolls one way ([a87b43c](https://github.com/Timurtek/tekjobs/commit/a87b43c))
