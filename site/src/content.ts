@@ -140,6 +140,29 @@ claude mcp add tekjobs -- tekjobs mcp
 tekjobs serve        # the app on http://127.0.0.1:8787
 tekjobs schedule     # the morning scan, every day at 07:30`;
 
+/** The showreel on the landing: 45 seconds of motion graphics over the sample vault. tools/showreel renders it. */
+export const SHOWREEL = {
+  title: "What it does, in forty-five seconds",
+  lead: "The morning scan, the cut to the few that fit, every point written down, the Today list, the pipeline, your AI over MCP, and the one step it leaves to you.",
+  src: "/showreel/tekjobs-showreel.mp4",
+  vertical: "/showreel/tekjobs-showreel-vertical.mp4",
+  poster: "/showreel/tekjobs-showreel-poster.jpg",
+  alt: "TekJobs showreel: the morning scan, the cut to fourteen matches, a match scored point by point, the Today list, the pipeline, an AI client tailoring a resume over MCP, and the submit button it leaves alone",
+  transcript: [
+    "07:30. The clock strikes and tekjobs scan runs, daily, while you sleep.",
+    "Scan. Rows of boards (Greenhouse, Lever, Ashby, Workday, the big career APIs, remote feeds, job alert emails) light up as the scan passes: 304 company boards, tens of thousands of postings.",
+    "The cut. The postings swirl together and fall away until fourteen are left, each with its score.",
+    "Score. One match, Staff Design Engineer at Northwind Labs, and why it matched: title +50, seniority +10, description +31, remote +15, pay +17, fresh +25. The points add up on a ring to 148.",
+    "Today. A short list, not a feed: six to decide on, best fit first. One goes to reviewing, one is passed, the next goes to reviewing.",
+    "Pipeline. The Northwind card is dragged from Applying to Applied, Interviewing, and Offer.",
+    "Your AI. In Claude Code: claude mcp add tekjobs -- tekjobs mcp connects 44 tools. \"Tailor my resume for Northwind Labs\" calls application_packet, tailored_resume_materials and save_tailored_resume, and answers that the draft was checked against the resume of record, saved to the note, and nothing was sent.",
+    "It stops before send. The application is filled in; the AI's cursor stops short of Submit. You review. You click.",
+    "Plain markdown, on your disk: the profile folder's notes, no TekJobs account, MIT open source.",
+    "Closing card: TekJobs. A job search that remembers who you are. npx @timurtekb/tekjobs init.",
+  ],
+  note: "Motion graphics, not a screen recording. The companies are the fictional ones in the sample vault; the reasons, the scores and the tool names are what TekJobs itself writes and serves. The postings count is illustrative. For one real, unedited run, watch the demo below.",
+};
+
 /** The recording on the landing: one real run on the fictional sample resume, 57 seconds. */
 export const DEMO = {
   title: "Install, be interviewed, see your first Today",

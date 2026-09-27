@@ -6,10 +6,12 @@ import type { ReactNode } from "react";
 import { GoogleTag } from "@/components/GoogleTag";
 import { SiteFrame } from "@/components/SiteFrame";
 
+const SITE_URL = new URL(process.env.NEXT_PUBLIC_APP_URL || "https://tekjobs.timurtek.com");
+
 export const metadata: Metadata = {
   title: { default: "TekJobs", template: "%s · TekJobs" },
   description: "A job search that remembers who you are. Your resume, criteria, decisions and applications as markdown on your own machine; your AI works from it over MCP. Scans hundreds of company boards, says why each role matched, stops before anything is sent.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://tekjobs.timurtek.com"),
+  metadataBase: SITE_URL,
   icons: { icon: "/brand/tekjobs-avatar-192.png" },
   openGraph: {
     title: "TekJobs",
@@ -17,6 +19,8 @@ export const metadata: Metadata = {
     siteName: "TekJobs",
     type: "website",
     images: [{ url: "/brand/social-preview.png", width: 1280, height: 640, alt: "TekJobs: a job search that remembers who you are" }],
+    // Next resolves image URLs against metadataBase but writes video URLs as given, so this one is absolute.
+    videos: [{ url: new URL("/showreel/tekjobs-showreel.mp4", SITE_URL).href, width: 1920, height: 1080, type: "video/mp4" }],
   },
   twitter: { card: "summary_large_image", title: "TekJobs", description: "A job search that remembers who you are. Local-first, open source, your AI over MCP.", images: ["/brand/social-preview.png"] },
 };

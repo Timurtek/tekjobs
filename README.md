@@ -12,9 +12,9 @@ A local career memory for you and your AI. TekJobs scans hundreds of public comp
 
 [Website](https://tekjobs.timurtek.com) · [Getting started](https://tekjobs.timurtek.com/docs/getting-started) · [Connect your AI client](https://tekjobs.timurtek.com/docs/ai-clients) · [npm](https://www.npmjs.com/package/@timurtekb/tekjobs) · [Releases](https://github.com/Timurtek/tekjobs/releases)
 
-[![Fifty-seven seconds: the init command, the interview in Claude Code, the first scan, and the Today page it produced](site/public/demo/tekjobs-demo-poster.png)](https://tekjobs.timurtek.com/#demo)
+[![The TekJobs showreel: the morning scan, the cut to the few that fit, every point written down, the Today list, the pipeline, your AI over MCP, and the submit button it leaves to you](site/public/showreel/tekjobs-showreel-readme.jpg)](https://tekjobs.timurtek.com/#showreel)
 
-*Fifty-seven seconds, recorded from one real run on the fictional sample resume: install, interview, first scan, first Today. [Watch it on the site.](https://tekjobs.timurtek.com/#demo)*
+*What it does, in forty-five seconds. [Watch the showreel](https://tekjobs.timurtek.com/#showreel) ([mp4](https://tekjobs.timurtek.com/showreel/tekjobs-showreel.mp4), [vertical cut](https://tekjobs.timurtek.com/showreel/tekjobs-showreel-vertical.mp4)). For one real, unedited run on the fictional sample resume (install, interview, first scan, first Today), [watch the 57-second demo](https://tekjobs.timurtek.com/#demo).*
 
 ## Why it exists
 

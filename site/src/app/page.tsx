@@ -7,6 +7,7 @@ import { PostAJob } from "@/sections/PostAJob";
 import { Proof } from "@/sections/Proof";
 import { Requirements } from "@/sections/Requirements";
 import { Screens } from "@/sections/Screens";
+import { Showreel } from "@/sections/Showreel";
 import { WhoFor } from "@/sections/WhoFor";
 import { purchasesOpen } from "@/lib/flags";
 
@@ -14,6 +15,7 @@ export default function Page() {
   return (
     <>
       <Hero />
+      <Showreel />
       <Demo />
       <HowItWorks />
       <Screens />

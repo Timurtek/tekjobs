@@ -54,7 +54,11 @@
     "scraper",
     "greenhouse",
     "lever",
-    "ashby"
+    "ashby",
+    "claude-code",
+    "ai-agent",
+    "job-tracker",
+    "resume"
   ],
   "files": [
     "cli.mjs",
