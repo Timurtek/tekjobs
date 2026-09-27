@@ -6,7 +6,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600&family=Azeret+Mono:wght@400;500;600&display=block">
 <style>
 /* The TekJobs brand, dark: forest surfaces, one lime accent, hairlines instead of shadows.
-   One timeline, two frames: 1920x1080 by default, 1080x1920 with ?format=vertical (the .v rules). */
+   One timeline, three frames: 1920x1080 by default, 1080x1920 with ?format=vertical (the .v rules),
+   1080x1080 with ?format=square (.v, then the .v.sq rules). */
 :root{
   --bg0:#08120c;--bg:#0d1a14;--bg1:#122119;--bg2:#1a3326;--bg3:#224030;
   --text:#e9f5ee;--muted:#a9c2b4;--subtle:#8aa596;--faint:#6c8878;
@@ -20,6 +21,7 @@
 html,body{overflow:hidden;background:var(--bg0)}
 #stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--bg0);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
 #stage.v{width:1080px;height:1920px}
+#stage.v.sq{height:1080px}
 canvas{position:absolute;left:0;top:0}
 .scene{position:absolute;inset:0;display:none;transform-origin:50% 50%}
 .abs{position:absolute}
@@ -198,6 +200,61 @@ canvas{position:absolute;left:0;top:0}
 #endUrl{top:872px;font-family:var(--mono);font-size:24px;letter-spacing:.08em;color:var(--subtle)}
 .v #endUrl{top:1290px;font-size:22px}
 #endUrl b{color:var(--text);font-weight:500}
+
+/* Square: the stacked layout, made to fit 1080x1080 */
+.v.sq #lockup{left:60px;top:40px;font-size:28px}
+.v.sq #lockup img{width:44px;height:44px}
+.v.sq #tagTop{right:60px;top:54px;font-size:14px}
+.v.sq #clock{top:410px;font-size:150px}
+.v.sq #clockEyebrow{top:350px}
+.v.sq #cmd0{top:640px;font-size:28px}
+.v.sq .stats{display:block}
+.v.sq .stat .n{font-size:62px}
+.v.sq .stat .l{font-size:17px}
+.v.sq #s2num{top:120px;font-size:140px}
+.v.sq .s2lab{top:290px;font-size:20px}
+.v.sq .mini{width:235px}
+.v.sq #jobcard{left:60px;top:320px;width:640px;padding:26px 30px 14px}
+.v.sq #jobcard .jt{font-size:34px;margin-top:14px}
+.v.sq #jobcard .jm{font-size:19px}
+.v.sq #jobcard .hr{margin:16px 0 12px}
+.v.sq .srcchip{font-size:16px;height:32px}
+.v.sq .reason{height:48px}
+.v.sq .reason .k{width:140px;font-size:18px}
+.v.sq .reason .d{font-size:18px}
+.v.sq .reason .p{width:80px;font-size:24px}
+.v.sq #ring{left:610px;top:300px}
+.v.sq #scoreNum{left:610px;top:510px;font-size:100px}
+.v.sq #scoreLab{left:610px;top:618px;font-size:15px}
+.v.sq #topbadge{left:730px;width:280px;top:740px;height:44px;font-size:17px}
+.v.sq #todaySub{left:60px;top:282px;width:960px;font-size:24px}
+.v.sq #todayPanel{left:60px;top:330px;width:960px;height:660px;padding:22px 30px}
+.v.sq .trow{left:30px;width:900px;height:92px}
+.v.sq .trow .st{top:25px}
+.v.sq #hl{height:92px}
+.v.sq .col{left:60px;width:960px;height:124px}
+.v.sq .col .ch{flex-direction:column;justify-content:center;gap:10px;width:190px;height:100%;padding:0 18px}
+.v.sq .kcard{width:240px}
+.v.sq #term{left:60px;top:300px;width:960px;height:460px}
+.v.sq .tbody{padding:18px 26px;font-size:19px;line-height:34px}
+.v.sq #tools{left:60px;top:775px;width:960px;height:228px;padding:14px 22px}
+.v.sq #tools .phead{font-size:15px;padding-bottom:10px}
+.v.sq .tool{font-size:12px;height:15px;line-height:15px;padding:0 5px}
+.v.sq #clients{display:none}
+.v.sq #form{left:140px;top:100px;width:800px;height:410px;padding:26px 34px}
+.v.sq .frow{height:60px;font-size:21px}
+.v.sq .frow .fl{width:200px;font-size:16px}
+.v.sq #submit{left:566px;top:420px}
+.v.sq #submitRing{left:554px;top:408px}
+.v.sq #yours{left:566px;top:522px}
+.v.sq #s7sub{top:830px;font-size:34px}
+.v.sq #tree{left:60px;top:370px;width:960px;height:560px;padding:22px 34px;font-size:21px;line-height:37px}
+.v.sq .tl{left:34px}
+.v.sq #s7bsub{left:60px;top:950px;font-size:19px}
+.v.sq #endAvatar{left:440px;top:110px;width:200px;height:200px}
+.v.sq #word{top:350px;font-size:150px}
+.v.sq #endCmd{left:140px;top:700px;width:800px;height:76px;font-size:30px}
+.v.sq #endUrl{top:810px;font-size:20px}
 </style>
 </head>
 <body>
@@ -230,11 +287,14 @@ canvas{position:absolute;left:0;top:0}
 <script>
 const DURATION = 45;
 const q = new URLSearchParams(location.search);
-const VERT = q.get('format') === 'vertical';
-const W = VERT ? 1080 : 1920, H = VERT ? 1920 : 1080;
-/** V(vertical, landscape): the one switch between the two frames */
-const V = (v, l) => VERT ? v : l;
+const FORMAT = ['vertical', 'square'].includes(q.get('format')) ? q.get('format') : 'landscape';
+const SQ = FORMAT === 'square';
+const VERT = FORMAT !== 'landscape'; // the stacked layouts: vertical, and square, which is vertical made shorter
+const [W, H] = { landscape: [1920, 1080], vertical: [1080, 1920], square: [1080, 1080] }[FORMAT];
+/** V(vertical, landscape, square = vertical): the one switch between the frames */
+const V = (v, l, sq = v) => SQ ? sq : VERT ? v : l;
 document.getElementById('stage').classList.toggle('v', VERT);
+document.getElementById('stage').classList.toggle('sq', SQ);
 document.documentElement.style.cssText = document.body.style.cssText = `width:${W}px;height:${H}px`;
 for (const id of ['bg', 'pc']) { const c = document.getElementById(id); c.width = W; c.height = H; }
 
@@ -331,18 +391,20 @@ const TOOLS = ['onboarding_status','onboarding_materials','import_resume','impor
 
 /* ---------- layout: where the moving parts sit in each frame ---------- */
 const LY = {
-  hY: V(300, 192), x0: V(80, 120),
+  hY: V(300, 192, 185), x0: V(80, 120, 60),
   // S2: the swirl's centre and the fourteen card slots
-  swirl: V([540, 760], [960, 500]),
-  mini: i => V([70 + (i % 3) * 320, 940 + Math.floor(i / 3) * 116], [130 + (i % 7) * 240, 610 + Math.floor(i / 7) * 124]),
-  miniW: V(300, 220),
+  swirl: V([540, 760], [960, 500], [540, 450]),
+  mini: i => V([70 + (i % 3) * 320, 940 + Math.floor(i / 3) * 116], [130 + (i % 7) * 240, 610 + Math.floor(i / 7) * 124], [48 + (i % 4) * 250, 560 + Math.floor(i / 4) * 108]),
+  miniW: V(300, 220, 235),
   // S3: the ring's centre, and where the reason rows end
-  ring: V([540, 700], [1500, 610]), ringScale: V(.72, 1), cardTop: V(985, 320), rowEnd: V(960, 1100),
+  ring: V([540, 700], [1500, 610], [870, 560]), ringScale: V(.72, 1, .6), cardTop: V(985, 320, 320), rowEnd: V(960, 1100, 670),
   // S5: columns in landscape, lanes in portrait; a card's slot within one
-  lane: c => V([70, 560 + c * 192], [120 + c * 340, 300]),
-  slot: (c, s) => V([70 + 14 + s * 304, 560 + c * 192 + 50], [120 + c * 340 + 14, 372 + s * 124]),
+  lane: c => V([70, 560 + c * 192], [120 + c * 340, 300], [60, 350 + c * 130]),
+  slot: (c, s) => V([70 + 14 + s * 304, 560 + c * 192 + 50], [120 + c * 340 + 14, 372 + s * 124], [60 + 190 + s * 252, 350 + c * 130 + 7]),
   // S7a: the agent's glide
-  agentFrom: V([60, 1000], [260, 820]), agentTo: V([470, 650], [870, 470]),
+  agentFrom: V([60, 1000], [260, 820], [40, 720]), agentTo: V([470, 650], [870, 470], [390, 380]),
+  // S4: the Today rows
+  row0: V(96, 96, 80), rowStep: V(118, 118, 94),
 };
 
 const S = {}; // scene state
@@ -352,12 +414,12 @@ function build() {
   /* S1: the scan */
   {
     const sc = $('#s1');
-    S.s1eb = el('div', 'eyebrow', sc, '01 · Scan'); place(S.s1eb, LY.x0, V(300, 150));
-    S.s1h = headline(sc, LY.x0, V(342, 192), ['Hundreds of boards.', '*Every morning.*'], V(96, 100));
-    const stats = el('div', 'stats', sc); place(stats, V(80, 1330), V(600, 140));
+    S.s1eb = el('div', 'eyebrow', sc, '01 · Scan'); place(S.s1eb, LY.x0, V(300, 150, 150));
+    S.s1h = headline(sc, LY.x0, V(342, 192, 185), ['Hundreds of boards.', '*Every morning.*'], V(96, 100, 72));
+    const stats = el('div', 'stats', sc); place(stats, V(80, 1330, 780), V(600, 140, 150));
     S.s1a = el('div', 'stat', stats, '<div class="n">0</div><div class="l">COMPANY BOARDS</div>');
     S.s1b = el('div', 'stat', stats, '<div class="n">0</div><div class="l">POSTINGS READ</div>');
-    if (!VERT) S.s1b.style.marginTop = '26px';
+    if (!VERT || SQ) S.s1b.style.marginTop = '26px';
     const names = [
       ['greenhouse/northwind', 'lever/fjord', 'ashby/quill', 'workday/halcyon', 'rippling/verdant', 'smartrecruiters/basalt', 'workable/lumen', 'bamboohr/brightline'],
       ['github careers', 'spotify jobs', 'amazon.jobs', 'atlassian careers', 'google careers', 'apple jobs', 'eightfold/copperleaf', 'personio/signalfire'],
@@ -365,8 +427,8 @@ function build() {
       ['greenhouse/meridian', 'ashby/example', 'lever/northwind', 'workday/fjord', 'greenhouse/halcyon', 'ashby/copperleaf', 'lever/basalt', 'rippling/lumen'],
       ['remotive', 'we work remotely', 'himalayas', 'jobicy', 'hn: who is hiring', 'workingnomads', 'remoteok', 'arbeitnow'],
     ];
-    if (VERT) names.push(['lever/quill', 'ashby/verdant', 'greenhouse/orbital', 'workday/meridian', 'rippling/tessellate'], ['usajobs', 'eightfold/northwind', 'personio/basalt', 'breezy/lumen', 'workable/fjord']);
-    const rowTop = V(800, 478);
+    if (VERT && !SQ) names.push(['lever/quill', 'ashby/verdant', 'greenhouse/orbital', 'workday/meridian', 'rippling/tessellate'], ['usajobs', 'eightfold/northwind', 'personio/basalt', 'breezy/lumen', 'workable/fjord']);
+    const rowTop = V(800, 478, 450);
     S.rows = names.map((list, r) => {
       const row = el('div', 'chiprow', sc); row.style.top = (rowTop + r * 100) + 'px';
       const chips = [];
@@ -398,8 +460,8 @@ function build() {
   /* S3: the score */
   {
     const sc = $('#s3');
-    S.s3eb = el('div', 'eyebrow', sc, '02 · Score'); place(S.s3eb, LY.x0, V(260, 150));
-    S.s3h = headline(sc, LY.x0, LY.hY, V(['Every point,', '*written down.*'], ['Every point, *written down.*']), 96);
+    S.s3eb = el('div', 'eyebrow', sc, '02 · Score'); place(S.s3eb, LY.x0, V(260, 150, 150));
+    S.s3h = headline(sc, LY.x0, LY.hY, V(['Every point,', '*written down.*'], ['Every point, *written down.*'], ['Every point, *written down.*']), V(96, 96, 80));
     const card = el('div', 'panel', sc); card.id = 'jobcard'; S.jobcard = card;
     card.innerHTML = `<div><span class="srcchip">greenhouse</span><span class="srcchip">remote</span><span class="srcchip">posted 1d ago</span></div>
       <div class="jt">Staff Design Engineer, Design Systems</div>
@@ -431,8 +493,8 @@ function build() {
   /* S4: today */
   {
     const sc = $('#s4');
-    S.s4eb = el('div', 'eyebrow', sc, '03 · Today'); place(S.s4eb, LY.x0, V(260, 300));
-    S.s4h = headline(sc, LY.x0, V(302, 342), ['A short list,', '*not a feed.*'], 104);
+    S.s4eb = el('div', 'eyebrow', sc, '03 · Today'); place(S.s4eb, LY.x0, V(260, 300, 150));
+    S.s4h = headline(sc, LY.x0, V(302, 342, 185), V(['A short list,', '*not a feed.*'], ['A short list,', '*not a feed.*'], ['A short list, *not a feed.*']), V(104, 104, 80));
     S.todaySub = el('div', '', sc, V('Six to decide on this morning. Each one says why it is here.', 'Six to decide on this morning.<br>Each one says why it is here.')); S.todaySub.id = 'todaySub';
     const pnl = el('div', 'panel', sc); pnl.id = 'todayPanel'; S.todayPanel = pnl;
     el('div', 'phead', pnl, '<span>TODAY · DECIDE ON THESE</span><span>FIT</span>');
@@ -440,7 +502,7 @@ function build() {
     S.trows = [0, 1, 3, 5, 7, 6].map((k, i) => {
       const j = JOBS[k];
       const r = el('div', 'trow', pnl, `<div class="pill">${j[2]}</div><div class="tx"><div class="t1">${esc(j[1])}</div><div class="t2">${esc(j[0])} · remote US</div></div><div class="sal">${j[3]}</div>`);
-      r.style.top = (96 + i * 118) + 'px';
+      r.style.top = (LY.row0 + i * LY.rowStep) + 'px';
       return r;
     });
     S.st0 = el('div', 'st rev', S.trows[0], '→ REVIEWING');
@@ -450,8 +512,8 @@ function build() {
   /* S5: pipeline */
   {
     const sc = $('#s5');
-    S.s5eb = el('div', 'eyebrow', sc, '04 · Pipeline'); place(S.s5eb, LY.x0, V(260, 150));
-    S.s5h = headline(sc, LY.x0, LY.hY, V(['Track it all the way', '*to the offer.*'], ['Track it all the way *to the offer.*']), V(96, 80));
+    S.s5eb = el('div', 'eyebrow', sc, '04 · Pipeline'); place(S.s5eb, LY.x0, V(260, 150, 150));
+    S.s5h = headline(sc, LY.x0, LY.hY, V(['Track it all the way', '*to the offer.*'], ['Track it all the way *to the offer.*']), V(96, 80, 64));
     const names = ['REVIEWING', 'APPLYING', 'APPLIED', 'INTERVIEWING', 'OFFER'];
     S.cols = names.map((n, c) => { const col = el('div', 'col', sc, `<div class="ch"><span>${n}</span><b>0</b></div>`); const [x, y] = LY.lane(c); place(col, x, y); return { col, cnt: col.querySelector('b') }; });
     const card = (j) => el('div', 'kcard', sc, `<div class="kc">${esc(j[0])}</div><div class="kt">${esc(j[1])}</div><div class="kb"><span class="ks">${j[2]}</span><span>greenhouse</span></div>`);
@@ -470,8 +532,8 @@ function build() {
   /* S6: your AI over MCP */
   {
     const sc = $('#s6');
-    S.s6eb = el('div', 'eyebrow', sc, '05 · Your AI, over MCP'); place(S.s6eb, LY.x0, V(260, 150));
-    S.s6h = headline(sc, LY.x0, LY.hY, V(['Your AI', '*runs the search.*'], ['Your AI *runs the search.*']), V(96, 88));
+    S.s6eb = el('div', 'eyebrow', sc, '05 · Your AI, over MCP'); place(S.s6eb, LY.x0, V(260, 150, 150));
+    S.s6h = headline(sc, LY.x0, LY.hY, V(['Your AI', '*runs the search.*'], ['Your AI *runs the search.*'], ['Your AI *runs the search.*']), V(96, 88, 72));
     const term = el('div', 'panel', sc); term.id = 'term'; S.term = term;
     el('div', 'tbar', term, '<i></i><i></i><i></i><span>claude — ~/job-search</span>');
     S.tbody = el('div', 'tbody', term);
@@ -480,7 +542,8 @@ function build() {
     S.tcount = tl.querySelector('.tcount');
     S.tools = TOOLS.map((n, i) => {
       const e = el('div', 'tool', tl, n);
-      if (VERT) place(e, 18 + (i % 4) * 222, 70 + Math.floor(i / 4) * 21.5);
+      if (SQ) place(e, 16 + (i % 4) * 229, 52 + Math.floor(i / 4) * 14.6);
+      else if (VERT) place(e, 18 + (i % 4) * 222, 70 + Math.floor(i / 4) * 21.5);
       else place(e, 18 + (i % 2) * 346, 74 + Math.floor(i / 2) * 24.6);
       return { e, n };
     });
@@ -498,15 +561,15 @@ function build() {
     S.submitRing = el('div', '', sc); S.submitRing.id = 'submitRing';
     S.yours = el('div', '', sc, 'YOURS TO CLICK'); S.yours.id = 'yours';
     S.agent = el('div', '', sc, CURSOR_SVG + '<span class="tag">your AI</span>'); S.agent.id = 'agent';
-    S.s7h = centered(headline(sc, 0, V(890, 660), V(['It stops', '*before send.*'], ['It stops *before send.*']), 124));
+    S.s7h = centered(headline(sc, 0, V(890, 660, 600), V(['It stops', '*before send.*'], ['It stops *before send.*']), V(124, 124, 100)));
     S.s7sub = el('div', 'full', sc, 'You review. You click.'); S.s7sub.id = 's7sub';
   }
   /* S7b: plain markdown on your disk */
   {
     const sc = $('#s7b');
-    S.s7beb = el('div', 'eyebrow', sc, '06 · Local-first'); place(S.s7beb, LY.x0, V(260, 300));
-    S.s7bh = headline(sc, LY.x0, V(302, 342), ['Plain markdown.', '*On your disk.*'], 110);
-    S.s7bsub = el('div', '', sc, V('<b>0</b> TekJobs accounts · <b>MIT</b> open source<br>Reads in Obsidian, or anything', '<b>0</b> TekJobs accounts<br><b>MIT</b> open source<br>Reads in Obsidian, or anything')); S.s7bsub.id = 's7bsub';
+    S.s7beb = el('div', 'eyebrow', sc, '06 · Local-first'); place(S.s7beb, LY.x0, V(260, 300, 150));
+    S.s7bh = headline(sc, LY.x0, V(302, 342, 185), ['Plain markdown.', '*On your disk.*'], V(110, 110, 72));
+    S.s7bsub = el('div', '', sc, V('<b>0</b> TekJobs accounts · <b>MIT</b> open source<br>Reads in Obsidian, or anything', '<b>0</b> TekJobs accounts<br><b>MIT</b> open source<br>Reads in Obsidian, or anything', '<b>0</b> TekJobs accounts · <b>MIT</b> open source · reads in Obsidian, or anything')); S.s7bsub.id = 's7bsub';
     const tr = el('div', 'panel', sc); tr.id = 'tree'; S.tree = tr;
     const lines = [
       ['', 'dir', '~/.tekjobs/profile'],
@@ -524,7 +587,7 @@ function build() {
       ['├── ', 'dir', 'People/'],
       ['└── ', 'dir', 'Logs/'],
     ];
-    S.tls = lines.map((l, i) => { const e = el('div', 'tl', tr, `<span class="g">${l[0]}</span><span class="${l[1]}">${esc(l[2])}</span>${l[3] ? `<span class="ext">${l[3]}</span>` : ''}`); e.style.top = (30 + i * 47) + 'px'; return e; });
+    S.tls = lines.map((l, i) => { const e = el('div', 'tl', tr, `<span class="g">${l[0]}</span><span class="${l[1]}">${esc(l[2])}</span>${l[3] ? `<span class="ext">${l[3]}</span>` : ''}`); e.style.top = (V(30, 30, 20) + i * V(47, 47, 37)) + 'px'; return e; });
   }
   /* S8: end card */
   {
@@ -535,7 +598,7 @@ function build() {
     const w = el('div', 'full', sc); w.id = 'word';
     S.letters = [];
     'TEKJOBS'.split('').forEach((c, i) => { const m = el('span', 'lw', w); S.letters.push(el('span', 'li' + (i >= 3 ? ' lime' : ''), m, c)); });
-    S.endTag = centered(headline(sc, 0, V(930, 590), V(['A job search that', '*remembers who you are.*'], ['A job search that *remembers who you are.*']), V(72, 62)));
+    S.endTag = centered(headline(sc, 0, V(930, 590, 520), V(['A job search that', '*remembers who you are.*'], ['A job search that *remembers who you are.*']), V(72, 62, 56)));
     S.endCmd = el('div', '', sc); S.endCmd.id = 'endCmd';
     S.endUrl = el('div', 'full', sc, '<b>tekjobs.timurtek.com</b> &nbsp;·&nbsp; MIT &nbsp;·&nbsp; local-first'); S.endUrl.id = 'endUrl';
   }
@@ -690,8 +753,8 @@ function s4(t) {
   tf(S.todayPanel, VERT ? { y: (1 - P(t, 19, 19.6, E.outExpo)) * 120, o: P(t, 19, 19.35) } : { x: (1 - P(t, 19, 19.6, E.outExpo)) * 120, o: P(t, 19, 19.35) });
   S.trows.forEach((r, i) => { const a = P(t, 19.35 + i * .11, 19.95 + i * .11, E.outExpo); tf(r, { x: (1 - a) * 160, o: a }); });
   // a highlight walks the list; decisions land
-  let hy = 96;
-  [[21.5, 1], [22.25, 2]].forEach(([at, k]) => { hy = lerp(hy, 96 + k * 118, P(t, at - .15, at + .1, E.inOutCubic)); });
+  let hy = LY.row0;
+  [[21.5, 1], [22.25, 2]].forEach(([at, k]) => { hy = lerp(hy, LY.row0 + k * LY.rowStep, P(t, at - .15, at + .1, E.inOutCubic)); });
   S.hl.style.top = hy + 'px'; S.hl.style.opacity = P(t, 20.6, 20.8) * (1 - P(t, 23.1, 23.4));
   const chip = (e, at) => { const a = P(t, at, at + .35, E.outBack); tf(e, { s: lerp(.6, 1, a), o: clamp(a * 2) }); };
   chip(S.st0, 21.0); chip(S.st1, 21.75); chip(S.st2, 22.5);
@@ -736,7 +799,7 @@ function s5(t) {
   // the cursor rides the card
   const grab = [pos[0] + 200, pos[1] + 58 - lift * 10];
   const ci = P(t, 25.35, 25.95, E.inOutCubic), cout = P(t, 28.7, 29.3, E.inCubic);
-  const [fx, fy] = V([900, 1800], [1200, 1080]);
+  const [fx, fy] = V([900, 1800], [1200, 1080], [900, 1060]);
   const cx = lerp(fx, grab[0], ci) + cout * 260, cy = lerp(fy, grab[1], ci) + cout * 300;
   tf(S.cursor, { x: cx, y: cy, s: 1 - lift * .12, o: t < 25.35 ? 0 : 1 - cout });
   // burst on the offer
@@ -814,7 +877,7 @@ function s8(t) {
   if (!env($('#s8'), t, 40.5, 45.01, { noOut: true, inDur: .2 })) return;
   const av = P(t, 40.5, 41.15, E.outBack);
   tf(S.endAv, { s: lerp(.2, 1, av), r: lerp(-16, 0, av), o: clamp(av * 3), y: Math.sin((t - 41.2) * 1.6) * 5 * P(t, 41.2, 41.8) });
-  const [rcx, rcy] = V([540, 510], [960, 210]);
+  const [rcx, rcy] = V([540, 510], [960, 210], [540, 210]);
   [[S.endRing, 40.5], [S.endRing2, 40.7]].forEach(([r, a0]) => {
     const p = P(t, a0, a0 + 1.1, E.outCubic); const d = lerp(240, 1500, p);
     r.style.left = (rcx - d / 2) + 'px'; r.style.top = (rcy - d / 2) + 'px'; r.style.width = r.style.height = d + 'px';
@@ -865,7 +928,7 @@ window.ready = (async () => {
   return true;
 })();
 
-// open the file directly and it plays in real time; ?t=12.3 freezes a frame; ?format=vertical for 9:16
+// open the file directly and it plays in real time; ?t=12.3 freezes a frame; ?format=vertical for 9:16, ?format=square for 1:1
 window.ready.then(() => {
   if (q.has('t')) { render(+q.get('t')); return; }
   if (q.has('render')) return;

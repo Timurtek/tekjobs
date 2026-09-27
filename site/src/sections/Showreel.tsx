@@ -40,7 +40,7 @@ export function Showreel() {
             </video>
           </div>
           <p className="demo__note">
-            {SHOWREEL.note} Sharing it? There is a <a href={SHOWREEL.vertical}>vertical cut</a> for phones.
+            {SHOWREEL.note} Sharing it? There is a <a href={SHOWREEL.vertical}>vertical cut</a> and a <a href={SHOWREEL.square}>square cut</a>.
           </p>
           <details className="demo__transcript">
             <summary>Transcript</summary>

@@ -146,6 +146,7 @@ export const SHOWREEL = {
   lead: "The morning scan, the cut to the few that fit, every point written down, the Today list, the pipeline, your AI over MCP, and the one step it leaves to you.",
   src: "/showreel/tekjobs-showreel.mp4",
   vertical: "/showreel/tekjobs-showreel-vertical.mp4",
+  square: "/showreel/tekjobs-showreel-square.mp4",
   poster: "/showreel/tekjobs-showreel-poster.jpg",
   alt: "TekJobs showreel: the morning scan, the cut to fourteen matches, a match scored point by point, the Today list, the pipeline, an AI client tailoring a resume over MCP, and the submit button it leaves alone",
   transcript: [
