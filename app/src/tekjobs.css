@@ -1328,8 +1328,10 @@
     border-left: 1px solid var(--color-border);
   }
 
+  /* Each strip item keeps its icon and its label on one line; the strip scrolls sideways, the labels do not wrap. */
   .shell--strip .nav__item {
     width: auto;
+    flex: none;
   }
 
   .shell--strip .topbar__menu {

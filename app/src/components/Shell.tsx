@@ -93,7 +93,7 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   return (
     <div className={`shell${collapsed ? " shell--collapsed" : ""}${strip ? " shell--strip" : ""}`}>
       <aside className="sidebar" aria-label="Primary">
-        <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who} collapsed={collapsed || strip} onToggleCollapsed={strip ? undefined : toggleCollapsed} tipSide={strip ? "bottom" : "right"} />
+        <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who} collapsed={collapsed || strip} strip={strip} onToggleCollapsed={strip ? undefined : toggleCollapsed} tipSide={strip ? "bottom" : "right"} />
       </aside>
 
       <div className="main">
@@ -126,7 +126,7 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   );
 }
 
-function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collapsed, onToggleCollapsed, tipSide = "right" }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; who: ShellProps["who"]; collapsed: boolean; onToggleCollapsed?: () => void; tipSide?: "right" | "bottom" }) {
+function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collapsed, strip = false, onToggleCollapsed, tipSide = "right" }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; who: ShellProps["who"]; collapsed: boolean; /** The phone strip: icons with their labels beside them, no tooltips, no counts. */ strip?: boolean; onToggleCollapsed?: () => void; tipSide?: "right" | "bottom" }) {
   const byPage = new Map(NAV.map((n) => [n.page, n]));
   // Before onboarding is done, Get started leads on its own; after, it is a System item.
   const groups = onboarded ? GROUPS : [{ title: "Start", pages: ["onboarding"] as Page[] }, ...GROUPS.map((g) => ({ ...g, pages: g.pages.filter((p) => p !== "onboarding") }))];
@@ -171,13 +171,13 @@ function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collap
                   leadingIcon={<item.icon />}
                   trailingIcon={!collapsed && counts[item.page] != null ? <span className="nav__count">{counts[item.page]}</span> : undefined}
                   aria-current={page === item.page ? "page" : undefined}
-                  aria-label={collapsed ? item.label : undefined}
+                  aria-label={collapsed && !strip ? item.label : undefined}
                   onClick={() => onNavigate(item.page)}
                 >
-                  {collapsed ? null : item.label}
+                  {collapsed && !strip ? null : item.label}
                 </Button>
               );
-              return collapsed ? <Tooltip key={item.page} content={counts[item.page] != null ? `${item.label} · ${counts[item.page]}` : item.label} side={tipSide}>{button}</Tooltip> : button;
+              return collapsed && !strip ? <Tooltip key={item.page} content={counts[item.page] != null ? `${item.label} · ${counts[item.page]}` : item.label} side={tipSide}>{button}</Tooltip> : button;
             })}
           </div>
         ))}

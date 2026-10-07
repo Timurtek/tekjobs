@@ -213,8 +213,18 @@ body {
   color: var(--color-text-faint);
 }
 
+/* Under tablet width the search takes its own row in the top bar, full width, so it is still there (and Ctrl K still has something to focus). */
 @media (max-width: 52rem) {
+  .topbar {
+    padding: var(--spacing-3) var(--spacing-4);
+  }
   .topbar__search {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+  /* The shortcut hint means little on a phone and clips in the narrow slot. */
+  .topbar__search .num {
     display: none;
   }
 }
