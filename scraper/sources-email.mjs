@@ -219,11 +219,13 @@ export function jobsFromEmail(raw, file = '') {
 export async function fetchEmailInbox(criteria = {}) {
   const cfg = criteria.email || {};
   const dir = cfg.dir || (criteria._inbox ?? '');
-  if (!dir) return { ok: false, jobs: [], error: 'no inbox folder configured' };
-  if (!fs.existsSync(dir)) return { ok: false, jobs: [], error: `no folder at ${dir} — create it and save alert emails into it as .eml` };
+  // The inbox is optional. Nothing to read is a skip, not a failure: a first run with an empty Inbox/ is healthy,
+  // and a healthy run must not be reported as partial.
+  if (!dir) return { ok: true, jobs: [], skipped: 'no inbox folder configured' };
+  if (!fs.existsSync(dir)) return { ok: true, jobs: [], skipped: `no Inbox folder yet (${dir}); save alert emails into it as .eml to use it` };
 
   const files = fs.readdirSync(dir).filter((f) => /\.(eml|txt|mht|mhtml)$/i.test(f));
-  if (!files.length) return { ok: false, jobs: [], error: `no .eml files in ${dir}` };
+  if (!files.length) return { ok: true, jobs: [], skipped: `no .eml files in ${dir}` };
 
   const all = [];
   const failures = [];
@@ -237,6 +239,7 @@ export async function fetchEmailInbox(criteria = {}) {
   }
   const byUrl = new Map();
   for (const j of all) if (!byUrl.has(j.url)) byUrl.set(j.url, j);
-  if (!byUrl.size) return { ok: false, jobs: [], error: failures.length ? `no jobs found; ${failures[0]}` : `no job links found in ${files.length} message(s)` };
+  if (!byUrl.size && failures.length) return { ok: false, jobs: [], error: `no jobs found; ${failures[0]}` };
+  if (!byUrl.size) return { ok: true, jobs: [], skipped: `no job links found in ${files.length} message(s)` };
   return { ok: true, jobs: [...byUrl.values()] };
 }

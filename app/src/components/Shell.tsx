@@ -1,8 +1,12 @@
 import { Button, Icon, Sheet, TextField, Tooltip } from "@/components/ui";
-import { useState, type ComponentType, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { BrandMark } from "./brand-mark";
 import { CopyPanel } from "./CopyPanel";
+
+/** The search shortcut, for the keyboard in front of the person: ⌘K on a Mac, Ctrl K elsewhere. The hint showed ⌘K everywhere and nothing was bound to it; a QA pass on Windows caught both. */
+const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+const SEARCH_HINT = IS_MAC ? "⌘K" : "Ctrl K";
 
 export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "mail" | "people" | "companies" | "criteria" | "profile" | "runs" | "agent" | "settings";
 
@@ -53,6 +57,18 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   // row, tooltips below. Between phone and desktop widths it is the drawer behind the menu button.
   const strip = useMediaQuery("(max-width: 40rem)");
   const [q, setQ] = useState("");
+  const searchForm = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== "k" || !(IS_MAC ? e.metaKey : e.ctrlKey) || e.altKey || e.shiftKey) return;
+      e.preventDefault();
+      const input = searchForm.current?.querySelector("input");
+      input?.focus();
+      input?.select();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   // The sidebar collapses to an icon strip; the choice is this browser's own.
   const [collapsed, setCollapsed] = useState(() => { try { return localStorage.getItem("tekjobs.sidebar") === "collapsed"; } catch { return false; } });
   const toggleCollapsed = () => setCollapsed((c) => { try { localStorage.setItem("tekjobs.sidebar", c ? "open" : "collapsed"); } catch { /* fine */ } return !c; });
@@ -85,8 +101,8 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
             </Sheet.Content>
           </Sheet>
           <h1 className="topbar__title">{TITLES[page]}</h1>
-          <form className="topbar__search" onSubmit={submit}>
-            <TextField size="sm" placeholder="Search company or role" aria-label="Search jobs" leadingIcon={<Icon.Search />} trailingIcon={<span className="num">⌘K</span>} value={q} onChange={(e) => setQ(e.target.value)} />
+          <form className="topbar__search" onSubmit={submit} ref={searchForm}>
+            <TextField size="sm" placeholder="Search company or role" aria-label="Search jobs" leadingIcon={<Icon.Search />} trailingIcon={<span className="num">{SEARCH_HINT}</span>} value={q} onChange={(e) => setQ(e.target.value)} />
           </form>
           <div className="topbar__actions">
             <CopyPanel />

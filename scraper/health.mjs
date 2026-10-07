@@ -19,10 +19,12 @@ const require_dir = (file) => file.replace(/[\\/][^\\/]*$/, '');
 /** Fold one fetch result into a source's record. `r` is the fetcher's own answer: ok, jobs, error, emptyBoard. */
 export function record(prev = {}, r, now = new Date().toISOString()) {
   const jobs = r.ok ? r.jobs.length : null;
+  // Skipped (an optional source with nothing to read): the attempt is noted, nothing else moves.
+  if (r.skipped) return { ...prev, lastAttempt: now, lastError: '', failStreak: 0, skipped: r.skipped };
   if (!r.ok) return { ...prev, lastAttempt: now, lastError: r.error || 'failed', failStreak: (prev.failStreak || 0) + 1 };
   return {
     ...prev,
-    lastAttempt: now, lastOk: now, lastError: '', failStreak: 0,
+    lastAttempt: now, lastOk: now, lastError: '', failStreak: 0, skipped: '',
     lastJobs: jobs, lastOkJobs: jobs,
     zeroStreak: jobs === 0 ? (prev.zeroStreak || 0) + 1 : 0,
     everJobs: Math.max(prev.everJobs || 0, jobs),
@@ -42,6 +44,7 @@ export function healthState(h, statusCell = '', now = Date.now()) {
     return statusCell ? 'ok' : 'never';
   }
   if (h.lastError && (!h.lastOk || h.lastAttempt >= h.lastOk)) return 'failed';
+  if (h.skipped && (!h.lastOk || h.lastAttempt > h.lastOk)) return 'never';
   if (!h.lastOk || now - Date.parse(h.lastOk) > STALE_DAYS * 864e5) return 'stale';
   if (h.lastOkJobs === 0) return 'zero';
   return 'ok';

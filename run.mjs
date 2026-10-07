@@ -195,7 +195,7 @@ const logLines = [
   `- Criteria: ${criteriaLabel}`,
   // Who started it: the morning task (run.cmd / run.sh), the app, an agent over MCP, or someone at the CLI.
   `- Via: ${process.env.TEKJOBS_RUN_VIA || 'cli'}`,
-  ...extras.map(([n, r]) => `- ${n}: ${r.ok ? `${r.jobs.length} postings${r.thread ? ` (${r.thread})` : ''}` : `failed: ${r.error}`}`),
+  ...extras.map(([n, r]) => `- ${n}: ${r.skipped ? `skipped (${r.skipped})` : r.ok ? `${r.jobs.length} postings${r.thread ? ` (${r.thread})` : ''}` : `failed: ${r.error}`}`),
   ...(failed.length ? [`- Failed slugs: ${failed.map((f) => `${f.name} (${f.ats}:${f.slug} — ${f.error})`).join('; ')}`] : []),
   ...(written.length ? ['', '### New matches', ...written.map(({ job }) => `- **${job.scored.score}** ${job.company} — [${job.title}](${job.url}) · ${job.location || 'n/a'}`)] : []),
   ...(closed.length ? ['', '### Closed since last run', ...closed.map((c) => `- ${c.company} — ${c.title}`)] : []),
