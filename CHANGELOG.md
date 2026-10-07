@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.32.0 (2026-10-07)
+
+* feat(mail): recruiters who reach out are read too, and the searches match the mail that arrives ([eb99906](https://github.com/Timurtek/tekjobs/commit/eb99906))
+
 ## <small>0.31.1 (2026-10-07)</small>
 
 * fix(mail): a recruiter's "401(k)" no longer reads as a signed-out CLI ([8610854](https://github.com/Timurtek/tekjobs/commit/8610854))
