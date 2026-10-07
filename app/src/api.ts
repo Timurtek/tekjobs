@@ -190,7 +190,7 @@ export interface CriteriaPreview {
 }
 /** One application email, matched to a note, with what confirming it would do. */
 export interface MailItem {
-  id: string; company: string; role: string; kind: "confirmation" | "rejection" | "advance" | "scheduling" | "info-request" | "other";
+  id: string; company: string; role: string; kind: "confirmation" | "rejection" | "advance" | "scheduling" | "info-request" | "outreach" | "other";
   date: string; gist: string; from: string; fromName?: string; messageId: string; subject: string;
   person?: MailPerson | null;
   /** exact: same title. company: no role named, best note of that company. company-other-role: a role the vault lacks, default is a new note. none: nothing. */

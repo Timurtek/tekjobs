@@ -4,6 +4,8 @@ order: 6
 summary: Application emails, read once through your own CLI, matched to notes, confirmed by you.
 ---
 
+The read covers the applicant-tracking senders (Greenhouse, Ashby, Lever, Workday, Gem, Rippling and the rest), the subject lines they use ("Update from <Company>", "Thank you for your interest"), the companies you have applied to by name, and recruiters or hiring managers writing about a specific role, including through LinkedIn's InMail relay. Outreach lands as its own kind, "reached out": confirming it creates a note at reviewing (or records it on the note that exists) and adds the person to People. Mass job alerts, newsletters and "let's connect" notes with no role are left alone.
+
 Applications come back as email: a confirmation, a rejection, an interview request. The mail check reads those through Claude Code and its Gmail connector (this is the one part that needs Claude Code specifically: the run allows three Gmail read tools by name and denies everything else).
 
 The model only extracts: company, role, kind, date, a one-line gist, the sender, the message id. Matching each email to a note and everything that changes a note is ordinary code, and nothing changes until you confirm an item on the Mail page.

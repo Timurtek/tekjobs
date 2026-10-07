@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { api, type Job, type MailGroup, type MailItem, type MailState } from "../api";
 import { JobSheet } from "./Jobs";
 
-const KIND_TONE: Record<MailItem["kind"], "success" | "danger" | "primary" | "warning" | "neutral"> = { confirmation: "success", rejection: "danger", advance: "primary", scheduling: "primary", "info-request": "warning", other: "neutral" };
-const KIND_LABEL: Record<MailItem["kind"], string> = { confirmation: "confirmed", rejection: "rejected", advance: "advanced", scheduling: "scheduling", "info-request": "asks for more", other: "other" };
+const KIND_TONE: Record<MailItem["kind"], "success" | "danger" | "primary" | "warning" | "neutral"> = { confirmation: "success", rejection: "danger", advance: "primary", scheduling: "primary", "info-request": "warning", outreach: "warning", other: "neutral" };
+const KIND_LABEL: Record<MailItem["kind"], string> = { confirmation: "confirmed", rejection: "rejected", advance: "advanced", scheduling: "scheduling", "info-request": "asks for more", outreach: "reached out", other: "other" };
 
 /** What confirming this item does, in words. */
 function meaning(i: MailGroup, noteId: string) {

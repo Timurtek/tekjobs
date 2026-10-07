@@ -39,3 +39,14 @@ test('a person id is a safe filename and carries the company', () => {
   assert.equal(personId('Jane Doe', 'Northwind'), 'Jane Doe (Northwind)');
   assert.equal(personId('A/B: C?', ''), 'A B C');
 });
+
+test('a recruiter writing through a LinkedIn relay is a person when the mail is outreach, and not otherwise', async () => {
+  const { fromMail } = await import('../app/server/people.mjs');
+  const relay = { from: 'Fiona Thompson <inmail-hit-reply@linkedin.com>', fromName: 'Fiona Thompson', company: 'Eli Lilly' };
+  assert.equal(fromMail({ ...relay, kind: 'confirmation' }), null, 'a relay address on an application email is not a person');
+  const p = fromMail({ ...relay, kind: 'outreach' });
+  assert.equal(p.name, 'Fiona Thompson');
+  assert.equal(p.role, 'recruiter');
+  assert.equal(p.email, '');
+  assert.equal(p.company, 'Eli Lilly');
+});

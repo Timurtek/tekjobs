@@ -69,3 +69,15 @@ test('the prompt forbids writing, names the window, and only hints at the compan
   assert.match(p, /others may exist/);
   assert.match(p, /Output ONLY a JSON array/);
 });
+
+test('outreach is a lead: a new note at reviewing, or a record on the one that exists; the prompt asks for it and searches the applied companies by name', () => {
+  assert.deepEqual(suggestionFor('outreach', '', '2026-10-06'), { action: 'create', status: 'reviewing' });
+  assert.deepEqual(suggestionFor('outreach', 'applied', '2026-10-06'), { action: 'record' });
+  const p = prompt({ sinceDays: 3, companies: ['Reddit', 'Vanta'] });
+  assert.match(p, /kind "outreach"/);
+  assert.match(p, /\("Reddit" OR "Vanta"\) newer_than:3d/);
+  assert.match(p, /gem\.com/);
+  assert.match(p, /"update from"/i);
+  const parsed = parseOutput('[{"company":"Eli Lilly","role":"Remote Design Technologist","kind":"outreach","date":"2026-10-06","gist":"Fiona wrote about a role.","from":"Fiona Thompson <inmail-hit-reply@linkedin.com>","fromName":"Fiona Thompson","messageId":"m1","subject":"Remote Design Technologist/Engineer role - Eli Lilly"}]');
+  assert.equal(parsed[0].kind, 'outreach');
+});

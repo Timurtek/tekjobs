@@ -21,11 +21,16 @@ const FILE = path.join(DATA_DIR, 'mail-check.json');
 const READ_TOOLS = ['mcp__claude_ai_Gmail__search_threads', 'mcp__claude_ai_Gmail__get_thread', 'mcp__claude_ai_Gmail__get_message'];
 const DENY_TOOLS = ['send_message', 'reply', 'forward', 'create_draft', 'update_draft', 'send_draft', 'delete_draft', 'trash_message', 'trash_thread', 'untrash_message', 'untrash_thread', 'label_message', 'label_thread', 'unlabel_message', 'unlabel_thread', 'update_message_labels', 'create_label', 'update_label', 'delete_label', 'mark_message_spam', 'mark_thread_spam', 'unmark_message_spam', 'unmark_thread_spam', 'apply_sensitive_message_label', 'apply_sensitive_thread_label']
   .map((t) => `mcp__claude_ai_Gmail__${t}`).concat(['Bash', 'Write', 'Edit', 'MultiEdit', 'NotebookEdit', 'WebFetch', 'WebSearch']);
-export const KINDS = ['confirmation', 'rejection', 'advance', 'scheduling', 'info-request', 'other'];
+export const KINDS = ['confirmation', 'rejection', 'advance', 'scheduling', 'info-request', 'outreach', 'other'];
 const SEARCHES = [
-  'from:greenhouse.io', 'from:ashbyhq.com', 'from:lever.co OR from:hire.lever.co', 'from:myworkdayjobs.com OR from:workday.com', 'from:smartrecruiters.com OR from:jobvite.com OR from:icims.com OR from:workablemail.com OR from:rippling.com',
-  'subject:("your application" OR "thank you for applying" OR "thanks for applying" OR "application received" OR "application update" OR "next steps" OR "not moving forward" OR interview)',
+  'from:(greenhouse.io OR greenhouse-mail.io OR ashbyhq.com OR lever.co OR hire.lever.co OR myworkdayjobs.com OR workday.com OR smartrecruiters.com OR jobvite.com OR icims.com)',
+  'from:(workablemail.com OR workable.com OR rippling.com OR ats.rippling.com OR gem.com OR appreview.gem.com OR bamboohr.com OR breezy.hr OR teamtailor.com OR personio.de OR personio.com OR eightfold.ai OR successfactors.com OR taleo.net OR oraclecloud.com OR hirevue.com OR goodtime.io OR modernloop.io)',
+  'subject:("your application" OR "thank you for applying" OR "thanks for applying" OR "application received" OR "application update" OR "application status" OR "regarding your application" OR "we received your application" OR "update from" OR "thank you for your interest" OR "your candidacy" OR "next steps" OR "next step" OR "not moving forward" OR "moving forward" OR interview OR "phone screen" OR "take-home" OR assessment OR offer)',
+  // Recruiters and hiring managers writing about a role: LinkedIn's InMail relays, and the subjects they use.
+  'from:(inmail-hit-reply@linkedin.com OR hit-reply@linkedin.com) OR subject:("reaching out" OR "opportunity" OR "role at" OR "position at" OR "contract position" OR "your background" OR "are you open")',
 ];
+/** One more search per run: the companies the person has applied to, by name, so "Update from Reddit" is found whatever sender it came from. */
+const companySearch = (companies) => companies.length ? `(${companies.slice(0, 40).map((c) => `"${String(c).replace(/"/g, '')}"`).join(' OR ')})` : '';
 const gmailLink = (id) => `https://mail.google.com/mail/u/0/#all/${id}`;
 
 function load() { try { return JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch { return { lastRun: null, sinceDays: null, items: [] }; } }
@@ -36,16 +41,16 @@ export function prompt({ sinceDays = 21, companies = [] } = {}) {
   return `You are checking a job seeker's mailbox for updates about job applications. Use ONLY the Gmail search and read tools. Do not send, reply, draft, label, forward, trash or modify anything.
 
 Run these searches, each with newer_than:${sinceDays}d appended, then stop:
-${SEARCHES.map((s, i) => `${i + 1}. ${s} newer_than:${sinceDays}d`).join('\n')}
+${[...SEARCHES, companySearch(companies)].filter(Boolean).map((s, i) => `${i + 1}. ${s} newer_than:${sinceDays}d`).join('\n')}
 
-Search results already carry subject, sender, date and a snippet. Decide from those. Read a thread only when the subject and snippet do not say whether the message is a confirmation of receipt, a rejection, or an advance (an interview, a screen, a scheduling request). Do not read threads that are plainly confirmations.
+Search results already carry subject, sender, date and a snippet. Decide from those. Read a thread when the sender is a LinkedIn relay and the person's name is not in the search result, and otherwise only when the subject and snippet do not say whether the message is a confirmation of receipt, a rejection, or an advance (an interview, a screen, a scheduling request). Do not read threads that are plainly confirmations.
 
-Report every message that is about one of the person's job applications: confirmations of receipt, rejections, invitations to interview or to schedule, requests to complete or add to an application. Ignore job alerts, newsletters, recruiter cold outreach, and anything not tied to an application the person made.${companies.length ? `
+Report every message that is about one of the person's job applications: confirmations of receipt, rejections, invitations to interview or to schedule, requests to complete or add to an application. Also report a recruiter or hiring manager writing to the person about a specific role at a named company (kind "outreach"; company is the hiring company, not the agency; role is the role they name; fromName is the human's name even when the address is a LinkedIn relay). Ignore mass job alerts, newsletters, "I want to connect" notes that name no role, and anything not tied to an application or to a specific role.${companies.length ? `
 
 The person's own records show applications at these companies (others may exist): ${companies.join(', ')}.` : ''}
 
 Output ONLY a JSON array, no prose, no code fence, one object per message:
-{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "sender address", "fromName": "the sender's display name, or the name a person signed with if you read the message; empty for automated senders", "messageId": "gmail message id", "subject": "subject line"}
+{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|outreach|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "the sender exactly as the header shows it, Display Name <address>", "fromName": "the human who wrote, from the sender display name or the signature; empty only when no human is named. For a LinkedIn relay address (inmail-hit-reply@linkedin.com, hit-reply@linkedin.com) the display name is the person, so read the message if the search result does not show it; required for outreach", "messageId": "gmail message id", "subject": "subject line"}
 
 If nothing matches, output [].`;
 }
@@ -70,6 +75,8 @@ const OPEN_ISH = new Set(['new', 'reviewing', 'applying', 'ready']);
 
 /** What confirming an entry would do to its note. Pure, so it can be tested. */
 export function suggestionFor(kind, noteStatus, date) {
+  // Outreach is a lead, not an application: a new note starts at reviewing, and an existing one just records it.
+  if (kind === 'outreach') return noteStatus ? { action: 'record' } : { action: 'create', status: 'reviewing' };
   if (!noteStatus) return { action: 'create', status: kind === 'rejection' ? 'rejected' : kind === 'advance' || kind === 'scheduling' ? 'interviewing' : 'applied', appliedOn: date };
   if (kind === 'confirmation') return OPEN_ISH.has(noteStatus) ? { action: 'status', status: 'applied', appliedOn: date } : { action: 'record', appliedOn: date };
   if (kind === 'rejection') return noteStatus === 'rejected' ? { action: 'record' } : { action: 'status', status: 'rejected' };
@@ -113,7 +120,7 @@ export function reconcile(mails, notes) {
 // One application produces several emails (a confirmation, then scheduling mail, then a decision), and the
 // mailbox holds each one. A person decides once per application, so pending items are grouped by company and
 // role; the strongest kind speaks for the group and the rest are recorded with it when it is confirmed.
-const STRENGTH = { rejection: 5, advance: 4, scheduling: 4, 'info-request': 2, confirmation: 1, other: 0 };
+const STRENGTH = { rejection: 5, advance: 4, scheduling: 4, outreach: 3, 'info-request': 2, confirmation: 1, other: 0 };
 export function groupItems(items) {
   const groups = new Map();
   for (const i of items.filter((x) => x.state === 'pending')) {
@@ -137,7 +144,7 @@ export function groupItems(items) {
 }
 
 // ---------------- running ----------------
-const run = { running: false, startedAt: null, finishedAt: null, error: '', errorKind: '', sinceDays: null };
+const run = { running: false, startedAt: null, finishedAt: null, error: '', errorKind: '', sinceDays: null, lastOutput: '' };
 export function items() {
   const d = load();
   const all = d.items || [];
@@ -153,6 +160,7 @@ export function start({ sinceDays } = {}) {
   const companies = [...new Set(notes.filter((n) => APPLIED_ISH.has(n.status)).map((n) => n.company))].sort();
   runLLM(prompt({ sinceDays: days, companies }), { timeoutMs: 15 * 60 * 1000, extraArgs: ['--allowedTools', ...READ_TOOLS, '--disallowedTools', ...DENY_TOOLS] })
     .then((text) => {
+      run.lastOutput = String(text).slice(0, 4000);   // what the model said, for when the list looks wrong
       const fresh = reconcile(parseOutput(text), store.listJobs());
       const cur = load();
       const known = new Map((cur.items || []).map((i) => [i.id, i]));

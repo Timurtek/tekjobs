@@ -41,6 +41,12 @@ export function parseAddress(from = '') {
  */
 export function fromMail(item = {}) {
   const { name: fromName, email } = parseAddress(item.from);
+  // Outreach through LinkedIn arrives from a relay address; the human is in fromName, and the address is not theirs.
+  if (item.kind === 'outreach' && /linkedin\.com$/i.test(email.split('@')[1] || '')) {
+    const human = String(item.fromName || '').trim() || (fromName && !/^(inmail )?hit reply$/i.test(fromName) ? fromName : '');
+    if (human) return { name: human, email: '', role: 'recruiter', company: item.company || '' };
+    return null;
+  }
   if (!email || AUTOMATED.test(email) || ATS_DOMAINS.test(email.split('@')[1] || '')) return null;
   const name = String(item.fromName || '').trim() || fromName;
   if (!name || name.includes('@')) return null;
