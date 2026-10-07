@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.35.1 (2026-10-07)</small>
+
+* fix(mail): a scheduling or meeting link is never the posting link ([db534a1](https://github.com/Timurtek/tekjobs/commit/db534a1))
+
 ## 0.35.0 (2026-10-07)
 
 * feat(mail): the posting link or requisition id in an email picks the note ([1133d85](https://github.com/Timurtek/tekjobs/commit/1133d85))
