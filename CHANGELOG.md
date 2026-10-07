@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.40.0 (2026-10-07)
+
+* feat(app): the Today page shows one card per job on narrow screens ([bea39c4](https://github.com/Timurtek/tekjobs/commit/bea39c4))
+
 ## 0.39.0 (2026-10-07)
 
 * feat(app): the shell says whose search this is ([46236f8](https://github.com/Timurtek/tekjobs/commit/46236f8))
