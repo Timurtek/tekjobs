@@ -143,6 +143,15 @@ for (const j of jobs) {
   j.scored = scoreJob(j, criteria);
 }
 const scored = jobs.filter((j) => !j.scored.excluded).sort((a, b) => b.scored.score - a.scored.score);
+// What the hard exclusions dropped, so a person can see the rule working (and catch one that is too wide). Title
+// exclusions drop thousands of unrelated postings a run and are counted; company exclusions are few and listed.
+const excluded = jobs.filter((j) => j.scored.excluded);
+const droppedByCompany = excluded.filter((j) => /^excluded by company/.test(j.scored.reasons?.[0] || ''));
+const dropped = {
+  total: excluded.length,
+  byTitle: excluded.length - droppedByCompany.length,
+  byCompany: droppedByCompany.slice(0, 200).map((j) => ({ company: j.company, title: j.title, location: j.location || '', url: j.url, source: j.source, rule: (j.scored.reasons[0].match(/"([^"]+)"/) || [])[1] || '' })),
+};
 const matches = scored.filter((j) => j.scored.score >= criteria.minScore);
 
 // 4. Write new matches to the vault
@@ -167,7 +176,7 @@ saveHealth(health);
 
 // 5. Debug snapshot: everything scored, so near-misses can be reviewed and criteria tuned
 fs.writeFileSync(P.lastRun, JSON.stringify({
-  when: new Date().toISOString(), minScore: criteria.minScore, failed,
+  when: new Date().toISOString(), minScore: criteria.minScore, failed, dropped,
   jobs: scored.slice(0, 800).map((j) => ({ score: j.scored.score, company: j.company, title: j.title, location: j.location, remote: !!j.remote, salary: j.salary || '', salaryMin: j.salaryMin || null, salaryMax: j.salaryMax || null, payBand: j.scored.payBand, posted: j.posted, url: j.url, source: j.source, reasons: j.scored.reasons, isNew: !seen[j.id] || fresh.includes(j) })),
 }, null, 2));
 
@@ -182,7 +191,7 @@ const summary = {
 };
 const logLines = [
   `## Run ${summary.when}${DRY ? ' (dry)' : ''}`,
-  `- Boards: ${summary.companiesOk}/${summary.companiesTotal} ok · postings scanned: ${summary.totalJobs} · scored ≥ ${criteria.minScore}: ${matches.length} · **new: ${written.length}** · closed: ${closed.length} · ${((Date.now() - t0) / 1000).toFixed(1)}s`,
+  `- Boards: ${summary.companiesOk}/${summary.companiesTotal} ok · postings scanned: ${summary.totalJobs} · dropped by exclusions: ${dropped.total}${dropped.byCompany.length ? ` (${dropped.byCompany.length} by company)` : ''} · scored ≥ ${criteria.minScore}: ${matches.length} · **new: ${written.length}** · closed: ${closed.length} · ${((Date.now() - t0) / 1000).toFixed(1)}s`,
   `- Criteria: ${criteriaLabel}`,
   // Who started it: the morning task (run.cmd / run.sh), the app, an agent over MCP, or someone at the CLI.
   `- Via: ${process.env.TEKJOBS_RUN_VIA || 'cli'}`,

@@ -1137,6 +1137,8 @@ export function scanPreview({ limit = 15 } = {}) {
   }));
   return {
     when: snap.when, minScore: snap.minScore, total: (snap.jobs || []).length, aboveBar: (snap.jobs || []).filter((j) => j.score >= (snap.minScore || 0)).length, failed: (snap.failed || []).length, rows,
+    // What the hard exclusions removed before ranking: a count for title rules, the list for company rules.
+    dropped: snap.dropped || null,
     fields: { salary: 'the range as the posting states it, not a floor; the pay score reads its top', payBand: 'where that top sits against the criteria floor: floor (at or above), stretch, below, unknown (no stated range)' },
   };
 }
