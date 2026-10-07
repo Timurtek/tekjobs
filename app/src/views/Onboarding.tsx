@@ -2,7 +2,7 @@ import { Badge, Button, Card, CodeBlock, Icon, Skeleton, TextField, toast } from
 import { useEffect, useState } from "react";
 import { api, type Onboarding as OnboardingState } from "../api";
 
-const INTERVIEW_PROMPT = `Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script: interview me, write my profile with save_profile, set the criteria with set_criteria, run a dry scan, and show me the top matches.`;
+const INTERVIEW_PROMPT = `Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script: interview me, write my profile, positioning and voice notes with save_profile, set the criteria with set_criteria, run a dry scan, and show me the top matches.`;
 
 export function Onboarding({ onDone }: { onDone: () => void }) {
   const [state, setState] = useState<OnboardingState | null>(null);
@@ -28,14 +28,15 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
 
   if (!state) return <Skeleton variant="rect" height="20rem" />;
   const done = state.steps.filter((s) => s.done).length;
+  const writingDone = state.writing.filter((s) => s.done).length;
 
   return (
     <>
       <div className="page__head">
         <div>
-          <p>Five steps from an empty folder to a daily scan that knows who you are. Your profile lives at <code>{state.dir}</code>. The scan and the notes stay on this machine; the interview and the drafting send what you choose to the AI client you connect.</p>
+          <p>Five steps from an empty folder to a daily scan that knows who you are, then three notes the application drafts read. Your profile lives at <code>{state.dir}</code>. The scan and the notes stay on this machine; the interview and the drafting send what you choose to the AI client you connect.</p>
         </div>
-        <Badge tone={state.complete ? "success" : "primary"} size="sm">{done} of {state.steps.length} done</Badge>
+        <Badge tone={state.complete ? "success" : "primary"} size="sm">{state.complete ? "Search ready" : `Search: ${done} of ${state.steps.length}`}</Badge>
       </div>
 
       <div className="steps">
@@ -70,6 +71,27 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
                     <Button tone="primary" size="sm" onClick={() => { api.startScan(false).then(() => toast({ title: "Scan started", description: "Watch it on the Runs screen.", tone: "success" })).catch((e: Error) => toast({ title: "Could not start", description: e.message, tone: "danger" })); }}>Run the first scan</Button>
                   </div>
                 )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <div className="page__head">
+        <div>
+          <h2>Application writing</h2>
+          <p className="muted">What a tailored resume or a letter is allowed to say comes from these three notes. The interview writes the last two; the import creates the first. Until they exist, drafts fall back to the imported resume text and the Profile page says what is missing.</p>
+        </div>
+        <Badge tone={state.writingReady ? "success" : "neutral"} size="sm">{state.writingReady ? "Writing ready" : `Writing: ${writingDone} of ${state.writing.length}`}</Badge>
+      </div>
+      <div className="steps">
+        {state.writing.map((s) => (
+          <Card key={s.id} padding="md" variant={s.done ? "sunken" : "outlined"}>
+            <div className="step">
+              <div className="step__mark">{s.done ? <Icon.Success /> : <span className="step__n">·</span>}</div>
+              <div className="step__body">
+                <span className="step__label">{s.label}</span>
+                {!s.done && <p className="muted">{s.how}</p>}
               </div>
             </div>
           </Card>

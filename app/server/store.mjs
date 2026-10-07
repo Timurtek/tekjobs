@@ -1079,7 +1079,8 @@ export function profileSummary() {
     { label: 'Resume files', state: resumes.files.length ? `${resumes.files.length} file${resumes.files.length === 1 ? '' : 's'}${resumes.files.some((f) => f.current) ? ', one is the source' : ''}` : 'no folder yet', level: resumes.files.length ? 'ok' : 'info', where: resumes.dir || '' },
     docState('Profile/Positioning.md', 'Positioning'),
     docState('Profile/Voice.md', 'Voice'),
-    docState('Profile/Snippets.md', 'Snippets (copy panel)'),
+    // The copy panel works from defaults drawn from the profile until the note exists, so its absence is information, not a gap.
+    (() => { const d = docState('Profile/Snippets.md', 'Snippets (copy panel)'); return d.level === 'missing' ? { ...d, level: 'info', state: 'defaults from the profile until you edit it' } : d; })(),
   ];
   // What would trip a reader.
   const attention = [];

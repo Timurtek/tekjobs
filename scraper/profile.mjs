@@ -3,7 +3,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { P, VAULT, rememberProfileDir, loadCriteria } from './config.mjs';
+import { P, VAULT, rememberProfileDir, loadCriteria, profileSettings, writeProfileSettings } from './config.mjs';
+import { RESUME_NOTE, LEGACY_RESUME_NOTES } from './resume-sync.mjs';
 import { extractText } from './resume.mjs';
 
 const STARTER = fileURLToPath(new URL('./starter/', import.meta.url));
@@ -59,7 +60,20 @@ export async function importResume(file, dir = VAULT) {
   if (path.resolve(file) !== path.resolve(dest)) fs.copyFileSync(file, dest);
   const md = `---\ntype: resume-source\nimported: ${today()}\noriginal: ${JSON.stringify(path.basename(file))}\n---\n# Resume, as imported\n\n> Text extracted from the original by \`tekjobs resume\`. The interview reads this; the polished resume drafts live in their own notes.\n\n${text}\n`;
   fs.writeFileSync(path.join(profileDir, 'Resume - Source.md'), md);
-  return { original: dest, source: path.join(profileDir, 'Resume - Source.md'), chars: text.length };
+  // The same import establishes the resume of record (Profile/Resume.md) when the profile has none, in the shape
+  // `tekjobs resume sync` writes, and remembers the imported file as the source so a later sync re-reads it. A
+  // record that already exists is left alone: replacing it is what `resume sync <file>` is for, and it says so.
+  const recordRel = [RESUME_NOTE, ...LEGACY_RESUME_NOTES].find((rel) => fs.existsSync(path.join(dir, rel)));
+  let record = recordRel || '';
+  let recordCreated = false;
+  if (!recordRel) {
+    const note = ['---', 'type: resume', 'status: current', `source: ${JSON.stringify(dest)}`, 'source_kind: file', `synced: ${today()}`, '---',
+      `> **Resume of record, created from the import on ${today()} by \`tekjobs resume\`.** Application drafts read this note and only claim what it says. To replace it, import again with \`tekjobs resume sync <file>\` or pick a file on the Profile page.`, '', text.trim(), ''].join('\n');
+    fs.writeFileSync(path.join(dir, RESUME_NOTE), note);
+    record = RESUME_NOTE; recordCreated = true;
+  }
+  if (path.resolve(dir) === VAULT && !profileSettings().resumeSource) writeProfileSettings({ resumeSource: dest });
+  return { original: dest, source: path.join(profileDir, 'Resume - Source.md'), chars: text.length, record: path.join(dir, record), recordCreated };
 }
 
 /** What the onboarding still needs. Drives the CLI, the app's Onboarding screen and the MCP status tool. */
@@ -71,6 +85,8 @@ export function onboardingStatus(dir = VAULT) {
   let criteria = null; let criteriaFilled = false;
   try { criteria = loadCriteria(); criteriaFilled = Object.keys(criteria.titleTerms || {}).length > 0; } catch { /* absent or invalid */ }
   const jobs = exists('Jobs') ? fs.readdirSync(path.join(dir, 'Jobs')).filter((f) => f.endsWith('.md')).length : 0;
+  // Two contracts. "Search ready" is the five steps the scan needs; "writing ready" is what the application drafts
+  // need on top, so a person is never told the setup is complete and then shown a Profile page full of warnings.
   const steps = [
     { id: 'folder', label: 'Profile folder exists', done: exists('Targets/Search Criteria.md') && exists('Targets/Companies.md'), how: 'tekjobs init [dir]' },
     { id: 'resume', label: 'Resume imported', done: exists('Profile/Resume - Source.md') || (exists('Profile') && fs.readdirSync(path.join(dir, 'Profile')).some((f) => /^Resume.*\.md$/i.test(f))), how: 'tekjobs resume <file.pdf|docx|md>' },
@@ -78,7 +94,12 @@ export function onboardingStatus(dir = VAULT) {
     { id: 'criteria', label: 'Search criteria filled (title terms set)', done: criteriaFilled, how: 'The interview writes them; or edit Targets/Search Criteria.md.' },
     { id: 'scan', label: 'First scan has run', done: jobs > 0, how: 'tekjobs scan, or the Runs screen.' },
   ];
-  return { dir, steps, complete: steps.every((s) => s.done), jobs, profilePath: path.join(dir, 'Profile', 'Profile.md') };
+  const writing = [
+    { id: 'record', label: 'Resume of record note (Profile/Resume.md)', done: [RESUME_NOTE, ...LEGACY_RESUME_NOTES].some(exists), how: 'tekjobs resume <file> creates it from the import; tekjobs resume sync <url|file> replaces it later.' },
+    { id: 'positioning', label: 'Positioning note: which story leads, the evidence rule, what is never claimed', done: exists('Profile/Positioning.md'), how: 'The interview writes it (save_profile with note=positioning); or write Profile/Positioning.md yourself.' },
+    { id: 'voice', label: 'Voice note: how you write, with one letter you would send', done: exists('Profile/Voice.md'), how: 'The interview writes it (save_profile with note=voice); or write Profile/Voice.md yourself.' },
+  ];
+  return { dir, steps, complete: steps.every((s) => s.done), writing, writingReady: writing.every((s) => s.done), jobs, profilePath: path.join(dir, 'Profile', 'Profile.md') };
 }
 
 /** Everything the interviewing LLM needs in one call: resume text, current notes, and the script to follow. */
@@ -95,16 +116,24 @@ export function onboardingMaterials(dir = VAULT) {
   };
 }
 
-export function saveProfile(markdown, dir = VAULT) {
-  if (!markdown || markdown.trim().length < 100) throw Object.assign(new Error('Profile is too short to save; write the full note.'), { status: 400 });
-  let md = markdown.replace(/^status: draft$/m, 'status: interviewed');
-  if (!/^---\n/.test(md)) md = `---\ntype: profile\nupdated: ${today()}\nstatus: interviewed\n---\n${md}`;
+const PROFILE_NOTES = {
+  profile: { file: 'Profile.md', type: 'profile', min: 100 },
+  positioning: { file: 'Positioning.md', type: 'positioning', min: 80 },
+  voice: { file: 'Voice.md', type: 'voice', min: 60 },
+};
+/** Write one of the profile notes in full: Profile.md by default, or Positioning.md / Voice.md with `note`. The previous version is kept beside it. */
+export function saveProfile(markdown, dir = VAULT, { note = 'profile' } = {}) {
+  const spec = PROFILE_NOTES[note];
+  if (!spec) throw Object.assign(new Error(`note must be one of ${Object.keys(PROFILE_NOTES).join(', ')}`), { status: 400 });
+  if (!markdown || markdown.trim().length < spec.min) throw Object.assign(new Error(`${spec.file} is too short to save; write the full note.`), { status: 400 });
+  let md = note === 'profile' ? markdown.replace(/^status: draft$/m, 'status: interviewed') : markdown;
+  if (!/^---\n/.test(md)) md = `---\ntype: ${spec.type}\nupdated: ${today()}${note === 'profile' ? '\nstatus: interviewed' : ''}\n---\n${md}`;
   md = md.replace(/^updated: .*$/m, `updated: ${today()}`);
-  const file = path.join(dir, 'Profile', 'Profile.md');
+  const file = path.join(dir, 'Profile', spec.file);
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  if (fs.existsSync(file)) fs.copyFileSync(file, path.join(dir, 'Profile', `Profile.before-${today()}.md`));
+  if (fs.existsSync(file)) fs.copyFileSync(file, path.join(dir, 'Profile', `${spec.file.replace(/\.md$/, '')}.before-${today()}.md`));
   fs.writeFileSync(file, md);
-  return { saved: file };
+  return { saved: file, note };
 }
 
 /** Fetch a public page (portfolio, GitHub, LinkedIn export is a file, not a URL) as text for the interview to summarize. */
@@ -132,7 +161,9 @@ const INTERVIEW_SCRIPT = `You are onboarding a job seeker into TekJobs. Goal: wr
    - Company stage or size preference, if any.
    - Links: portfolio, GitHub, personal site. Fetch each with fetch_link and fold what you learn into the profile. LinkedIn: ask for their data-export ZIP contents or a pasted summary; never scrape a LinkedIn page.
    - Earliest start date.
+   - How they write: two or three rules in their own words, and words they refuse to use. And anything that must never be claimed about them (a title they did not hold, work they did not do).
 3. Write Profile/Profile.md using the existing note's headings (Basics · What you are, in three sentences · Target roles table with tiers A/B · Constraints & preferences · Proof points · Documents). Proof points are one line each, with numbers. Call save_profile with the full markdown.
+3b. Write the two notes the application drafts read, from the same answers, and save each with save_profile: note=positioning for Profile/Positioning.md (headings: Which story leads · The evidence rule · What must never be claimed; the evidence rule is that every claim traces to a line of the resume), and note=voice for Profile/Voice.md (headings: Rules · A letter I would send; the letter is under 120 words, in their voice, using only facts from the resume). Show both to the user before saving and change what they object to.
 4. Build the criteria from the current JSON (keep every key). Set:
    - titleTerms: exact lowercase substrings that appear in real job titles for the target roles, weighted 40 for exact-fit titles down to ~20 for adjacent ones. Include common variants ("front-end", "frontend", "front end").
    - titleExclude: add the user's hard exclusions as lowercase substrings (titles and words in titles; abbreviations like "sr." and "dir." are spelled out before matching).
@@ -142,7 +173,7 @@ const INTERVIEW_SCRIPT = `You are onboarding a job seeker into TekJobs. Goal: wr
    - location.requireRemote true only if the user said remote only; add their metro to bayAreaTerms with bayAreaBoost 12 if hybrid there is acceptable.
    Call set_criteria with the full JSON string. It is validated before writing.
 5. Call run_scan with dry=true and poll scan_status every few seconds until running is false (two to three minutes; the scan runs on its own, so if this session ends first, the next one can pick up with scan_status). If you cannot poll between turns, pass wait=240 to run_scan and it answers when the scan is done. A dry run writes no notes, so do not use search_jobs yet: call scan_preview limit=15 and show the user the top matches with score, pay band and one reason each. Ask whether the list looks right. Adjust the criteria once if it does not (set_criteria, then another dry run_scan and scan_preview). When it does, call run_scan with dry=false and poll scan_status until it finishes; that run writes the notes, and search_jobs and the app's Today page work from then on.
-6. Finish by telling the user where things live: Profile/Profile.md, Targets/Search Criteria.md, Jobs/. Remind them the daily scan runs on its own from here.`;
+6. Finish by telling the user where things live: Profile/Profile.md, Positioning.md, Voice.md, Targets/Search Criteria.md, Jobs/. Call onboarding_status once more and say plainly which of the two it reports: search ready, and writing ready. Remind them the daily scan runs on its own from here.`;
 
 function criteriaNote(json) {
   return `---
@@ -196,7 +227,9 @@ function readme(dir) {
 This folder is your job search: profile, resume, criteria, watchlist, one note per matched job, and logs. It is plain markdown. Open it in Obsidian or any editor; the TekJobs app and its MCP server read and write the same files.
 
 - \`Profile/Profile.md\` — who you are and what you want (written by the onboarding interview)
-- \`Profile/Resume - Source.md\` — your resume as text
+- \`Profile/Resume - Source.md\` — your resume as text, as imported
+- \`Profile/Resume.md\` — the resume of record: what every draft is allowed to claim (created by the import; \`tekjobs resume sync\` replaces it)
+- \`Profile/Positioning.md\` and \`Profile/Voice.md\` — how the story is told and how you write; the interview writes them
 - \`Targets/Search Criteria.md\` — how postings are scored (JSON block)
 - \`Targets/Companies.md\` — which boards are watched
 - \`Jobs/\` — one note per match; change \`status:\` to move it through the pipeline

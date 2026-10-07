@@ -208,8 +208,13 @@ async function main() {
 }
 function printStatus(s) {
   console.log(`\nOnboarding for ${s.dir}:`);
+  console.log('  Search');
   for (const st of s.steps) console.log(`  ${st.done ? '✓' : '·'} ${st.label}${st.done ? '' : `   → ${st.how}`}`);
-  console.log(s.complete ? '\nAll set. The daily scan takes it from here.' : '\nNext: the first unchecked line above.');
+  console.log('  Application writing');
+  for (const st of s.writing || []) console.log(`  ${st.done ? '✓' : '·'} ${st.label}${st.done ? '' : `   → ${st.how}`}`);
+  const search = s.complete ? 'Search ready: the daily scan takes it from here.' : 'Search: not yet; the first unchecked line above is next.';
+  const writing = s.writingReady ? 'Writing ready: drafts read the resume of record, Positioning and Voice.' : 'Writing: not yet; drafts fall back to the imported resume text until the notes above exist.';
+  console.log(`\n${search}\n${writing}`);
 }
 function run(bin, args) { const p = spawn(bin, args, { stdio: 'inherit', env: process.env }); p.on('close', (c) => process.exit(c ?? 0)); }
 

@@ -179,7 +179,8 @@ export interface TailoredResumeState {
 }
 
 export interface OnboardingStep { id: string; label: string; done: boolean; how: string }
-export interface Onboarding { dir: string; steps: OnboardingStep[]; complete: boolean; jobs: number; profilePath: string }
+/** Two contracts: `steps`/`complete` is search ready; `writing`/`writingReady` is what the application drafts need on top. */
+export interface Onboarding { dir: string; steps: OnboardingStep[]; complete: boolean; writing: OnboardingStep[]; writingReady: boolean; jobs: number; profilePath: string }
 
 /** One note in a criteria preview: its stored score and what the proposed set would make it. */
 export interface PreviewGroup { key: string; notes: number; aboveBefore: number; aboveAfter: number; changed: number }
