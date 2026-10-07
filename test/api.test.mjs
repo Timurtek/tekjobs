@@ -31,7 +31,7 @@ before(async () => {
 after(() => { child?.kill(); });
 
 test('every read route answers 200 with JSON on the sample vault', async () => {
-  const reads = ['/api/summary', '/api/today', '/api/jobs', '/api/jobs/facets', '/api/people', '/api/runs', '/api/scan', '/api/outcomes', '/api/views', '/api/views/defaults', '/api/mail', '/api/criteria', '/api/criteria/presets', '/api/profile', '/api/profile/summary', '/api/companies', '/api/feeds', '/api/settings', '/api/resumes', '/api/snippets', '/api/onboarding', '/api/statuses', '/api/pass-reasons', '/api/application-fields', '/api/linkedin'];
+  const reads = ['/api/ping', '/api/summary', '/api/today', '/api/jobs', '/api/jobs/facets', '/api/people', '/api/runs', '/api/scan', '/api/outcomes', '/api/views', '/api/views/defaults', '/api/mail', '/api/criteria', '/api/criteria/presets', '/api/profile', '/api/profile/summary', '/api/companies', '/api/feeds', '/api/settings', '/api/resumes', '/api/snippets', '/api/onboarding', '/api/statuses', '/api/pass-reasons', '/api/application-fields', '/api/linkedin'];
   for (const p of reads) {
     const r = await get(p);
     assert.equal(r.status, 200, `${p} -> ${r.status} ${JSON.stringify(r.body).slice(0, 120)}`);
@@ -98,6 +98,28 @@ test('the LinkedIn preview reads the fixture export and writes nothing; a bad pa
   const bad = await send('POST', '/api/linkedin/preview', { source: path.join(ROOT, 'no-such-folder') });
   assert.equal(bad.status, 400);
   assert.match(bad.body.error, /No such file/);
+});
+
+test('with TEKJOBS_IDLE_EXIT set, the server leaves after the last request and stays while pings arrive', async () => {
+  const port = PORT + 1;
+  const start = () => new Promise((resolve, reject) => {
+    const p = spawn(process.execPath, [path.join(ROOT, 'app', 'server', 'index.mjs')], { env: { ...process.env, TEKJOBS_PROFILE: vault, PORT: String(port), TEKJOBS_IDLE_EXIT: '2' }, stdio: ['ignore', 'pipe', 'pipe'] });
+    let out = '';
+    p.stdout.on('data', (d) => { out += d; if (out.includes('TekJobs server')) resolve(p); });
+    p.on('exit', (code) => reject(new Error(`exited early ${code}: ${out}`)));
+    setTimeout(() => reject(new Error('no start')), 15000);
+  });
+  const exited = (p, ms) => new Promise((resolve) => { const t = setTimeout(() => resolve(false), ms); p.on('exit', () => { clearTimeout(t); resolve(true); }); });
+  // Kept alive by pings for longer than the idle window.
+  const p1 = await start();
+  const ping = setInterval(() => fetch(`http://127.0.0.1:${port}/api/ping`).catch(() => {}), 500);
+  const diedWhilePinged = await exited(p1, 4000);
+  clearInterval(ping);
+  assert.equal(diedWhilePinged, false, 'pings keep it up');
+  assert.equal((await (await fetch(`http://127.0.0.1:${port}/api/ping`)).json()).idleExit, 2);
+  // Then nothing arrives, and it leaves on its own.
+  assert.equal(await exited(p1, 6000), true, 'no requests for the idle window closes it');
+  assert.equal(p1.exitCode, 0);
 });
 
 test('unknown API paths are 404 JSON; the static fallback answers with the build or a 503 without one', async () => {

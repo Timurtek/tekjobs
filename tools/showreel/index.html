@@ -201,6 +201,9 @@ canvas{position:absolute;left:0;top:0}
 .v #endUrl{top:1290px;font-size:22px}
 #endUrl b{color:var(--text);font-weight:500}
 
+.clean #lockup,.clean #tagTop,.clean #progress,.clean #wipe,.clean #wipeBand,.clean #flash{display:none}
+.clean .eyebrow{visibility:hidden}
+
 /* Square: the stacked layout, made to fit 1080x1080 */
 .v.sq #lockup{left:60px;top:40px;font-size:28px}
 .v.sq #lockup img{width:44px;height:44px}
@@ -295,6 +298,8 @@ const [W, H] = { landscape: [1920, 1080], vertical: [1080, 1920], square: [1080,
 const V = (v, l, sq = v) => SQ ? sq : VERT ? v : l;
 document.getElementById('stage').classList.toggle('v', VERT);
 document.getElementById('stage').classList.toggle('sq', SQ);
+// ?clean: the frame without the video's own chrome, for stills that go inside another layout (carousel slides)
+document.getElementById('stage').classList.toggle('clean', q.has('clean'));
 document.documentElement.style.cssText = document.body.style.cssText = `width:${W}px;height:${H}px`;
 for (const id of ['bg', 'pc']) { const c = document.getElementById(id); c.width = W; c.height = H; }
 

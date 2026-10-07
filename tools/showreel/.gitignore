@@ -1,1 +1,3 @@
 out/
+# the social pack reads Tek's Content OS brand files by absolute path; it stays local
+social/

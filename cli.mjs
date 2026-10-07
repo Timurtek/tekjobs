@@ -37,7 +37,8 @@ const HELP = `tekjobs — a local job-search machine
   tekjobs import linkedin <zip|folder>   your LinkedIn data export into the search: who you know at each
                                          company, and the recruiters who wrote
                                          [--since YYYY-MM-DD] [--everyone] [--no-people] [--preview] [--dry]
-  tekjobs serve                          the app + API on http://127.0.0.1:8787
+  tekjobs serve [--keep] [--no-open]      the app + API on http://127.0.0.1:8787; opens it in the browser and
+                                         exits two minutes after the last tab closes (--keep runs until stopped)
   tekjobs mcp                            the MCP server on stdio (Claude Code, Codex, Cursor, Claude Desktop)
 
 The profile folder is resolved from TEKJOBS_PROFILE, then ~/.tekjobs/config.json, then ~/.tekjobs/profile.
@@ -167,7 +168,14 @@ async function main() {
     if (!s.dry) console.log(`  Index: ${s.indexPath}. Job notes now show who you know at each company.`);
     return;
   }
-  if (cmd === 'serve') return run(process.execPath, [path.join(ROOT, 'app', 'server', 'index.mjs')]);
+  if (cmd === 'serve') {
+    const port = Number(process.env.PORT || 8787);
+    const env = { ...process.env, ...(rest.includes('--keep') ? {} : { TEKJOBS_IDLE_EXIT: process.env.TEKJOBS_IDLE_EXIT || '120' }) };
+    const p = spawn(process.execPath, [path.join(ROOT, 'app', 'server', 'index.mjs')], { stdio: 'inherit', env });
+    p.on('close', (c) => process.exit(c ?? 0));
+    if (!rest.includes('--no-open')) setTimeout(() => openInBrowser(`http://127.0.0.1:${port}/`), 800);
+    return;
+  }
   if (cmd === 'mcp') return run(process.execPath, [path.join(ROOT, 'app', 'server', 'mcp.mjs')]);
   console.error(`unknown command "${cmd}"\n`); console.log(HELP); process.exit(1);
 }
@@ -177,6 +185,11 @@ function printStatus(s) {
   console.log(s.complete ? '\nAll set. The daily scan takes it from here.' : '\nNext: the first unchecked line above.');
 }
 function run(bin, args) { const p = spawn(bin, args, { stdio: 'inherit', env: process.env }); p.on('close', (c) => process.exit(c ?? 0)); }
+/** The system's default browser, without a dependency; a failure to open is not a failure to serve. */
+function openInBrowser(url) {
+  const [bin, args] = process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]] : process.platform === 'darwin' ? ['open', [url]] : ['xdg-open', [url]];
+  try { spawn(bin, args, { stdio: 'ignore', detached: true }).unref(); } catch { /* the URL is printed anyway */ }
+}
 main().catch((e) => { console.error(e.message); process.exit(1); });
 
 /**

@@ -59,8 +59,10 @@ The interview reads your resume, asks the few things a resume cannot say (target
 ## The app
 
 ```
-tekjobs serve        # the app and its API on http://127.0.0.1:8787
+tekjobs serve        # opens the app on http://127.0.0.1:8787
 ```
+
+The server lives while the app is open: the page sends a heartbeat, and two minutes after the last tab closes the server exits on its own, so nothing stays running on your machine between sessions. `tekjobs serve --keep` runs it until you stop it; `--no-open` skips opening the browser.
 
 From a clone, `cd app && npm install`, then `npm run server` (API on 8787) and `npm run dev` (UI on 5173) side by side, or `npm run start` to build the UI and serve it from the API on one port.
 
