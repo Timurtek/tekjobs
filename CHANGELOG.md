@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.34.0 (2026-10-07)
+
+* feat(scan): where a board went, and three that moved to Ashby ([fc40107](https://github.com/Timurtek/tekjobs/commit/fc40107))
+
 ## 0.33.0 (2026-10-07)
 
 * feat(app): click an email on Mail to see it in full, and open it in Gmail ([ec2f1d6](https://github.com/Timurtek/tekjobs/commit/ec2f1d6))
