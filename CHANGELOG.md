@@ -2,6 +2,11 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.31.1 (2026-10-07)</small>
+
+* fix(mail): a recruiter's "401(k)" no longer reads as a signed-out CLI ([8610854](https://github.com/Timurtek/tekjobs/commit/8610854))
+* chore(changelog): one entry for 0.31.0, not the one a failed run left behind ([538df22](https://github.com/Timurtek/tekjobs/commit/538df22))
+
 ## 0.31.0 (2026-10-07)
 
 * fix(cli): servers stay up until you stop them; tekjobs up, down and ps ([4cb10b6](https://github.com/Timurtek/tekjobs/commit/4cb10b6))
