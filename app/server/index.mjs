@@ -19,8 +19,6 @@ const json = (res, status, body) => { res.writeHead(status, { 'content-type': 'a
 const readBody = (req) => new Promise((resolve, reject) => { let s = ''; req.on('data', (d) => { s += d; if (s.length > 5e6) reject(new Error('body too large')); }); req.on('end', () => { try { resolve(s ? JSON.parse(s) : {}); } catch (e) { reject(Object.assign(new Error('invalid JSON body'), { status: 400 })); } }); });
 
 const routes = [
-  // The app sends this every few seconds while a tab is open; with TEKJOBS_IDLE_EXIT set, the server leaves when they stop.
-  ['GET', /^\/api\/ping$/, () => ({ ok: true, idleExit: IDLE_EXIT || 0 })],
   ['GET', /^\/api\/summary$/, () => store.summary()],
   ['GET', /^\/api\/today$/, (_, q) => store.today({ cap: Number(q.get('cap') || 7), waitingDays: Number(q.get('waitingDays') || 14) })],
   ['GET', /^\/api\/jobs$/, (_, q) => store.searchJobs({ ...store.filtersFromParams(q), sort: q.get('sort') || 'score', dir: q.get('dir') || 'desc', limit: Number(q.get('limit') || 500), offset: Number(q.get('offset') || 0) })],
@@ -102,19 +100,7 @@ function serveStatic(req, res, pathname) {
   fs.createReadStream(file).pipe(res);
 }
 
-// `tekjobs serve` sets TEKJOBS_IDLE_EXIT (seconds): the server lives while the app is open and exits that long after
-// the last request, so nothing stays up once the tab is closed. Unset (dev mode, --keep) it runs until stopped.
-const IDLE_EXIT = Number(process.env.TEKJOBS_IDLE_EXIT) || 0;
-let idleTimer = null;
-function touch() {
-  if (!IDLE_EXIT) return;
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { console.log(`TekJobs server  no request for ${IDLE_EXIT}s, closing`); server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 2000).unref(); }, IDLE_EXIT * 1000);
-  idleTimer.unref();
-}
-
 const server = http.createServer(async (req, res) => {
-  touch();
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   try {
     const printView = url.pathname.match(/^\/api\/jobs\/([^/]+)\/resume\.html$/);
@@ -129,4 +115,4 @@ const server = http.createServer(async (req, res) => {
     return json(res, e.status || 500, { error: e.message });
   }
 });
-server.listen(PORT, '127.0.0.1', () => { console.log(`TekJobs server  http://127.0.0.1:${PORT}  vault: ${store.VAULT}${IDLE_EXIT ? `  (closes ${IDLE_EXIT}s after the app is closed)` : ''}`); touch(); });
+server.listen(PORT, '127.0.0.1', () => console.log(`TekJobs server  http://127.0.0.1:${PORT}  vault: ${store.VAULT}`));

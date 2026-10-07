@@ -51,6 +51,25 @@ test('import linkedin: usage without a path, a preview that writes nothing, and 
   assert.match(bad.out, /does not look like a LinkedIn data export/);
 });
 
+test('up starts the API detached and leaves it running; ps lists it; down stops it', async () => {
+  const port = 18900 + Math.floor(Math.random() * 90);
+  const u = run(['up', '--port', String(port)]);
+  assert.equal(u.code, 0, u.out);
+  assert.match(u.out, /API up: pid \d+/);
+  const state = JSON.parse(fs.readFileSync(path.join(home, '.tekjobs', 'run', 'servers.json'), 'utf8'));
+  assert.equal(state.api.port, port);
+  // The CLI has exited; the server it started has not.
+  const r = await fetch(`http://127.0.0.1:${port}/api/summary`);
+  assert.equal(r.status, 200);
+  assert.match(run(['ps']).out, /api\s+up/);
+  assert.match(run(['up', '--port', String(port)]).out, /API already up/, 'a second up does not start a second server');
+  const d = run(['down']);
+  assert.match(d.out, /api stopped/);
+  await new Promise((res) => setTimeout(res, 800));
+  await assert.rejects(() => fetch(`http://127.0.0.1:${port}/api/summary`), 'the port is closed after down');
+  assert.match(run(['ps']).out, /Nothing up/);
+});
+
 test('scan --dry on the fresh profile refuses politely until the interview has set title terms', () => {
   const r = run(['scan', '--dry', '--only', 'nobody-slug']);
   // Either the scan explains what is missing, or it runs against nothing; what it must not do is crash.

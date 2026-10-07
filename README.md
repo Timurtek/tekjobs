@@ -63,7 +63,7 @@ It does not fit if you want a hosted service with nothing to install (TekJobs is
 4. Run the app, and schedule the mornings.
 
    ```
-   tekjobs serve        # opens the app on http://127.0.0.1:8787; the server leaves two minutes after you close the tab
+   tekjobs up           # the app on http://127.0.0.1:8787, detached: it stays up until `tekjobs down`
    tekjobs schedule     # the scan and the read-only mail pass, daily at 07:30 (--time to change it)
    ```
 
@@ -170,7 +170,10 @@ tekjobs add <url> [<url>...] [--dry]   add postings you found yourself
 tekjobs mail [--days N]                the read-only mail pass
 tekjobs rescore [--full] [--dry]       what existing notes score under the current criteria
 tekjobs schedule [--time HH:MM] [--print]   the morning task, for Windows, macOS or Linux
-tekjobs serve [--keep] [--no-open]     the app + API on http://127.0.0.1:8787; opens the browser, exits two minutes after the last tab closes
+tekjobs up [--dev] [--port N]          start the API (and with --dev, Vite) detached; they stay up until `down`
+tekjobs down                           stop what `up` started
+tekjobs ps                             what `up` has running
+tekjobs serve                          the app + API on http://127.0.0.1:8787, in this terminal
 tekjobs mcp                            the MCP server on stdio
 tekjobs --version
 ```

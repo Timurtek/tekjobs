@@ -2,6 +2,7 @@
 // tekjobs CLI: init a profile folder, import a resume, check onboarding, scan, serve, mcp.
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -37,8 +38,10 @@ const HELP = `tekjobs — a local job-search machine
   tekjobs import linkedin <zip|folder>   your LinkedIn data export into the search: who you know at each
                                          company, and the recruiters who wrote
                                          [--since YYYY-MM-DD] [--everyone] [--no-people] [--preview] [--dry]
-  tekjobs serve [--keep] [--no-open]      the app + API on http://127.0.0.1:8787; opens it in the browser and
-                                         exits two minutes after the last tab closes (--keep runs until stopped)
+  tekjobs up [--dev] [--port N]          start the API (and with --dev, Vite) detached: they stay up until \`down\`
+  tekjobs down                           stop what \`up\` started
+  tekjobs ps                             what \`up\` has running
+  tekjobs serve                          the app + API on http://127.0.0.1:8787, in this terminal
   tekjobs mcp                            the MCP server on stdio (Claude Code, Codex, Cursor, Claude Desktop)
 
 The profile folder is resolved from TEKJOBS_PROFILE, then ~/.tekjobs/config.json, then ~/.tekjobs/profile.
@@ -168,14 +171,10 @@ async function main() {
     if (!s.dry) console.log(`  Index: ${s.indexPath}. Job notes now show who you know at each company.`);
     return;
   }
-  if (cmd === 'serve') {
-    const port = Number(process.env.PORT || 8787);
-    const env = { ...process.env, ...(rest.includes('--keep') ? {} : { TEKJOBS_IDLE_EXIT: process.env.TEKJOBS_IDLE_EXIT || '120' }) };
-    const p = spawn(process.execPath, [path.join(ROOT, 'app', 'server', 'index.mjs')], { stdio: 'inherit', env });
-    p.on('close', (c) => process.exit(c ?? 0));
-    if (!rest.includes('--no-open')) setTimeout(() => openInBrowser(`http://127.0.0.1:${port}/`), 800);
-    return;
-  }
+  if (cmd === 'up') return up();
+  if (cmd === 'down') return down();
+  if (cmd === 'ps') return ps();
+  if (cmd === 'serve') return run(process.execPath, [path.join(ROOT, 'app', 'server', 'index.mjs')]);
   if (cmd === 'mcp') return run(process.execPath, [path.join(ROOT, 'app', 'server', 'mcp.mjs')]);
   console.error(`unknown command "${cmd}"\n`); console.log(HELP); process.exit(1);
 }
@@ -185,11 +184,69 @@ function printStatus(s) {
   console.log(s.complete ? '\nAll set. The daily scan takes it from here.' : '\nNext: the first unchecked line above.');
 }
 function run(bin, args) { const p = spawn(bin, args, { stdio: 'inherit', env: process.env }); p.on('close', (c) => process.exit(c ?? 0)); }
-/** The system's default browser, without a dependency; a failure to open is not a failure to serve. */
-function openInBrowser(url) {
-  const [bin, args] = process.platform === 'win32' ? ['cmd', ['/c', 'start', '', url]] : process.platform === 'darwin' ? ['open', [url]] : ['xdg-open', [url]];
-  try { spawn(bin, args, { stdio: 'ignore', detached: true }).unref(); } catch { /* the URL is printed anyway */ }
+
+// ---- up / down / ps: the servers, started once, detached from this terminal, left running until `down` ----
+// A server started in a terminal dies with the tab, and one started by an editor's preview dies with the session;
+// both meant starting them again every morning. These start the API (and with --dev, Vite) as detached processes
+// with their output in ~/.tekjobs/run/*.log and their pids in servers.json, and nothing stops them but `down`.
+const RUN_DIR = path.join(os.homedir(), '.tekjobs', 'run');
+const RUN_FILE = path.join(RUN_DIR, 'servers.json');
+const alive = (pid) => { if (!pid) return false; try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; } };
+const readRun = () => { try { return JSON.parse(fs.readFileSync(RUN_FILE, 'utf8')); } catch { return {}; } };
+const writeRun = (o) => { fs.mkdirSync(RUN_DIR, { recursive: true }); fs.writeFileSync(RUN_FILE, JSON.stringify(o, null, 2)); };
+function startDetached(name, bin, args, env, cwd) {
+  fs.mkdirSync(RUN_DIR, { recursive: true });
+  const log = path.join(RUN_DIR, `${name}.log`);
+  const fd = fs.openSync(log, 'a');
+  fs.writeSync(fd, `\n===== ${new Date().toISOString()} start =====\n`);
+  const p = spawn(bin, args, { cwd, env: { ...process.env, ...env }, detached: true, stdio: ['ignore', fd, fd], windowsHide: true });
+  fs.closeSync(fd);
+  p.unref();
+  return { pid: p.pid, log, started: new Date().toISOString() };
 }
+function killTree(pid) {
+  if (process.platform === 'win32') { spawnSync('taskkill', ['/T', '/F', '/PID', String(pid)], { stdio: 'ignore' }); return; }
+  try { process.kill(-pid, 'SIGTERM'); } catch { try { process.kill(pid, 'SIGTERM'); } catch { /* already gone */ } }
+}
+async function up() {
+  const port = Number(opt('--port') || process.env.PORT || 8787);
+  const vitePort = Number(opt('--vite-port') || 5173);
+  const dev = rest.includes('--dev');
+  const state = readRun();
+  const next = { ...state };
+  if (state.api && alive(state.api.pid)) console.log(`API already up: pid ${state.api.pid}, http://127.0.0.1:${state.api.port}`);
+  else {
+    next.api = { ...startDetached('api', process.execPath, [path.join(ROOT, 'app', 'server', 'index.mjs')], { PORT: String(port) }, ROOT), port };
+    console.log(`API up: pid ${next.api.pid}, http://127.0.0.1:${port}  (log: ${next.api.log})`);
+  }
+  if (dev) {
+    if (state.vite && alive(state.vite.pid)) console.log(`Vite already up: pid ${state.vite.pid}, http://localhost:${state.vite.port}`);
+    else {
+      const viteArgs = ['run', 'dev', '--', '--port', String(vitePort), '--strictPort'];
+      const [bin, args] = process.platform === 'win32' ? ['cmd', ['/c', 'npm', ...viteArgs]] : ['npm', viteArgs];
+      next.vite = { ...startDetached('vite', bin, args, {}, path.join(ROOT, 'app')), port: vitePort };
+      console.log(`Vite up: pid ${next.vite.pid}, http://localhost:${vitePort}  (log: ${next.vite.log})`);
+    }
+  } else if (state.vite && !alive(state.vite.pid)) delete next.vite;
+  writeRun(next);
+  for (let i = 0; i < 40; i++) { try { if ((await fetch(`http://127.0.0.1:${port}/api/summary`)).ok) break; } catch { /* not yet */ } await new Promise((r) => setTimeout(r, 250)); }
+  console.log('They stay up until `tekjobs down`; closing this terminal does not stop them. `tekjobs ps` shows them.');
+}
+function down() {
+  const state = readRun();
+  let n = 0;
+  for (const [name, s] of Object.entries(state)) {
+    if (s?.pid && alive(s.pid)) { killTree(s.pid); n++; console.log(`${name} stopped (pid ${s.pid})`); }
+  }
+  try { fs.unlinkSync(RUN_FILE); } catch { /* nothing recorded */ }
+  if (!n) console.log('Nothing was up.');
+}
+function ps() {
+  const rows = Object.entries(readRun());
+  if (!rows.length) return console.log('Nothing up. `tekjobs up` starts the API; `tekjobs up --dev` the API and Vite.');
+  for (const [name, s] of rows) console.log(`${name.padEnd(5)} ${alive(s.pid) ? 'up  ' : 'gone'}  pid ${String(s.pid).padEnd(6)} http://127.0.0.1:${s.port}  since ${s.started}  log: ${s.log}`);
+}
+
 main().catch((e) => { console.error(e.message); process.exit(1); });
 
 /**
