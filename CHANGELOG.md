@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.35.2 (2026-10-07)</small>
+
+* fix(app): first-run fixes from a new-user test of the site, init and app ([ae0bc44](https://github.com/Timurtek/tekjobs/commit/ae0bc44))
+
 ## <small>0.35.1 (2026-10-07)</small>
 
 * fix(mail): a scheduling or meeting link is never the posting link ([db534a1](https://github.com/Timurtek/tekjobs/commit/db534a1))
