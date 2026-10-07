@@ -54,7 +54,7 @@ export function onboardingStatus(dir = VAULT) {
   const steps = [
     { id: 'folder', label: 'Profile folder exists', done: exists('Targets/Search Criteria.md') && exists('Targets/Companies.md'), how: 'tekjobs init [dir]' },
     { id: 'resume', label: 'Resume imported', done: exists('Profile/Resume - Source.md') || (exists('Profile') && fs.readdirSync(path.join(dir, 'Profile')).some((f) => /^Resume.*\.md$/i.test(f))), how: 'tekjobs resume <file.pdf|docx|md>' },
-    { id: 'profile', label: 'Profile written by the interview', done: profileFilled, how: 'Run the interview: in Claude Code (or any MCP client connected to tekjobs), ask it to call onboarding_materials and interview you.' },
+    { id: 'profile', label: 'Profile written by the interview', done: profileFilled, how: 'Run the interview. Connect the server once (Claude Code: claude mcp add tekjobs -- tekjobs mcp; other clients: the command tekjobs mcp), then say: Use the tekjobs MCP server, call onboarding_status, then onboarding_materials, and follow its script.' },
     { id: 'criteria', label: 'Search criteria filled (title terms set)', done: criteriaFilled, how: 'The interview writes them; or edit Targets/Search Criteria.md.' },
     { id: 'scan', label: 'First scan has run', done: jobs > 0, how: 'tekjobs scan, or the Runs screen.' },
   ];

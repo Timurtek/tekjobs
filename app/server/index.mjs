@@ -10,6 +10,7 @@ import * as tailored from './tailored-resume.mjs';
 import * as mail from './mail-check.mjs';
 import * as people from './people.mjs';
 import * as linkedin from './linkedin-import.mjs';
+import { TOOLS } from './mcp.mjs';
 
 const PORT = Number(process.env.PORT || 8787);
 const DIST = fileURLToPath(new URL('../dist', import.meta.url));
@@ -20,6 +21,8 @@ const readBody = (req) => new Promise((resolve, reject) => { let s = ''; req.on(
 
 const routes = [
   ['GET', /^\/api\/summary$/, () => store.summary()],
+  // The MCP tools the server offers, for the Agent access page; importing mcp.mjs does not start its stdio loop.
+  ['GET', /^\/api\/tools$/, () => TOOLS.map((t) => ({ name: t.name, description: t.description }))],
   ['GET', /^\/api\/today$/, (_, q) => store.today({ cap: Number(q.get('cap') || 7), waitingDays: Number(q.get('waitingDays') || 14) })],
   ['GET', /^\/api\/jobs$/, (_, q) => store.searchJobs({ ...store.filtersFromParams(q), sort: q.get('sort') || 'score', dir: q.get('dir') || 'desc', limit: Number(q.get('limit') || 500), offset: Number(q.get('offset') || 0) })],
   ['GET', /^\/api\/jobs\/facets$/, (_, q) => store.jobFacets(store.filtersFromParams(q))],

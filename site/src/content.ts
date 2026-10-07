@@ -137,7 +137,7 @@ claude mcp add tekjobs -- tekjobs mcp
 # Then say:
 #   "Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script."
 
-tekjobs serve        # the app on http://127.0.0.1:8787
+tekjobs up           # the app on http://127.0.0.1:8787; stays up until \`tekjobs down\`
 tekjobs schedule     # the morning scan, every day at 07:30`;
 
 /** The showreel on the landing: 45 seconds of motion graphics over the sample vault. tools/showreel renders it. */

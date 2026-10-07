@@ -1,37 +1,28 @@
-import { Card, CodeBlock, Table } from "@/components/ui";
+import { Card, CodeBlock, Skeleton, Table } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { api, type McpTool } from "../api";
 
 const MCP_JSON = `{
   "mcpServers": {
     "tekjobs": {
-      "command": "node",
-      "args": ["server/mcp.mjs"]
+      "command": "tekjobs",
+      "args": ["mcp"]
     }
   }
 }`;
 
-const TOOLS: [string, string][] = [
-  ["search_jobs", "Open matches, filtered by text, status, pay band, title kind, and score."],
-  ["get_job", "One note in full: match reasons, status log, notes, application, description."],
-  ["set_status", "Move a job through the pipeline; written to the note."],
-  ["add_note", "Append a dated line to the note's notes section."],
-  ["application_materials", "The job plus your profile, positioning, and resume draft, ready to tailor from."],
-  ["save_application_field", "Write a drafted field (resume variant, contact, follow-up) into the note."],
-  ["tailored_resume_materials", "The posting, the resume of record, and the rules: reorder, prune, re-summarise; never add a bullet, date or number."],
-  ["save_tailored_resume", "Save the tailored resume into the note; returns any bullet, figure, date or job that is not on the resume of record."],
-  ["cover_letter_materials", "The posting, your resume as the only source of facts, and the binding rules for a letter."],
-  ["save_cover_letter", "Save the letter into the note; returns figures not on your resume, dashes, stock phrases."],
-  ["summary", "Pipeline counts, pay bands, last scan, current thresholds."],
-  ["run_scan / scan_status", "Start a scan of every board and watch it."],
-  ["get_criteria / set_criteria", "Read or replace the scoring JSON, validated before writing."],
-  ["list_companies / add_company", "The watchlist, and a new board on it."],
-];
-
+/**
+ * Agent access: the MCP server the app ships, how each client connects to it, and the tools it offers, read
+ * from the server itself so the list is never out of date.
+ */
 export function Agent() {
+  const [tools, setTools] = useState<McpTool[] | null>(null);
+  useEffect(() => { api.tools().then(setTools).catch(() => setTools([])); }, []);
   return (
     <>
       <div className="page__head">
         <div>
-          <p>The app ships its own MCP server, so an agent can run the search without this screen: find matches, move them, draft applications, add boards, start scans. Everything it writes lands in the same markdown notes.</p>
+          <p>The app ships its own MCP server, so an agent can run the search without this screen: find matches, move them, draft applications, add boards, start scans, read the mailbox. Everything it writes lands in the same markdown notes. No API key is involved; the model is whichever one is running the session.</p>
         </div>
       </div>
       <div className="charts">
@@ -39,13 +30,14 @@ export function Agent() {
           <div className="panel">
             <div className="panel__head">
               <div>
-                <h2>Connect Claude Code</h2>
-                <p>From the app directory. The project already carries this in its .mcp.json, so a session started here picks it up.</p>
+                <h2>Connect your client</h2>
+                <p>The server is <code className="mono">tekjobs mcp</code> on stdio. Claude Code is one line; Codex, Cursor and Claude Desktop take the same command in their MCP settings.</p>
               </div>
             </div>
-            <CodeBlock code={"claude mcp add tekjobs -- node server/mcp.mjs"} language="bash" />
+            <CodeBlock code={"claude mcp add tekjobs -- tekjobs mcp"} language="bash" />
             <CodeBlock code={MCP_JSON} language="json" />
-            <p className="muted">Claude Desktop: add the same block to its MCP settings with an absolute path to server/mcp.mjs. No API key is involved; the LLM is whichever one is running the session.</p>
+            <p className="muted">On Windows, if the server shows as failed to start, give the npm shim a shell: <code className="mono">claude mcp add tekjobs -- cmd /c tekjobs mcp</code>. From a clone of the repository, <code className="mono">app/.mcp.json</code> connects the server whenever Claude Code is opened in <code className="mono">app/</code>; the command there is <code className="mono">node server/mcp.mjs</code>.</p>
+            <p className="muted">Then say: <em>Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script.</em></p>
           </div>
         </Card>
         <Card padding="md">
@@ -65,24 +57,31 @@ export function Agent() {
         </Card>
       </div>
       <Card padding="none">
-        <Table aria-label="MCP tools" density="md">
-          <Table.Head>
-            <Table.Row>
-              <Table.HeadCell>Tool</Table.HeadCell>
-              <Table.HeadCell>What it does</Table.HeadCell>
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {TOOLS.map(([name, what]) => (
-              <Table.Row key={name}>
-                <Table.Cell><code className="mono">{name}</code></Table.Cell>
-                <Table.Cell>{what}</Table.Cell>
+        {tools === null ? (
+          <div className="loading"><Skeleton lines={6} /></div>
+        ) : (
+          <Table aria-label="MCP tools" density="md" stickyHeader>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeadCell>Tool</Table.HeadCell>
+                <Table.HeadCell>What it does</Table.HeadCell>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+            </Table.Head>
+            <Table.Body>
+              {tools.map((t) => (
+                <Table.Row key={t.name}>
+                  <Table.Cell><code className="mono">{t.name}</code></Table.Cell>
+                  <Table.Cell><span className="muted">{t.description}</span></Table.Cell>
+                </Table.Row>
+              ))}
+              {tools.length === 0 && (
+                <Table.Row><Table.Cell colSpan={2}><span className="muted">The server did not answer; start it with <code className="mono">tekjobs up</code>.</span></Table.Cell></Table.Row>
+              )}
+            </Table.Body>
+          </Table>
+        )}
       </Card>
-      <p className="muted">Zengin's own MCP server (design-system checks for anyone editing this app) is configured alongside it in the same .mcp.json.</p>
+      <p className="muted">{tools ? `${tools.length} tools, read from the running server.` : ""} Confirming mail items and setting applied, interviewing or offer stay yours: an agent can read and draft, and moves a job only as far as ready.</p>
     </>
   );
 }

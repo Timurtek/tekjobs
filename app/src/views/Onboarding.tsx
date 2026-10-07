@@ -33,7 +33,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
     <>
       <div className="page__head">
         <div>
-          <p>Five steps from an empty folder to a daily scan that knows who you are. Your profile lives at <code>{state.dir}</code>. Nothing leaves this machine.</p>
+          <p>Five steps from an empty folder to a daily scan that knows who you are. Your profile lives at <code>{state.dir}</code>. The scan and the notes stay on this machine; the interview and the drafting send what you choose to the AI client you connect.</p>
         </div>
         <Badge tone={state.complete ? "success" : "primary"} size="sm">{done} of {state.steps.length} done</Badge>
       </div>

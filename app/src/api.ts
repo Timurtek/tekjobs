@@ -128,6 +128,8 @@ export type HealthState = "failed" | "zero" | "stale" | "never" | "ok";
 export interface SourceHealth { state: HealthState; lastAttempt: string; lastOk: string; lastOkJobs: number | null; lastError: string; failStreak: number }
 export interface Company { name: string; ats: string; slug: string; tier: string; status: string; notes: string; health: SourceHealth }
 /** Where a failed board answers now, by slug. */
+/** One MCP tool, as the server advertises it. */
+export interface McpTool { name: string; description: string }
 export interface BoardProbe { slug: string; except: string; tried: string[]; found: { ats: string; jobs: number }[]; note: string }
 export interface Feed { key: string; label: string; enabled: boolean; needsKey: boolean; health: Omit<SourceHealth, "failStreak"> }
 export interface Criteria { raw: string; parsed: Record<string, unknown> | null; fingerprint?: string; path?: string }
@@ -421,6 +423,7 @@ export const api = {
   linkedinStatus: () => request<LinkedInStatus>("/api/linkedin"),
   linkedinPreview: (source: string, since?: string, everyone?: boolean) => request<LinkedInPreview>("/api/linkedin/preview", { method: "POST", body: JSON.stringify({ source, since, everyone }) }),
   linkedinImport: (source: string, o: { since?: string; everyone?: boolean; writePeople?: boolean; dry?: boolean } = {}) => request<LinkedInImportSummary>("/api/linkedin/import", { method: "POST", body: JSON.stringify({ source, ...o }) }),
+  tools: () => request<McpTool[]>("/api/tools"),
   companies: () => request<Company[]>("/api/companies"),
   addCompany: (c: Omit<Company, "status" | "health">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
   findBoard: (slug: string, ats: string, name: string) => request<BoardProbe>(`/api/companies/find?slug=${encodeURIComponent(slug)}&ats=${encodeURIComponent(ats)}&name=${encodeURIComponent(name)}`),

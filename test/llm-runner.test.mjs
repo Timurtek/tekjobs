@@ -19,6 +19,9 @@ test('a signed-out CLI is recognised from what it says on stderr, with its words
   assert.match(e.message, /signed out/);
   assert.match(e.message, /Please run \/login/);
   assert.equal(classifyRun({ code: 1, out: '', err: 'API Error: 401 Unauthorized' }).kind, 'auth');
+  // What Claude Code actually prints when signed out: on stdout, exit 1. A first-run test caught this as "too short to be a cover letter".
+  assert.equal(classifyRun({ code: 1, out: 'Not logged in · Please run /login', err: '' }).kind, 'auth');
+  assert.equal(classifyRun({ code: 0, out: 'Not logged in is a phrase this letter happens to quote, in a letter of some length that is a real answer.', err: '' }), null, 'a successful run is never read as a sign-out');
   assert.equal(classifyRun({ code: 1, out: '', err: 'OAuth token has expired' }).kind, 'auth');
 });
 

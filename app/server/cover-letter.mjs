@@ -235,7 +235,9 @@ export function classifyRun({ code, out = '', err = '', command = 'claude' }) {
   }
   if (code === 0 && out.trim()) return null;
   const signedOut = /not logged in|please run \/login|run `?\/login|failed to authenticate|authentication[_ ]error|invalid[_ ]api[_ ]key|token (has )?expired|(^|\W)unauthorized(\W|$)|\b(http|status|error)\s*:?\s*401\b/i;
-  if (signedOut.test(err) || (!out.trim() && signedOut.test(out))) {
+  // Claude Code prints "Not logged in · Please run /login" on stdout with a non-zero exit, so a failed run's
+  // stdout counts too; a successful run's stdout never does, whatever words it holds.
+  if (signedOut.test(err) || (code !== 0 && signedOut.test(out))) {
     return Object.assign(new Error(`${command} is signed out. Open a terminal, run "${command}", sign in, then try again. (The desktop app's login is separate from the terminal's.) It said: ${tail || 'nothing'}`), { kind: 'auth' });
   }
   if (/requires a newer version|please upgrade/i.test(`${out}\n${err}`)) {
@@ -255,7 +257,7 @@ export function start(id, opts = {}) {
   if (cur?.running) return state(id);
   store.getJob(id);   // throws early, and synchronously, if there is no such job
   drafts.set(id, { running: true, startedAt: new Date().toISOString(), finishedAt: null, error: '', errorKind: '' });
-  materials(id, opts).then((m) => runLLM(m.prompt))
+  materials(id, opts).then((m) => runLLM(m.prompt)).then((text) => { if (String(text).trim().length < 80) throw Object.assign(new Error(`The writing CLI answered with "${String(text).trim().slice(0, 140)}" instead of a letter. If that is a sign-in or permission message, fix it in a terminal and try again.`), { kind: 'failed' }); return text; })
     .then((text) => { save(id, text, `app · ${runnerConfig().command}`); drafts.set(id, { ...drafts.get(id), running: false, finishedAt: new Date().toISOString() }); })
     .catch((e) => drafts.set(id, { ...drafts.get(id), running: false, finishedAt: new Date().toISOString(), error: e.message, errorKind: e.kind || 'failed' }));
   return state(id);
