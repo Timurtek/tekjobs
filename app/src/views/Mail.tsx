@@ -1,4 +1,4 @@
-import { Badge, Button, Card, EmptyState, Icon, Loader, Select, Table, toast } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, Icon, Loader, Select, Sheet, Table, toast } from "@/components/ui";
 import { useEffect, useState } from "react";
 import { api, type Job, type MailGroup, type MailItem, type MailState } from "../api";
 import { JobSheet } from "./Jobs";
@@ -53,6 +53,7 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
   const [m, setM] = useState<MailState | null>(null);
   const [picks, setPicks] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const [open, setOpen] = useState<MailGroup | null>(null);
   const load = () => api.mail().then(setM).catch(() => {});
   useEffect(() => { load(); }, []);
   useEffect(() => {
@@ -118,7 +119,7 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
               {pending.map((i) => {
                 const target = picks[i.id] || i.noteId;
                 return (
-                  <Table.Row key={i.id}>
+                  <Table.Row key={i.id} interactive onClick={() => setOpen(i)}>
                     <Table.Cell><span className="muted">{i.date || "—"}</span></Table.Cell>
                     <Table.Cell>
                       <div className="who__text">
@@ -136,7 +137,7 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
                         {i.person && <small title={`${i.person.email}. Confirming adds them to People and to the note.`}>from {i.person.name}</small>}
                       </div>
                     </Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell onClick={(e) => e.stopPropagation()}>
                       {i.match === "none" ? (
                         <span className="muted">no note; confirm creates one</span>
                       ) : i.match === "exact" || (i.match === "company" && i.candidates.length <= 1) ? (
@@ -150,7 +151,7 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
                         </Select>
                       )}
                     </Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell onClick={(e) => e.stopPropagation()}>
                       <div className="today__actions">
                         <Button size="sm" variant="soft" tone="primary" disabled={busy === i.id} title={meaning(i, target)} onClick={() => act(i, "confirm")}>{!target ? "Create and mark" : i.suggestion.action === "record" ? "Record" : `Mark ${i.suggestion.status}`}</Button>
                         <Button size="sm" variant="ghost" disabled={busy === i.id} onClick={() => act(i, "dismiss")}>Dismiss</Button>
@@ -180,7 +181,7 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
             </Table.Head>
             <Table.Body>
               {handled.map((i) => (
-                <Table.Row key={i.id}>
+                <Table.Row key={i.id} interactive onClick={() => setOpen(asGroup(i))}>
                   <Table.Cell><span className="muted">{i.date || "—"}</span></Table.Cell>
                   <Table.Cell><Badge size="sm" tone={KIND_TONE[i.kind]}>{KIND_LABEL[i.kind]}</Badge></Table.Cell>
                   <Table.Cell>
@@ -189,7 +190,7 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
                       <small>{i.role || "role not stated"}</small>
                     </div>
                   </Table.Cell>
-                  <Table.Cell>
+                  <Table.Cell onClick={(e) => e.stopPropagation()}>
                     {i.noteId ? <Button variant="link" size="sm" tone="neutral" onClick={() => onOpen(i.noteId)}>{i.noteId.replace(/ \([0-9a-f]+\)$/, "")}</Button> : <span className="muted">—</span>}
                   </Table.Cell>
                   <Table.Cell><span className="muted">{did(i)}{i.resolved?.at ? `, ${i.resolved.at.slice(0, 16).replace("T", " ")} UTC` : ""}</span></Table.Cell>
@@ -199,6 +200,69 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
           </Table>
         </Card>
       )}
+      <MailSheet group={open} items={m?.items ?? []} busy={busy} onClose={() => setOpen(null)} onOpenNote={onOpen} onAct={async (g, what) => { await act(g, what); setOpen(null); }} />
     </section>
+  );
+}
+
+/** A handled item, shown through the same sheet as a group of one. */
+function asGroup(i: MailItem): MailGroup {
+  return { id: i.id, ids: [i.id], count: 1, company: i.company, role: i.role, kind: i.kind, kinds: [i.kind], date: i.date, first: i.date, gist: i.gist, subject: i.subject, from: i.from, link: i.link, person: i.person ?? null, match: i.match, noteId: i.noteId, noteTitle: i.noteTitle, noteStatus: i.noteStatus, candidates: i.candidates, suggestion: i.suggestion };
+}
+
+/**
+ * One email group in full: what it says, who wrote, the note it lands on, each message with its own way into
+ * Gmail, and the same confirm or dismiss as the row.
+ */
+function MailSheet({ group: g, items, busy, onClose, onOpenNote, onAct }: { group: MailGroup | null; items: MailItem[]; busy: string | null; onClose: () => void; onOpenNote: (id: string) => void; onAct: (g: MailGroup, what: "confirm" | "dismiss") => void | Promise<void> }) {
+  const members = g ? items.filter((i) => g.ids.includes(i.id)).sort((a, b) => (b.date || "").localeCompare(a.date || "")) : [];
+  const pending = members.some((i) => i.state === "pending");
+  return (
+    <Sheet open={g !== null} onOpenChange={(isOpen) => !isOpen && onClose()} side="right" size="md">
+      <Sheet.Content>
+        {g && (
+          <div className="detail">
+            <div className="sheet-head">
+              <div className="sheet-head__main">
+                <p className="sheet-head__meta">{g.company}{g.role ? ` · ${g.role}` : ""}</p>
+                <Sheet.Title>{g.subject || g.gist}</Sheet.Title>
+                <div className="chips">
+                  {g.kinds.map((k) => <Badge key={k} size="sm" tone={KIND_TONE[k]}>{KIND_LABEL[k]}</Badge>)}
+                  {g.date && <Badge size="sm" tone="neutral" variant="outline"><span className="num">{g.date}</span></Badge>}
+                  {g.count > 1 && <Badge size="sm" tone="neutral" variant="outline">{g.count} emails</Badge>}
+                </div>
+              </div>
+            </div>
+            <p>{g.gist}</p>
+            <dl className="mailsheet__facts">
+              <dt>From</dt>
+              <dd>{g.person ? `${g.person.name}${g.person.email ? ` <${g.person.email}>` : ""}` : g.from}</dd>
+              <dt>Note</dt>
+              <dd>{g.noteId ? <Button variant="link" size="sm" tone="neutral" onClick={() => onOpenNote(g.noteId)}>{g.noteTitle || g.noteId} · {g.noteStatus}</Button> : <span className="muted">none yet; confirming creates one</span>}</dd>
+              {pending && <><dt>Confirming</dt><dd>{meaning(g, g.noteId)}</dd></>}
+            </dl>
+            <h4 className="connections__title">{members.length === 1 ? "The email" : `The ${members.length} emails`}</h4>
+            <ul className="people__list">
+              {members.map((i) => (
+                <li key={i.id} className="people__row">
+                  <div>
+                    <span>{i.subject || i.gist}</span>
+                    <div className="reasons__detail">{[i.date, KIND_LABEL[i.kind], i.fromName || i.from].filter(Boolean).join(" · ")}{i.gist && i.subject ? ` · ${i.gist}` : ""}</div>
+                  </div>
+                  <div className="pager__buttons">
+                    <Button asChild size="sm" variant="ghost" tone="neutral"><a href={i.link} target="_blank" rel="noreferrer">Open in Gmail ↗</a></Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="form__actions">
+              <Button asChild variant="soft"><a href={g.link} target="_blank" rel="noreferrer">Open in Gmail ↗</a></Button>
+              {pending && <Button tone="primary" disabled={busy === g.id} onClick={() => onAct(g, "confirm")}>{!g.noteId ? "Create and mark" : g.suggestion.action === "record" ? "Record" : `Mark ${g.suggestion.status}`}</Button>}
+              {pending && <Button variant="ghost" disabled={busy === g.id} onClick={() => onAct(g, "dismiss")}>Dismiss</Button>}
+            </div>
+          </div>
+        )}
+      </Sheet.Content>
+    </Sheet>
   );
 }

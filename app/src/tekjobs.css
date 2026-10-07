@@ -409,6 +409,25 @@
   font-weight: var(--font-weight-semibold);
 }
 
+/* The mail sheet: the facts of one email group in two columns. */
+.mailsheet__facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--spacing-2) var(--spacing-4);
+  margin: 0;
+}
+
+.mailsheet__facts dt {
+  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+}
+
+.mailsheet__facts dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* The LinkedIn import card on the People page. */
 .linkedin {
   display: grid;

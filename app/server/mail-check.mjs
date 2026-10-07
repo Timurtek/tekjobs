@@ -105,7 +105,7 @@ export function reconcile(mails, notes) {
     const best = exact || (otherRole ? null : byRank[0] || null);
     const match = exact ? 'exact' : otherRole ? 'company-other-role' : best ? 'company' : 'none';
     return {
-      id: m.messageId, ...m, match,
+      id: m.messageId, ...m, match, link: gmailLink(m.messageId),
       noteId: best ? best.id : '', noteTitle: best ? best.title : '', noteStatus: best ? best.status : '',
       candidates: byRank.slice(0, 6).map((n) => ({ id: n.id, title: n.title, status: n.status })),
       suggestion: suggestionFor(m.kind, best ? best.status : '', m.date),
@@ -136,7 +136,7 @@ export function groupItems(items) {
       company: rep.company, role: rep.role || sorted.find((m) => m.role)?.role || '',
       kind: rep.kind, kinds: [...new Set(sorted.map((m) => m.kind))], date: sorted.map((m) => m.date).sort().pop() || '',
       first: sorted.map((m) => m.date).filter(Boolean).sort()[0] || '',
-      gist: rep.gist, subject: rep.subject, from: rep.from,
+      gist: rep.gist, subject: rep.subject, from: rep.from, link: rep.link,
       person: rep.person || sorted.find((m) => m.person)?.person || null,
       match: rep.match, noteId: rep.noteId, noteTitle: rep.noteTitle, noteStatus: rep.noteStatus, candidates: rep.candidates, suggestion: rep.suggestion,
     };
@@ -147,7 +147,8 @@ export function groupItems(items) {
 const run = { running: false, startedAt: null, finishedAt: null, error: '', errorKind: '', sinceDays: null, lastOutput: '' };
 export function items() {
   const d = load();
-  const all = d.items || [];
+  // Items written before the link existed get it here; the id is the Gmail message id.
+  const all = (d.items || []).map((i) => (i.link ? i : { ...i, link: gmailLink(i.id) }));
   return { ...run, runner: runnerConfig().command, lastRun: d.lastRun, lastSinceDays: d.sinceDays, items: all, groups: groupItems(all) };
 }
 export function start({ sinceDays } = {}) {

@@ -81,3 +81,8 @@ test('outreach is a lead: a new note at reviewing, or a record on the one that e
   const parsed = parseOutput('[{"company":"Eli Lilly","role":"Remote Design Technologist","kind":"outreach","date":"2026-10-06","gist":"Fiona wrote about a role.","from":"Fiona Thompson <inmail-hit-reply@linkedin.com>","fromName":"Fiona Thompson","messageId":"m1","subject":"Remote Design Technologist/Engineer role - Eli Lilly"}]');
   assert.equal(parsed[0].kind, 'outreach');
 });
+
+test('every item carries the Gmail link for its message, and a group carries the leading one', () => {
+  const items = reconcile(parseOutput('[{"company":"Vanta","role":"Staff Visual Product Designer, Design Systems","kind":"confirmation","date":"2026-09-20","gist":"Received.","from":"no-reply@ashbyhq.com","messageId":"abc123","subject":"Thanks for applying"}]'), notes);
+  assert.equal(items[0].link, 'https://mail.google.com/mail/u/0/#all/abc123');
+});

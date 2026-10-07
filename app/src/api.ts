@@ -192,6 +192,8 @@ export interface CriteriaPreview {
 export interface MailItem {
   id: string; company: string; role: string; kind: "confirmation" | "rejection" | "advance" | "scheduling" | "info-request" | "outreach" | "other";
   date: string; gist: string; from: string; fromName?: string; messageId: string; subject: string;
+  /** The message in Gmail's web app, built by the server. */
+  link: string;
   person?: MailPerson | null;
   /** exact: same title. company: no role named, best note of that company. company-other-role: a role the vault lacks, default is a new note. none: nothing. */
   match: "exact" | "company" | "company-other-role" | "none"; noteId: string; noteTitle: string; noteStatus: string;
@@ -203,7 +205,7 @@ export interface MailItem {
 /** Pending emails about one application (company + role), the strongest kind speaking for the group. */
 export interface MailGroup {
   id: string; ids: string[]; count: number; company: string; role: string; kind: MailItem["kind"]; kinds: MailItem["kind"][];
-  date: string; first: string; gist: string; subject: string; from: string; person: MailPerson | null;
+  date: string; first: string; gist: string; subject: string; from: string; link: string; person: MailPerson | null;
   match: MailItem["match"]; noteId: string; noteTitle: string; noteStatus: string; candidates: MailItem["candidates"]; suggestion: MailItem["suggestion"];
 }
 /** The human who wrote a mail item, when one did; confirming puts them on the note and in People. */
