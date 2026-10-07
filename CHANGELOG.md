@@ -2,6 +2,11 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.38.0 (2026-10-07)
+
+* feat(onboarding): two readiness contracts, and the import creates the resume of record ([2c741e5](https://github.com/Timurtek/tekjobs/commit/2c741e5))
+* docs(settings): the resume settings moved into the profile in 0.37.1, not 0.38 ([ce8a2e0](https://github.com/Timurtek/tekjobs/commit/ce8a2e0))
+
 ## <small>0.37.1 (2026-10-07)</small>
 
 * fix(app): a second profile never sees the first person's resume settings or moves the pointer ([19ab826](https://github.com/Timurtek/tekjobs/commit/19ab826))
