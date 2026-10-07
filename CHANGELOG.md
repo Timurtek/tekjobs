@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.37.0 (2026-10-07)
+
+* feat(scan): the run reports what the hard exclusions dropped ([58cfb62](https://github.com/Timurtek/tekjobs/commit/58cfb62))
+
 ## 0.36.0 (2026-10-07)
 
 * feat(cli): tekjobs init --sample, company exclusions, and the rest of the first-run notes ([a0b88b0](https://github.com/Timurtek/tekjobs/commit/a0b88b0))
