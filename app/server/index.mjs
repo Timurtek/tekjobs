@@ -69,6 +69,8 @@ const routes = [
   ['GET', /^\/api\/profile\/summary$/, () => store.profileSummary()],
   ['GET', /^\/api\/companies$/, () => store.companies()],
   ['GET', /^\/api\/feeds$/, () => store.feeds()],
+  ['GET', /^\/api\/companies\/find$/, (_, q) => store.findBoard({ slug: q.get('slug') || '', ats: q.get('ats') || '', name: q.get('name') || '' })],
+  ['POST', /^\/api\/companies\/move$/, async (_, __, req) => { const b = await readBody(req); return store.moveBoard({ name: b.name || '', slug: b.slug, from: b.from || '', to: b.to }); }],
   ['POST', /^\/api\/companies$/, async (_, __, req) => store.addCompany(await readBody(req))],
   ['POST', /^\/api\/jobs\/import$/, async (_, __, req) => { const b = await readBody(req); return store.importLinks(b.urls ?? b.url); }],
   ['POST', /^\/api\/jobs\/([^/]+)\/reveal$/, (m) => store.revealJob(decodeURIComponent(m[1]))],

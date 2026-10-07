@@ -41,6 +41,7 @@ const HELP = `tekjobs — a local job-search machine
   tekjobs up [--dev] [--port N]          start the API (and with --dev, Vite) detached: they stay up until \`down\`
   tekjobs down                           stop what \`up\` started
   tekjobs ps                             what \`up\` has running
+  tekjobs board <slug> [--from ats] [--move]  where a failed board answers now; --move rewrites the watchlist row
   tekjobs serve                          the app + API on http://127.0.0.1:8787, in this terminal
   tekjobs mcp                            the MCP server on stdio (Claude Code, Codex, Cursor, Claude Desktop)
 
@@ -169,6 +170,15 @@ async function main() {
     console.log(`  ${s.counts.connections} connections indexed, ${s.counts.threads} conversations and ${s.counts.invitations} invitations since ${s.since}, ${s.counts.applications} applications, ${s.counts.savedJobs} saved jobs`);
     console.log(`  People: ${s.people.created} created, ${s.people.recognised} already there, ${s.people.attached} put on job notes, ${s.people.logged} log lines; ${s.people.skipped} senders skipped (not recruiters or hiring managers; --everyone includes them)`);
     if (!s.dry) console.log(`  Index: ${s.indexPath}. Job notes now show who you know at each company.`);
+    return;
+  }
+  if (cmd === 'board') {
+    const slug = rest.find((x) => !x.startsWith('--') && x !== opt('--from'));
+    if (!slug) return console.error('Usage: tekjobs board <slug> [--from <ats that failed>] [--move]');
+    const { probeBoard, moveCompany } = await import('./scraper/find-board.mjs');
+    const r = await probeBoard(slug, { except: opt('--from') || '' });
+    console.log(r.note);
+    if (rest.includes('--move') && r.found[0]) { const m = moveCompany({ slug, from: opt('--from') || '', to: r.found[0].ats }); console.log(m.moved ? `Moved ${m.row.name} to ${m.row.ats}; the next scan reads it there.` : `${m.row.name} already reads from ${m.row.ats}.`); }
     return;
   }
   if (cmd === 'up') return up();

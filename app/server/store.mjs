@@ -969,6 +969,18 @@ export async function importLinks(urls) {
   return out;
 }
 
+/** Where a board went: every platform that answers for the slug, the failed one left out. */
+export async function findBoard({ slug, ats = '', name = '' }) {
+  if (!slug) throw Object.assign(new Error('slug is required'), { status: 400 });
+  const { probeBoard } = await import('../../scraper/find-board.mjs');
+  return probeBoard(slug, { name: name || slug, except: ats });
+}
+/** Move a watchlist row to the platform that answers; the next scan reads it there. */
+export async function moveBoard({ name = '', slug, from = '', to }) {
+  const { moveCompany } = await import('../../scraper/find-board.mjs');
+  const r = moveCompany({ name, slug, from, to });
+  return { ...r, companies: companies() };
+}
 export function addCompany({ name, ats, slug, tier = 'B', notes = '' }) {
   if (!name || !ats || !slug) throw Object.assign(new Error('name, ats and slug are required'), { status: 400 });
   if (loadCompanies().some((c) => c.ats === ats.toLowerCase() && c.slug === slug)) throw Object.assign(new Error('that board is already in the table'), { status: 409 });

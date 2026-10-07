@@ -127,6 +127,8 @@ export interface ScanState { running: boolean; startedAt: string | null; finishe
 export type HealthState = "failed" | "zero" | "stale" | "never" | "ok";
 export interface SourceHealth { state: HealthState; lastAttempt: string; lastOk: string; lastOkJobs: number | null; lastError: string; failStreak: number }
 export interface Company { name: string; ats: string; slug: string; tier: string; status: string; notes: string; health: SourceHealth }
+/** Where a failed board answers now, by slug. */
+export interface BoardProbe { slug: string; except: string; tried: string[]; found: { ats: string; jobs: number }[]; note: string }
 export interface Feed { key: string; label: string; enabled: boolean; needsKey: boolean; health: Omit<SourceHealth, "failStreak"> }
 export interface Criteria { raw: string; parsed: Record<string, unknown> | null; fingerprint?: string; path?: string }
 /** A named criteria set under Targets/Criteria/. `active` means it is byte-for-byte the current Search Criteria weights. */
@@ -419,6 +421,8 @@ export const api = {
   linkedinImport: (source: string, o: { since?: string; everyone?: boolean; writePeople?: boolean; dry?: boolean } = {}) => request<LinkedInImportSummary>("/api/linkedin/import", { method: "POST", body: JSON.stringify({ source, ...o }) }),
   companies: () => request<Company[]>("/api/companies"),
   addCompany: (c: Omit<Company, "status" | "health">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
+  findBoard: (slug: string, ats: string, name: string) => request<BoardProbe>(`/api/companies/find?slug=${encodeURIComponent(slug)}&ats=${encodeURIComponent(ats)}&name=${encodeURIComponent(name)}`),
+  moveBoard: (c: { name: string; slug: string; from: string; to: string }) => request<{ moved: boolean; companies: Company[] }>("/api/companies/move", { method: "POST", body: JSON.stringify(c) }),
   feeds: () => request<Feed[]>("/api/feeds"),
   onboarding: () => request<Onboarding>("/api/onboarding"),
   initProfile: () => request<{ dir: string; made: string[] }>("/api/onboarding/init", { method: "POST", body: "{}" }),

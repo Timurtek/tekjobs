@@ -428,6 +428,11 @@
   overflow-wrap: anywhere;
 }
 
+/* Sources: the find/move link inline with a failed board's note. */
+.sources__move {
+  white-space: nowrap;
+}
+
 /* The LinkedIn import card on the People page. */
 .linkedin {
   display: grid;

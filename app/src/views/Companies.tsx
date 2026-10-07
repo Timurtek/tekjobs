@@ -1,6 +1,6 @@
 import { Badge, Button, Card, Dialog, Icon, Select, Skeleton, Table, TextField, Tooltip, toast } from "@/components/ui";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { api, daysAgo, type Company, type Feed, type HealthState } from "../api";
+import { api, daysAgo, type BoardProbe, type Company, type Feed, type HealthState } from "../api";
 
 const ATS = ["greenhouse", "lever", "ashby", "workday", "rippling", "smartrecruiters", "workable", "bamboohr", "breezy", "personio", "teamtailor", "eightfold"];
 
@@ -45,6 +45,21 @@ export function Companies() {
       .sort((a, b) => order(a.health.state) - order(b.health.state) || a.name.localeCompare(b.name));
   }, [rows, q, tier, state]);
   const failed = counts.failed || 0;
+  // Where a failed board went: one probe per row on request, then one click to move it.
+  const [probes, setProbes] = useState<Record<string, BoardProbe | "looking">>({});
+  const key = (c: Company) => `${c.ats}:${c.slug}`;
+  const find = async (c: Company) => {
+    setProbes((p) => ({ ...p, [key(c)]: "looking" }));
+    try { setProbes((p) => ({ ...p, [key(c)]: undefined as unknown as BoardProbe })); const r = await api.findBoard(c.slug, c.ats, c.name); setProbes((p) => ({ ...p, [key(c)]: r })); }
+    catch (e) { setProbes((p) => { const n = { ...p }; delete n[key(c)]; return n; }); toast({ title: "Could not probe", description: (e as Error).message, tone: "danger" }); }
+  };
+  const move = async (c: Company, to: string) => {
+    try {
+      const r = await api.moveBoard({ name: c.name, slug: c.slug, from: c.ats, to });
+      setRows(r.companies); setProbes((p) => { const n = { ...p }; delete n[key(c)]; return n; });
+      toast({ title: `${c.name} now reads from ${to}`, description: "The row is updated in Targets/Companies.md; the next scan reads it there.", tone: "success" });
+    } catch (e) { toast({ title: "Not moved", description: (e as Error).message, tone: "danger" }); }
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -151,7 +166,16 @@ export function Companies() {
                     <span className="muted num">{c.health.lastOk ? `${daysAgo(c.health.lastOk)} · ${c.health.lastOkJobs} job${c.health.lastOkJobs === 1 ? "" : "s"}` : c.status && !c.status.startsWith("bad-slug") ? c.status : "—"}</span>
                   </Table.Cell>
                   <Table.Cell><span className="muted num">{c.health.lastAttempt ? daysAgo(c.health.lastAttempt) : "—"}</span></Table.Cell>
-                  <Table.Cell><span className="muted">{c.notes}</span></Table.Cell>
+                  <Table.Cell>
+                    <span className="muted">{c.notes}</span>
+                    {c.health.state === "failed" && (() => {
+                      const p = probes[key(c)];
+                      if (p === "looking") return <span className="muted"> · looking…</span>;
+                      if (p && p.found.length) return <span className="sources__move"> · <Button size="sm" variant="link" tone="primary" onClick={() => move(c, p.found[0]!.ats)}>Move to {p.found[0]!.ats} ({p.found[0]!.jobs} job{p.found[0]!.jobs === 1 ? "" : "s"})</Button></span>;
+                      if (p) return <span className="muted"> · {p.note}</span>;
+                      return <span className="sources__move"> · <Button size="sm" variant="link" tone="neutral" onClick={() => find(c)}>Find board</Button></span>;
+                    })()}
+                  </Table.Cell>
                 </Table.Row>
               ))}
               {visible.length === 0 && (
