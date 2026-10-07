@@ -7,6 +7,7 @@ import { P, VAULT, rememberProfileDir, loadCriteria } from './config.mjs';
 import { extractText } from './resume.mjs';
 
 const STARTER = fileURLToPath(new URL('./starter/', import.meta.url));
+const SAMPLE = fileURLToPath(new URL('../samples/vault/', import.meta.url));
 const today = () => new Date().toISOString().slice(0, 10);
 
 /** Create the folder layout and starter notes in `dir` (default: the resolved profile dir). Never overwrites. */
@@ -26,6 +27,20 @@ export function initProfile(dir = VAULT) {
   mk('README.md', readme(dir));
   rememberProfileDir(dir);
   return { dir, made };
+}
+
+/**
+ * Copy the fictional sample search (samples/vault, shipped in the package) into `dir` and make it the profile the
+ * app and the MCP server read next. Refuses a folder that already has files in it: it never merges into a real one.
+ */
+export function installSample(dir) {
+  if (!fs.existsSync(SAMPLE)) throw new Error(`The sample folder is missing from this install (${SAMPLE}).`);
+  if (fs.existsSync(dir) && fs.readdirSync(dir).length) throw new Error(`${dir} already has files in it. Pick an empty folder: tekjobs init --sample <dir>`);
+  fs.cpSync(SAMPLE, dir, { recursive: true });
+  fs.mkdirSync(path.join(dir, '.tekjobs'), { recursive: true });
+  rememberProfileDir(dir);
+  const count = (d) => fs.readdirSync(d, { withFileTypes: true }).reduce((n, e) => n + (e.isDirectory() ? count(path.join(d, e.name)) : 1), 0);
+  return { dir, files: count(dir) };
 }
 
 /** Copy a resume into Profile/ and write its extracted text beside it as `Resume - Source.md`. */
@@ -115,12 +130,13 @@ const INTERVIEW_SCRIPT = `You are onboarding a job seeker into TekJobs. Goal: wr
 3. Write Profile/Profile.md using the existing note's headings (Basics · What you are, in three sentences · Target roles table with tiers A/B · Constraints & preferences · Proof points · Documents). Proof points are one line each, with numbers. Call save_profile with the full markdown.
 4. Build the criteria from the current JSON (keep every key). Set:
    - titleTerms: exact lowercase substrings that appear in real job titles for the target roles, weighted 40 for exact-fit titles down to ~20 for adjacent ones. Include common variants ("front-end", "frontend", "front end").
-   - titleExclude: add the user's hard exclusions as lowercase substrings.
+   - titleExclude: add the user's hard exclusions as lowercase substrings (titles and words in titles; abbreviations like "sr." and "dir." are spelled out before matching).
+   - companyExclude: industries, company types and names the user will not work for, as lowercase substrings of the company name ("casino", "gambling", "staffing", "defense"). Title words do not catch these.
    - descTerms: 15 to 30 stack/domain words with weights 2 to 6.
    - salary.minAnnual and salary.stretchAnnual as integers (or null if the user declines).
    - location.requireRemote true only if the user said remote only; add their metro to bayAreaTerms with bayAreaBoost 12 if hybrid there is acceptable.
    Call set_criteria with the full JSON string. It is validated before writing.
-5. Call run_scan with dry=true and poll scan_status every few seconds until running is false (two to three minutes; the scan runs on its own, so if this session ends first, the next one can pick up with scan_status). A dry run writes no notes, so do not use search_jobs yet: call scan_preview limit=15 and show the user the top matches with score, pay band and one reason each. Ask whether the list looks right. Adjust the criteria once if it does not (set_criteria, then another dry run_scan and scan_preview). When it does, call run_scan with dry=false and poll scan_status until it finishes; that run writes the notes, and search_jobs and the app's Today page work from then on.
+5. Call run_scan with dry=true and poll scan_status every few seconds until running is false (two to three minutes; the scan runs on its own, so if this session ends first, the next one can pick up with scan_status). If you cannot poll between turns, pass wait=240 to run_scan and it answers when the scan is done. A dry run writes no notes, so do not use search_jobs yet: call scan_preview limit=15 and show the user the top matches with score, pay band and one reason each. Ask whether the list looks right. Adjust the criteria once if it does not (set_criteria, then another dry run_scan and scan_preview). When it does, call run_scan with dry=false and poll scan_status until it finishes; that run writes the notes, and search_jobs and the app's Today page work from then on.
 6. Finish by telling the user where things live: Profile/Profile.md, Targets/Search Criteria.md, Jobs/. Remind them the daily scan runs on its own from here.`;
 
 function criteriaNote(json) {
@@ -134,7 +150,8 @@ updated: ${today()}
 
 How scoring works:
 - **titleTerms** — best single match in the job title counts fully, each extra match adds 5. Empty until the interview runs.
-- **titleExclude** — any hit in the title drops the job entirely.
+- **titleExclude** — any hit in the title drops the job entirely. Abbreviations are spelled out first, so "director" catches "Sr. Dir".
+- **companyExclude** — any hit in the company name drops the job entirely: industries, staffing agencies, names.
 - **noTitleMatchPenalty** — a posting whose title matches nothing in \`titleTerms\` takes this hit, so location and recency alone can't carry it over the bar.
 - **descTerms** — each term found in the description adds its weight (capped at \`descCap\`).
 - **seniority** — senior/staff/lead/principal adds; junior/intern subtracts.

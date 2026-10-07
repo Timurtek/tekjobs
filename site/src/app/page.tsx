@@ -16,8 +16,8 @@ export default function Page() {
     <>
       <Hero />
       <Showreel />
-      <Demo />
       <HowItWorks />
+      <Demo />
       <Screens />
       <WhoFor />
       <Boundary />

@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { P, loadCriteria } from './config.mjs';
-import { scoreJob } from './score.mjs';
+import { scoreJob, normalizeTitle } from './score.mjs';
 
 /**
  * A short fingerprint of every criteria key the scorer reads.
@@ -48,7 +48,7 @@ const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 /** Title points under one set of weights. `extraCap` null means the old, uncapped behaviour. */
 export function titlePoints(title = '', c = {}, extraCap) {
   const hits = Object.entries(c.titleTerms || {})
-    .filter(([t]) => title.toLowerCase().includes(t.toLowerCase()))
+    .filter(([t]) => normalizeTitle(title).includes(t.toLowerCase()))
     .sort((a, b) => b[1] - a[1]);
   if (!hits.length) return c.noTitleMatchPenalty ?? -40;
   const per = c.titleExtraPer ?? 5;

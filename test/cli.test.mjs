@@ -75,3 +75,27 @@ test('scan --dry on the fresh profile refuses politely until the interview has s
   // Either the scan explains what is missing, or it runs against nothing; what it must not do is crash.
   assert.ok(r.code === 0 || /title terms|criteria|No criteria|nothing to scan|0 companies/i.test(r.out), r.out.slice(0, 400));
 });
+
+test('init --sample copies the fictional search into its own folder, points the config at it, and refuses a folder with files in it', () => {
+  const sample = path.join(home, 'Sample');
+  const r = run(['init', '--sample', sample]);
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /Sample profile: /);
+  assert.match(r.out, /Nothing in it is a real person/);
+  assert.equal(fs.readdirSync(path.join(sample, 'Jobs')).length, 14, 'the fourteen postings came along');
+  assert.ok(fs.existsSync(path.join(sample, 'Profile', 'Profile.md')));
+  assert.ok(fs.existsSync(path.join(sample, '.tekjobs')), 'the state folder exists so the app can write its own files');
+  const cfg = JSON.parse(fs.readFileSync(path.join(home, '.tekjobs', 'config.json'), 'utf8'));
+  assert.equal(path.resolve(cfg.profile), path.resolve(sample), 'the app and the MCP server read the sample next');
+  const s = run(['status']);
+  assert.equal(s.code, 0, s.out);
+  const again = run(['init', '--sample', profile]);
+  assert.notEqual(again.code, 0, 'a folder with files in it is never merged into');
+  assert.match(again.out, /already has files in it/);
+  assert.ok(!fs.existsSync(path.join(profile, 'Jobs', 'Northwind Labs - Staff Design Engineer, Design Systems (1000).md')), 'the real profile was left alone');
+  // A plain init afterwards goes back to a real profile and leaves the sample where it is.
+  const back = run(['init', profile]);
+  assert.equal(back.code, 0, back.out);
+  assert.equal(path.resolve(JSON.parse(fs.readFileSync(path.join(home, '.tekjobs', 'config.json'), 'utf8')).profile), path.resolve(profile));
+  assert.equal(fs.readdirSync(path.join(sample, 'Jobs')).length, 14);
+});

@@ -33,14 +33,14 @@ npm run init -- --resume ~/Downloads/resume.pdf
 
 ## A look before you commit
 
-The repository ships a fictional profile folder, `samples/vault`: a design engineer three weeks into a search, fourteen postings, an interview in progress, people on the threads, two scan logs. Point the API at it and the app shows a search in progress instead of an empty folder:
+The package ships a fictional profile folder: Jordan Example, a design engineer three weeks into a search, fourteen postings, an interview in progress, people on the threads, two scan logs. One command puts it where the app reads:
 
 ```
-TEKJOBS_PROFILE=$PWD/samples/vault npm run serve
-cd app && npm run dev
+npx @timurtekb/tekjobs init --sample
+tekjobs up
 ```
 
-Nothing in it is real. `npm run sample` rebuilds it with today's dates.
+The app shows a search in progress instead of an empty folder, and your AI client sees the same notes over MCP. When you are ready for your own, `tekjobs init` starts a real profile beside it; the sample stays where it is. From a clone, `TEKJOBS_PROFILE=$PWD/samples/vault npm run serve` reads it in place, and `npm run sample` rebuilds it with today's dates. Nothing in it is real.
 
 ## The interview
 

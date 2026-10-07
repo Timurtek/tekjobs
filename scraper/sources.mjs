@@ -2,6 +2,7 @@
 // { id, source, company, title, url, location, remote, posted, descriptionHtml, salary, department, employmentType }
 
 import { UA } from './config.mjs';
+import { normalizeTitle } from './score.mjs';
 
 async function getJSON(url, { timeoutMs = 25000 } = {}) {
   const ctrl = new AbortController();
@@ -271,7 +272,7 @@ export async function fetchWorkday(company, slug, titleFilter = () => true, { ma
 export function makeTitleFilter(criteria) {
   const terms = Object.keys(criteria?.titleTerms || {}).map((t) => t.toLowerCase());
   const excl = (criteria?.titleExclude || []).map((t) => t.toLowerCase());
-  return (title) => { const t = (title || '').toLowerCase(); return terms.some((k) => t.includes(k)) && !excl.some((k) => t.includes(k)); };
+  return (title) => { const t = normalizeTitle(title); return terms.some((k) => t.includes(k)) && !excl.some((k) => t.includes(k)); };
 }
 
 export async function fetchCompany(c, criteria) {

@@ -47,9 +47,9 @@ export function Settings() {
           <div className="form">
             <div>
               <h2 className="settings__h">Resume variants folder</h2>
-              <p className="muted">PDF, DOCX, Markdown or text files, one per variant. The Profile page lists them and makes any one the resume of record; the packet's Resume variant field offers their names. {s.resumeDir.exists ? "" : "This folder does not exist yet."}</p>
+              <p className="muted">PDF, DOCX, Markdown or text files, one per variant. The Profile page lists them and makes any one the resume of record; the packet's Resume variant field offers their names. {s.resumeDir.exists ? "" : "This folder does not exist yet; it is optional until you keep more than one resume."}</p>
             </div>
-            <TextField label="Folder" value={form.resumeDir} onChange={(e) => setForm({ ...form, resumeDir: e.target.value })} description={`Default: Templates/Resume inside the profile folder. Resume of record now: ${s.resumeSource || "not set"}.`} />
+            <TextField label="Folder" value={form.resumeDir} onChange={(e) => setForm({ ...form, resumeDir: e.target.value })} description={`Default: Templates/Resume inside the profile folder. Resume of record now: ${s.resumeSource || "not set. Import one on the Onboarding page, or run tekjobs resume <file>"}.`} />
           </div>
         </Card>
         <Card padding="md">

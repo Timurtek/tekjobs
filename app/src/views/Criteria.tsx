@@ -311,8 +311,9 @@ export function Criteria() {
             <div className="form">
               <div className="form__row">
                 <ListEditor label="Title terms (term: weight)" hint="The best single match in the title counts fully; each extra match adds the per-extra points. One per line." value={doc.titleTerms} weighted rows={18} onCommit={(v) => update(set(doc, ["titleTerms"], v))} />
-                <ListEditor label="Title exclusions (one per line)" hint="Any hit in the title drops the posting entirely." value={doc.titleExclude} weighted={false} rows={18} onCommit={(v) => update(set(doc, ["titleExclude"], v))} />
+                <ListEditor label="Title exclusions (one per line)" hint="Any hit in the title drops the posting entirely. Abbreviations are spelled out first, so director catches Sr. Dir." value={doc.titleExclude} weighted={false} rows={18} onCommit={(v) => update(set(doc, ["titleExclude"], v))} />
               </div>
+              <ListEditor label="Company exclusions (one per line)" hint="Any hit in the company name drops the posting entirely: industries, staffing agencies, names. Title words do not catch these." value={doc.companyExclude ?? []} weighted={false} rows={6} onCommit={(v) => update(set(doc, ["companyExclude"], v))} />
               <ListEditor label="Description terms (term: weight)" hint="Each term found in the description adds its weight, up to the description cap." value={doc.descTerms} weighted rows={14} onCommit={(v) => update(set(doc, ["descTerms"], v))} />
             </div>
           </Card>

@@ -24,7 +24,7 @@ export const NAV: { href: string; label: string; external?: boolean }[] = [
 
 /** The first screen: what it is, in the reader's terms, and the four facts on the sheet beneath. */
 export const HERO = {
-  eyebrow: "Local-first job search",
+  eyebrow: "Free and open source (MIT). Local-first.",
   title: "A job search that",
   titleEm: "remembers who you are.",
   consequence: "Stop refreshing forty job boards, and stop re-explaining yourself to a chatbot every session.",
@@ -65,7 +65,7 @@ export const STEPS = [
   },
   {
     title: "Score",
-    body: "Each posting is scored against criteria you own: title terms, hard exclusions, description keywords, seniority, a remote rule, a pay floor with a stretch band, recency. Every point is written down as a reason.",
+    body: "Each posting is scored against criteria you own: title terms, hard exclusions by title and by company, description keywords, seniority, a remote rule, a pay floor with a stretch band, recency. Every point is written down as a reason.",
   },
   {
     title: "File",
@@ -138,7 +138,10 @@ claude mcp add tekjobs -- tekjobs mcp
 #   "Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script."
 
 tekjobs up           # the app on http://127.0.0.1:8787; stays up until \`tekjobs down\`
-tekjobs schedule     # the morning scan, every day at 07:30`;
+tekjobs schedule     # the morning scan, every day at 07:30
+
+# No resume at hand? Look at a finished, fictional search first:
+#   npx ${PACKAGE} init --sample && tekjobs up`;
 
 /** The showreel on the landing: 45 seconds of motion graphics over the sample vault. tools/showreel renders it. */
 export const SHOWREEL = {

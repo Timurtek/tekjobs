@@ -1135,7 +1135,10 @@ export function scanPreview({ limit = 15 } = {}) {
     score: j.score, company: j.company, title: j.title, location: j.location, remote: !!j.remote, salary: j.salary || '', payBand: j.payBand, posted: j.posted, url: j.url, source: j.source, isNew: !!j.isNew,
     reasons: (j.reasons || []).slice(0, 3),
   }));
-  return { when: snap.when, minScore: snap.minScore, total: (snap.jobs || []).length, aboveBar: (snap.jobs || []).filter((j) => j.score >= (snap.minScore || 0)).length, failed: (snap.failed || []).length, rows };
+  return {
+    when: snap.when, minScore: snap.minScore, total: (snap.jobs || []).length, aboveBar: (snap.jobs || []).filter((j) => j.score >= (snap.minScore || 0)).length, failed: (snap.failed || []).length, rows,
+    fields: { salary: 'the range as the posting states it, not a floor; the pay score reads its top', payBand: 'where that top sits against the criteria floor: floor (at or above), stretch, below, unknown (no stated range)' },
+  };
 }
 export function runScan(args = [], { criteria = '', retryFailed = false, via = 'app' } = {}) {
   if (scanStatus().running) return scanStatus();

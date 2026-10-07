@@ -74,11 +74,11 @@ About twenty-five minutes end to end on a fresh machine, most of it the intervie
 `samples/vault` is a complete, fictional profile folder: Jordan Example, a design engineer three weeks into a search, with fourteen postings at companies that do not exist, one application in interview, a rejection, two passes, a closed listing, three people on the threads, two scan logs and the dashboard. Every note in it was written by the product's own code (`npm run sample` rebuilds it with today's dates), so it is always in the shape the app expects.
 
 ```
-TEKJOBS_PROFILE=$PWD/samples/vault npm run serve
-cd app && npm run dev
+npx @timurtekb/tekjobs init --sample    # copies it to ~/.tekjobs/sample and points the app there
+tekjobs up
 ```
 
-Point the API at it and the app shows a search in progress instead of an empty folder. Nothing in it is a real person, company or posting.
+The app shows a search in progress instead of an empty folder. `tekjobs init` afterwards starts your own profile and leaves the sample where it is. From a clone, `TEKJOBS_PROFILE=$PWD/samples/vault npm run serve` reads it in place. Nothing in it is a real person, company or posting.
 
 ## Bring your LinkedIn history
 

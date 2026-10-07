@@ -12,6 +12,8 @@ const opt = (f) => { const i = rest.indexOf(f); return i >= 0 ? rest[i + 1] : un
 const HELP = `tekjobs — a local job-search machine
 
   tekjobs init [dir] [--resume <file>]   create the profile folder (default ~/.tekjobs/profile), remember it, import a resume
+  tekjobs init --sample [dir]            a complete, fictional search to look at first (default ~/.tekjobs/sample);
+                                         nothing in it is real; \`tekjobs init\` afterwards starts your own
   tekjobs resume <file>                  import or replace the resume (PDF, DOCX, Markdown, text)
   tekjobs resume sync [<url|file>]       refresh Profile/Resume.md from where you keep your resume (a link-shared
                                          Google Doc, a public page, or a file); remembers the source; flags drafts
@@ -52,6 +54,22 @@ async function main() {
   if (!cmd || cmd === 'help' || cmd === '--help') return console.log(HELP);
   if (cmd === '--version' || cmd === '-v' || cmd === 'version') return console.log(JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version);
   if (cmd === 'schedule') return schedule();
+  if (cmd === 'init' && rest.includes('--sample')) {
+    // The fictional search, copied where the app and the MCP server will read it next. Its own folder by default,
+    // so a later plain `init` starts the person's real profile beside it and leaves this one in place.
+    const dirArg = rest.find((a) => !a.startsWith('--'));
+    const dir = path.resolve(dirArg || path.join(process.env.USERPROFILE || process.env.HOME || '.', '.tekjobs', 'sample'));
+    const { installSample } = await import('./scraper/profile.mjs');
+    const r = installSample(dir);
+    console.log(`Sample profile: ${r.dir}  (${r.files} files)
+  Jordan Example, a design engineer three weeks into a fictional search: fourteen postings, one interview, a rejection,
+  people on the threads, two scan logs. Nothing in it is a real person, company or posting.
+
+  tekjobs up           the app on http://127.0.0.1:8787 shows it (tekjobs down first if it is already running)
+  tekjobs mcp          your AI client reads it too, until the next init
+  tekjobs init         when you are ready for your own search; the sample folder stays where it is`);
+    return;
+  }
   if (cmd === 'init') {
     const dirArg = rest.find((a) => !a.startsWith('--') && a !== opt('--resume'));
     const dir = path.resolve(dirArg || process.env.TEKJOBS_PROFILE || path.join(process.env.USERPROFILE || process.env.HOME || '.', '.tekjobs', 'profile'));

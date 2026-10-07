@@ -12,7 +12,7 @@ const vault = fs.mkdtempSync(path.join(os.tmpdir(), 'tekjobs-scoring-'));
 fs.cpSync(path.join(ROOT, 'samples', 'vault'), vault, { recursive: true });
 process.env.TEKJOBS_PROFILE = vault;
 const { loadCriteria, P, ensureDirs } = await import('../scraper/config.mjs');
-const { scoreJob, parseSalary } = await import('../scraper/score.mjs');
+const { scoreJob, parseSalary, normalizeTitle } = await import('../scraper/score.mjs');
 const { writeJobNote, jobNotePath, readFrontmatter } = await import('../scraper/vault.mjs');
 ensureDirs();
 const c = loadCriteria();
@@ -50,6 +50,25 @@ test('a strong match clears the bar with a reason for every point, and a title e
   assert.equal(intern.excluded, true);
   assert.equal(intern.score, -999);
   assert.match(intern.reasons[0], /excluded by title/);
+});
+
+test('title abbreviations are spelled out before matching, and a company exclusion drops a posting the title would not', () => {
+  // A first-run test let "Sr. Dir, Design" past a "director" exclusion and "Casino Alpha" past every title rule.
+  assert.equal(normalizeTitle('Sr. Dir, Design Engineering'), 'senior director, design engineering');
+  assert.equal(normalizeTitle('Eng Mgr, Platform'), 'engineer manager, platform');
+  assert.equal(normalizeTitle('Senior SWE'), 'senior software engineer');
+  assert.equal(normalizeTitle('Transfer Pricing Analyst'), 'transfer pricing analyst', 'letters inside words are left alone');
+  const withDirector = { ...c, titleExclude: [...(c.titleExclude || []), 'director'] };
+  const dir = scoreJob(posting({ title: 'Sr. Dir, Design Engineering' }), withDirector, { now });
+  assert.equal(dir.excluded, true);
+  assert.match(dir.reasons[0], /excluded by title: "director"/);
+  const sr = scoreJob(posting({ title: 'Sr. Design Engineer' }), c, { now });
+  assert.match(sr.reasons.join('\n'), /seniority \+\d+ \(senior\)/, 'the abbreviation earns the seniority boost');
+  const casino = scoreJob(posting({ company: 'Casino Alpha' }), { ...c, companyExclude: ['casino', 'staffing'] }, { now });
+  assert.equal(casino.excluded, true);
+  assert.equal(casino.score, -999);
+  assert.match(casino.reasons[0], /excluded by company: "casino"/);
+  assert.equal(scoreJob(posting({ company: 'Casino Alpha' }), c, { now }).excluded, false, 'without the key nothing changes');
 });
 
 test('the pieces move the score the way the docs say: no title match, not remote, stretch and below-floor pay, staleness', () => {

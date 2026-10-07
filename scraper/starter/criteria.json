@@ -9,6 +9,7 @@
     "intern", "internship", "apprentice", "new grad", "recruit", "account executive", "customer success",
     "manufacturing", "process engineer", "chemical", "biomedical", "automotive", "aerospace"
   ],
+  "companyExclude": [],
   "descTerms": {},
   "seniority": {
     "boost": { "senior": 8, "staff": 10, "lead": 10, "principal": 10, "head of": 8, "founding": 8 },

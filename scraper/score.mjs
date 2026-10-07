@@ -17,12 +17,27 @@ export function parseSalary(text = '') {
 const wordHit = (hay, term) => new RegExp(`(^|[^a-z0-9])${esc(term)}([^a-z0-9]|$)`, 'i').test(hay);
 
 /**
+ * The abbreviations postings use in titles, spelled out before anything matches against them, so "Sr. Dir, Design"
+ * meets the "director" exclusion and the "senior" boost the way "Senior Director, Design" does. Whole words only.
+ */
+const ABBREVIATIONS = [
+  [/\bsr\b\.?/g, 'senior'], [/\bjr\b\.?/g, 'junior'], [/\bdir\b\.?/g, 'director'], [/\bmgr\b\.?/g, 'manager'],
+  [/\beng\b\.?/g, 'engineer'], [/\bassoc\b\.?/g, 'associate'], [/\bprin\b\.?/g, 'principal'], [/\bswe\b/g, 'software engineer'],
+];
+export function normalizeTitle(title) {
+  let t = String(title || '').toLowerCase();
+  for (const [re, word] of ABBREVIATIONS) t = t.replace(re, word);
+  return t;
+}
+
+/**
  * Returns { score, reasons[], excluded } for one normalized job against the criteria JSON.
  * `now` is the moment recency is judged from: the scan passes nothing (today); a rescore of an existing note
  * passes the day the note was found, so the posting keeps the freshness it had when it was scored.
  */
 export function scoreJob(job, c, { now = Date.now() } = {}) {
-  const title = (job.title || '').toLowerCase();
+  const title = normalizeTitle(job.title);
+  const company = (job.company || '').toLowerCase();
   const desc = (job.descriptionText || '').toLowerCase();
   const loc = (job.location || '').toLowerCase();
   const reasons = [];
@@ -30,6 +45,10 @@ export function scoreJob(job, c, { now = Date.now() } = {}) {
 
   for (const ex of c.titleExclude || []) {
     if (title.includes(ex.toLowerCase())) return { score: -999, reasons: [`excluded by title: "${ex}"`], excluded: true };
+  }
+  // Company exclusions: industries, staffing agencies, names. A hit anywhere in the company name drops the posting.
+  for (const ex of c.companyExclude || []) {
+    if (ex && company.includes(String(ex).toLowerCase())) return { score: -999, reasons: [`excluded by company: "${ex}"`], excluded: true };
   }
 
   const titleHits = Object.entries(c.titleTerms || {})

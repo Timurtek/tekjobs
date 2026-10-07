@@ -60,7 +60,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
                 )}
                 {!s.done && s.id === "profile" && (
                   <div className="detail">
-                    <p className="muted">The interview runs in your own LLM, not here. Open Claude Code in the app folder (its .mcp.json connects it) and paste:</p>
+                    <p className="muted">The interview runs in your own AI client, not here. Connect the server once (<code className="mono">claude mcp add tekjobs -- tekjobs mcp</code>; from a clone, opening Claude Code in <code className="mono">app/</code> does it) and paste:</p>
                     <CodeBlock code={INTERVIEW_PROMPT} language="text" wrap />
                     <p className="muted">Codex, Cursor or Claude Desktop work the same way once the tekjobs MCP server is added; see Agent access.</p>
                   </div>
