@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.35.0 (2026-10-07)
+
+* feat(mail): the posting link or requisition id in an email picks the note ([1133d85](https://github.com/Timurtek/tekjobs/commit/1133d85))
+
 ## 0.34.0 (2026-10-07)
 
 * feat(scan): where a board went, and three that moved to Ashby ([fc40107](https://github.com/Timurtek/tekjobs/commit/fc40107))
