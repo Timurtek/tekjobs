@@ -5,12 +5,6 @@ Every release, newest first. Written by semantic-release from the commit message
 ## 0.31.0 (2026-10-07)
 
 * fix(cli): servers stay up until you stop them; tekjobs up, down and ps ([4cb10b6](https://github.com/Timurtek/tekjobs/commit/4cb10b6))
-* chore(release): v0.31.0 [skip ci] ([650d966](https://github.com/Timurtek/tekjobs/commit/650d966))
-* feat(cli): tekjobs serve opens the app and leaves when the app is closed ([91a584d](https://github.com/Timurtek/tekjobs/commit/91a584d))
-* docs(site): a square cut of the showreel ([26a4f3c](https://github.com/Timurtek/tekjobs/commit/26a4f3c))
-
-## 0.31.0 (2026-10-07)
-
 * feat(cli): tekjobs serve opens the app and leaves when the app is closed ([91a584d](https://github.com/Timurtek/tekjobs/commit/91a584d))
 * docs(site): a square cut of the showreel ([26a4f3c](https://github.com/Timurtek/tekjobs/commit/26a4f3c))
 
