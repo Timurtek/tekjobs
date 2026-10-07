@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.38.1 (2026-10-07)</small>
+
+* fix(scan): an empty Inbox is skipped, not failed; Ctrl K is bound and the hint names the key ([d067b08](https://github.com/Timurtek/tekjobs/commit/d067b08))
+
 ## 0.38.0 (2026-10-07)
 
 * feat(onboarding): two readiness contracts, and the import creates the resume of record ([2c741e5](https://github.com/Timurtek/tekjobs/commit/2c741e5))
