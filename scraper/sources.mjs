@@ -168,30 +168,51 @@ export async function fetchHNWhoIsHiring() {
   const jobs = [];
   for (const c of t.data.children) {
     if (!c.text) continue;
-    const text = htmlToText(c.text);
-    let firstLine = text.split('\n').find((l) => l.trim()) || '';
-    // HN posts often run the header and body together; cut the header at the first sentence end.
-    firstLine = firstLine.split(/(?<=[a-z\)])\.\s+(?=[A-Z])/)[0];
-    const segs = firstLine.split('|').map((x) => x.trim()).filter(Boolean).map((x) => x.slice(0, 60));
-    const company = (segs[0] || 'HN post').slice(0, 60);
-    const header = segs.slice(0, 7).join(' | ').slice(0, 140);
+    const h = parseHNHeader(htmlToText(c.text));
     jobs.push({
       id: `hn:${c.id}`,
       source: 'hn',
-      company,
-      title: header,
+      company: h.company,
+      title: h.title,
       url: `https://news.ycombinator.com/item?id=${c.id}`,
-      location: segs.slice(1).filter((x) => /remote|onsite|on-site|hybrid|,\s*[A-Z]{2}\b|san francisco|new york|nyc|sf\b/i.test(x)).join('; ').slice(0, 120),
-      remote: /remote/i.test(firstLine),
+      location: h.location,
+      remote: h.remote,
       posted: c.created_at || null,
       descriptionHtml: c.text,
-      salary: (firstLine.match(/\$\s?\d{2,3}\s?k[^|]*/i) || [''])[0].trim(),
+      salary: h.salary,
       department: '',
       employmentType: '',
       thread: hit.title,
     });
   }
   return { ok: true, jobs, thread: hit.title, threadUrl: `https://news.ycombinator.com/item?id=${hit.objectID}` };
+}
+
+/**
+ * The first line of a "Who is hiring" post is a header of pipe-separated segments: company, role, location,
+ * sometimes pay and type; the body often runs straight on from it ("$180K–$430K + equityGC AI is building…").
+ * The header ends at the first sentence end or at the first place a lowercase letter runs into a capital; the
+ * role is the first segment after the company that is not a place, a pay range or a work mode; pay is the
+ * range and nothing after it.
+ */
+const PLACE_OR_MODE = /remote|onsite|on-?site|hybrid|in-?office|full-?time|part-?time|contract|intern|visa|,\s*[A-Z]{2}\b|san francisco|new york|nyc|\bsf\b|\busa?\b|canada|europe|\buk\b|london|berlin|\$\s?\d/i;
+export function parseHNHeader(text) {
+  let firstLine = String(text || '').split('\n').find((l) => l.trim()) || '';
+  firstLine = firstLine.split(/(?<=[a-z\)])\.\s+(?=[A-Z])/)[0];
+  // A lowercase letter followed by a capital with no space is where the body was glued on ("equityGC AI").
+  firstLine = firstLine.split(/(?<=[a-z])(?=[A-Z][a-zA-Z]*\b)/).reduce((acc, part) => (acc.length < 20 ? acc + part : acc), '') || firstLine;
+  const segs = firstLine.split('|').map((x) => x.trim()).filter(Boolean).map((x) => x.slice(0, 80));
+  const company = (segs[0] || 'HN post').slice(0, 60);
+  const role = segs.slice(1).find((x) => !PLACE_OR_MODE.test(x)) || '';
+  const header = segs.slice(0, 7).join(' | ').slice(0, 140);
+  const pay = (firstLine.match(/\$\s?\d{2,3}(?:,\d{3})?\s?k?\s?(?:-|–|—|to)\s?\$?\s?\d{2,3}(?:,\d{3})?\s?k?(?:\s?(?:\+|plus|and)\s?(?:equity|stock|options|bonus))?(?:\s?(?:USD|CAD|EUR|GBP))?/i) || [''])[0].trim();
+  return {
+    company,
+    title: role ? role.slice(0, 100) : header,
+    location: segs.slice(1).filter((x) => /remote|onsite|on-?site|hybrid|,\s*[A-Z]{2}\b|san francisco|new york|nyc|\bsf\b/i.test(x) && !/\$/.test(x)).join('; ').slice(0, 120),
+    remote: /remote/i.test(firstLine),
+    salary: pay,
+  };
 }
 
 // ---------- Workday (CXS API) ----------

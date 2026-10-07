@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { DATA_DIR, P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
 import { loadHealth, healthState } from '../../scraper/health.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../scraper/vault.mjs';
+import { parseHNHeader } from '../../scraper/sources.mjs';
 import { weightsFingerprint, titlePoints, recencyPoints, payPoints, rescoreFull } from '../../scraper/rescore.mjs';
 import { RESUME_NOTE, LEGACY_RESUME_NOTES } from '../../scraper/resume-sync.mjs';
 import { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile } from '../../scraper/profile.mjs';
@@ -74,10 +75,10 @@ function countPacketFields(text = '') {
 function rowOf(fm, text = '') {
   return {
     id: fm._name,
-    company: fm.company || '', title: fm.title || '', location: fm.location || '',
+    company: fm.company || '', title: fm.source === 'hn' && /\|/.test(fm.title || '') ? parseHNHeader(fm.title).title : (fm.title || ''), location: fm.location || '',
     remote: fm.remote === 'true' || isRemoteRow({ remote: false, location: fm.location || '' }), source: fm.source || '', url: fm.url || '',
     score: Number(fm.score) || 0, posted: fm.posted || '', found: fm.found || '',
-    salary: fm.salary || '', salaryMax: Number(fm.salary_max) || 0, payBand: fm.pay_band || 'unknown',
+    salary: fm.source === 'hn' ? (parseHNHeader(fm.title || '').salary || fm.salary || '') : (fm.salary || ''), salaryMax: Number(fm.salary_max) || 0, payBand: fm.pay_band || 'unknown',
     status: fm.status || 'new', listing: String(fm.listing || 'open').startsWith('open') ? 'open' : String(fm.listing),
     kind: DE.test(fm.title || '') ? 'design-eng' : 'adjacent', department: fm.department || '', jobId: fm.job_id || '',
     passedReason: fm.passed_reason || '',

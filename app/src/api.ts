@@ -424,7 +424,8 @@ export const api = {
 };
 
 export const money = (n: number) => `$${Math.round(n / 1000)}k`;
-export const shortPay = (s: string) => s.replace(/\s*[•·].*$/, "").replace(/\s+/g, " ").trim();
+// A range and at most a word after it: notes from before the HN header fix carry the start of the post in this field.
+export const shortPay = (s: string) => { const t = (s.replace(/\s*[•·].*$/, "").split(/(?<=[a-z])(?=[A-Z])/)[0] ?? "").replace(/\s+/g, " ").trim(); return t.length > 30 ? t.slice(0, 29).trimEnd() + "…" : t; };
 export const daysAgo = (iso: string) => {
   if (!iso) return "";
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 864e5);
