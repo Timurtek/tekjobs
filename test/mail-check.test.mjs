@@ -108,3 +108,8 @@ test('a posting link or a requisition id in the email picks the note, whatever t
   assert.equal(r[1].noteId, 'Salesforce - Lead Product Designer, Design Systems (9)');
   assert.equal(r[2].match, 'company-other-role', 'without a usable link the role text decides, as before');
 });
+
+test('a scheduling or meeting link is not a posting link', () => {
+  const p = parseOutput('[{"company":"LiveKit","role":"Design Engineer","kind":"scheduling","date":"2026-10-07","gist":"Pick a time.","from":"x@livekit.io","messageId":"s1","subject":"Interview","postingUrl":"https://you.ashbyhq.com/meeting/c11a8e95"}]');
+  assert.equal(p[0].postingUrl, '');
+});
