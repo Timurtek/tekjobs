@@ -1,6 +1,7 @@
 import { Badge, Button, Card, EmptyState, Icon, Loader, Menu, Select, Skeleton, Table, toast } from "@/components/ui";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { isPosted, PostedMark } from "@/components/PostedMark";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { api, BAND_TONE, daysAgo, PASS_REASONS, shortPay, type Job, type MailGroup, type MailItem, type MailState, type PassReason, type Today as TodayData, type TodayRow } from "../api";
 
 import { MailStrip } from "./Mail";
@@ -19,6 +20,9 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  // Below tablet width the six-column tables become one card per job: the whole role, the pay, the decision,
+  // and nothing that needs a horizontal scroll. A QA pass at 390 px found the table unusable.
+  const narrow = useMediaQuery("(max-width: 52rem)");
 
   const load = () => api.today().then(setData).catch((e: Error) => setError(e.message));
   useEffect(() => { load(); }, []);
@@ -36,7 +40,24 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
     }
   };
 
-  if (error) return <Card padding="md"><p className="muted">The server is not answering: {error}. Start it with <code>npm run server</code>.</p></Card>;
+  const decideControls = (r: TodayRow) => (
+    <>
+      <Button size="sm" variant="soft" tone="primary" disabled={busy === r.id} onClick={() => decide(r, "reviewing")}>Shortlist</Button>
+      <Menu>
+        <Menu.Trigger asChild>
+          <Button size="sm" variant="ghost" disabled={busy === r.id} trailingIcon={<Icon.ChevronDown />}>Pass</Button>
+        </Menu.Trigger>
+        <Menu.Content align="end">
+          {PASS_REASONS.map((reason) => (
+            <Menu.Item key={reason} onSelect={() => decide(r, "passed", reason)}>{reason}</Menu.Item>
+          ))}
+        </Menu.Content>
+      </Menu>
+    </>
+  );
+  const pay = (r: TodayRow) => (r.salaryMax > 0 ? <Badge tone={BAND_TONE[r.payBand]} size="sm">{shortPay(r.salary)}</Badge> : <span className="muted">—</span>);
+
+  if (error) return <Card padding="md"><p className="muted">The server is not answering: {error}. Start it with <code>tekjobs up</code>.</p></Card>;
   if (!data) return <Skeleton variant="rect" height="18rem" />;
 
   const { counts, sections } = data;
@@ -71,6 +92,12 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
           <Card padding="md">
             <EmptyState size="sm" title="Inbox clear" description="Nothing unreviewed is open right now. The next scan will refill this." />
           </Card>
+        ) : narrow ? (
+          <ul className="tcards" aria-label="Matches to decide on">
+            {sections.triage.map((r) => (
+              <TodayCard key={r.id} r={r} lead={<Fit value={r.fit} />} meta={daysAgo(r.found)} badges={r.salaryMax > 0 ? pay(r) : null} actions={decideControls(r)} onOpen={() => setSelected(r.id)} />
+            ))}
+          </ul>
         ) : (
           <Card padding="none">
             <Table aria-label="Matches to decide on" density="md">
@@ -98,19 +125,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
                     <Table.Cell>{r.salaryMax > 0 ? <Badge tone={BAND_TONE[r.payBand]} size="sm">{shortPay(r.salary)}</Badge> : <span className="muted">—</span>}</Table.Cell>
                     <Table.Cell><span className="muted">{daysAgo(r.found)}</span></Table.Cell>
                     <Table.Cell>
-                      <div className="today__actions" onClick={(e) => e.stopPropagation()}>
-                        <Button size="sm" variant="soft" tone="primary" disabled={busy === r.id} onClick={() => decide(r, "reviewing")}>Shortlist</Button>
-                        <Menu>
-                          <Menu.Trigger asChild>
-                            <Button size="sm" variant="ghost" disabled={busy === r.id} trailingIcon={<Icon.ChevronDown />}>Pass</Button>
-                          </Menu.Trigger>
-                          <Menu.Content align="end">
-                            {PASS_REASONS.map((reason) => (
-                              <Menu.Item key={reason} onSelect={() => decide(r, "passed", reason)}>{reason}</Menu.Item>
-                            ))}
-                          </Menu.Content>
-                        </Menu>
-                      </div>
+                      <div className="today__actions" onClick={(e) => e.stopPropagation()}>{decideControls(r)}</div>
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -125,6 +140,13 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
       {sections.started.length > 0 && (
         <section className="today__section">
           <h2 className="today__heading">Already started</h2>
+          {narrow ? (
+            <ul className="tcards" aria-label="Applications with a packet started">
+              {sections.started.map((r) => (
+                <TodayCard key={r.id} r={r} lead={<Fit value={r.fit} />} badges={<><Badge size="sm" tone="primary" variant="soft">{r.packet} filled</Badge>{r.salaryMax > 0 && pay(r)}{r.closed ? <Badge size="sm" tone="danger">closed {r.closed}</Badge> : <Badge size="sm" tone={r.status === "ready" ? "warning" : "neutral"}>{r.status}</Badge>}</>} onOpen={() => setSelected(r.id)} />
+              ))}
+            </ul>
+          ) : (
           <Card padding="none">
             <Table aria-label="Applications with a packet started" density="md">
               <Table.Head>
@@ -155,6 +177,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               </Table.Body>
             </Table>
           </Card>
+          )}
           <p className="muted">
             Work you have already put in, wherever it ranks. The fit score knows nothing about a drafted packet,
             so these would otherwise fall off the bottom of the queue.
@@ -206,7 +229,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
 
       <section className="today__section">
         <h2 className="today__heading">In flight</h2>
-        <Card padding={inFlight.length ? "none" : "md"}>
+        <Card padding={inFlight.length && !narrow ? "none" : "md"}>
           {inFlight.length === 0 ? (
             <EmptyState
               size="sm"
@@ -214,6 +237,12 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               description="Applications being prepared, follow-ups that are due, and interviews appear here once jobs move past Shortlisted."
               action={<Button size="sm" variant="ghost" onClick={() => onNavigate("pipeline")}>Open the pipeline</Button>}
             />
+          ) : narrow ? (
+            <ul className="tcards" aria-label="In flight">
+              {inFlight.map((r) => (
+                <TodayCard key={r.id} r={r} lead={<Fit value={r.fit} />} meta={r.due ? `due ${r.due}` : undefined} badges={<Badge size="sm" tone="primary">{r.status}</Badge>} foot={<WriteTo contact={r.contact} />} onOpen={() => setSelected(r.id)} />
+              ))}
+            </ul>
           ) : (
             <Table aria-label="In flight" density="md">
               <Table.Head>
@@ -248,9 +277,15 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
           <h2 className="today__heading">Waiting on a reply</h2>
           <span className="today__hint">applied {counts.waitingDays}d+ ago, nothing back · {counts.waiting} in all</span>
         </div>
-        <Card padding={sections.waiting.length === 0 ? "md" : "none"}>
+        <Card padding={sections.waiting.length === 0 || narrow ? "md" : "none"}>
           {sections.waiting.length === 0 ? (
             <EmptyState size="sm" title="Nothing has gone quiet" description={`Applications with no answer after ${counts.waitingDays} days land here, with the person to ask.`} />
+          ) : narrow ? (
+            <ul className="tcards" aria-label="Applications waiting on a reply">
+              {sections.waiting.map((r) => (
+                <TodayCard key={r.id} r={r} lead={<Badge size="sm" tone={(r.days ?? 0) >= 21 ? "danger" : "neutral"} variant="outline"><span className="num">{r.days}d</span></Badge>} meta={r.appliedOn ? `applied ${r.appliedOn}` : undefined} foot={<WriteTo contact={r.contact} />} onOpen={() => setSelected(r.id)} />
+              ))}
+            </ul>
           ) : (
             <Table aria-label="Applications waiting on a reply" density="md">
               <Table.Head>
@@ -295,6 +330,37 @@ const summarise = (company: string, title: string, max = 64) => {
   const line = `${company} — ${title}`.replace(/\s+/g, " ").trim();
   return line.length > max ? `${line.slice(0, max - 1).trimEnd()}…` : line;
 };
+
+/**
+ * One job as a card, for narrow screens: the lead figure, the company, a date on the right; the whole role on its
+ * own line; badges and the location; then the actions, with Open last. Nothing in it scrolls sideways.
+ */
+function TodayCard({ r, lead, meta, badges, foot, actions, onOpen }: { r: TodayRow; lead: ReactNode; meta?: ReactNode; badges?: ReactNode; foot?: ReactNode; actions?: ReactNode; onOpen: () => void }) {
+  return (
+    <li className="tcard" data-posted={isPosted(r.source) || undefined}>
+      <div className="tcard__head">
+        {lead}
+        <span className="posted-co tcard__company">{r.company}{isPosted(r.source) && <PostedMark />}</span>
+        {meta && <span className="muted tcard__meta">{meta}</span>}
+      </div>
+      <div className="tcard__title">
+        {r.title}
+        {r.kind === "design-eng" && <small>design engineering</small>}
+      </div>
+      {(badges || r.location) && (
+        <div className="tcard__badges">
+          {badges}
+          {r.location && <span className="muted tcard__loc">{r.remote ? "remote · " : ""}{r.location}</span>}
+        </div>
+      )}
+      {foot && <div className="tcard__foot">{foot}</div>}
+      <div className="tcard__actions">
+        {actions}
+        <Button size="sm" variant="ghost" tone="neutral" onClick={onOpen} trailingIcon={<Icon.ArrowRight />}>Open</Button>
+      </div>
+    </li>
+  );
+}
 
 /** The person to write to about a thread, or the nudge to find one. A mailto opens the mail client; nothing is sent here. */
 function WriteTo({ contact }: { contact?: TodayRow["contact"] }) {
