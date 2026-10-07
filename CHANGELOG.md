@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.37.1 (2026-10-07)</small>
+
+* fix(app): a second profile never sees the first person's resume settings or moves the pointer ([19ab826](https://github.com/Timurtek/tekjobs/commit/19ab826))
+
 ## 0.37.0 (2026-10-07)
 
 * feat(scan): the run reports what the hard exclusions dropped ([58cfb62](https://github.com/Timurtek/tekjobs/commit/58cfb62))
