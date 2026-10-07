@@ -2,6 +2,11 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.31.0 (2026-10-07)
+
+* feat(cli): tekjobs serve opens the app and leaves when the app is closed ([91a584d](https://github.com/Timurtek/tekjobs/commit/91a584d))
+* docs(site): a square cut of the showreel ([26a4f3c](https://github.com/Timurtek/tekjobs/commit/26a4f3c))
+
 ## 0.30.0 (2026-09-27)
 
 * feat(site): a 45-second showreel, on the landing and in the README ([ac1aa62](https://github.com/Timurtek/tekjobs/commit/ac1aa62))
