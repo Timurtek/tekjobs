@@ -60,7 +60,7 @@ async function main() {
     const dirArg = rest.find((a) => !a.startsWith('--'));
     const dir = path.resolve(dirArg || path.join(process.env.USERPROFILE || process.env.HOME || '.', '.tekjobs', 'sample'));
     const { installSample } = await import('./scraper/profile.mjs');
-    const r = installSample(dir);
+    const r = installSample(dir, { remember: true });
     console.log(`Sample profile: ${r.dir}  (${r.files} files)
   Jordan Example, a design engineer three weeks into a fictional search: fourteen postings, one interview, a rejection,
   people on the threads, two scan logs. Nothing in it is a real person, company or posting.
@@ -75,7 +75,7 @@ async function main() {
     const dir = path.resolve(dirArg || process.env.TEKJOBS_PROFILE || path.join(process.env.USERPROFILE || process.env.HOME || '.', '.tekjobs', 'profile'));
     process.env.TEKJOBS_PROFILE = dir;
     const { initProfile, importResume, onboardingStatus } = await import('./scraper/profile.mjs');
-    const r = initProfile(dir);
+    const r = initProfile(dir, { remember: true });
     console.log(`Profile folder: ${r.dir}${r.made.length ? `\n  created: ${r.made.join(', ')}` : '\n  (already existed; nothing overwritten)'}`);
     if (opt('--resume')) { const i = await importResume(path.resolve(opt('--resume')), dir); console.log(`Resume imported: ${i.chars} characters → ${i.source}`); }
     return printStatus(onboardingStatus(dir));

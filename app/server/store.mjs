@@ -6,7 +6,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { readStatus as readScanStatus, writeStatus as writeScanStatus, scanState, tail as tailLog, logFile } from '../../scraper/scan-status.mjs';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, P, VAULT, HOME_DIR, CONFIG_FILE, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
+import { DATA_DIR, P, VAULT, HOME_DIR, CONFIG_FILE, PROFILE_SETTINGS_FILE, profileSettings, writeProfileSettings, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
 import { loadHealth, healthState } from '../../scraper/health.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../scraper/vault.mjs';
 import { parseHNHeader } from '../../scraper/sources.mjs';
@@ -650,9 +650,11 @@ export function outcomes({ agingDays = [7, 14, 21] } = {}) {
 }
 
 // ---------- settings ----------
-// The few things that live outside the profile folder because they say where it is: ~/.tekjobs/config.json.
-// The profile folder itself is read once at start (every module holds its paths), so changing it here takes a
-// server restart; the other settings are read when used.
+// Two scopes. The machine config (~/.tekjobs/config.json) says where the profile folder is, which CLI writes, and
+// whom to contact: things about this computer. The resume of record and the variants folder are about one person's
+// search and live in the profile (<profile>/.tekjobs/settings.json), so a second profile never sees them. The
+// profile folder itself is read once at start (every module holds its paths), so changing it takes a server
+// restart; the other settings are read when used.
 function readConfigFile() { try { return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8')); } catch { return {}; } }
 function writeConfigFile(patch) {
   fs.mkdirSync(HOME_DIR, { recursive: true });
@@ -662,16 +664,18 @@ function writeConfigFile(patch) {
   return next;
 }
 export function resumeDir() {
-  const cfg = readConfigFile();
-  return cfg.resumeDir ? path.resolve(cfg.resumeDir) : path.join(VAULT, 'Templates', 'Resume');
+  const own = profileSettings();
+  return own.resumeDir ? path.resolve(VAULT, own.resumeDir) : path.join(VAULT, 'Templates', 'Resume');
 }
 export function settings() {
   const cfg = readConfigFile();
+  const own = profileSettings();
   return {
     configFile: CONFIG_FILE,
+    profileSettingsFile: PROFILE_SETTINGS_FILE,
     profile: { active: VAULT, configured: cfg.profile || '', fromEnv: !!(process.env.TEKJOBS_PROFILE || process.env.TEKJOBS_VAULT), exists: fs.existsSync(VAULT) },
-    resumeDir: { path: resumeDir(), configured: cfg.resumeDir || '', exists: fs.existsSync(resumeDir()) },
-    resumeSource: cfg.resumeSource || '',
+    resumeDir: { path: resumeDir(), configured: own.resumeDir || '', exists: fs.existsSync(resumeDir()) },
+    resumeSource: own.resumeSource || '',
     llm: { command: cfg.llm?.command || 'claude', args: (cfg.llm?.args || ['-p', '--output-format', 'text']).join(' '), configured: !!cfg.llm },
     contact: cfg.contact || '',
   };
@@ -690,9 +694,10 @@ export function saveSettings({ profile, resumeDir: rd, llmCommand, llmArgs, cont
     } else patch.profile = '';
   }
   if (rd !== undefined) {
+    // The variants folder is the profile's, not the machine's.
     const dir = String(rd).trim();
-    if (dir && !fs.existsSync(path.resolve(dir))) throw Object.assign(new Error(`${path.resolve(dir)} does not exist.`), { status: 400 });
-    patch.resumeDir = dir ? path.resolve(dir) : '';
+    if (dir && !fs.existsSync(path.resolve(VAULT, dir))) throw Object.assign(new Error(`${path.resolve(VAULT, dir)} does not exist.`), { status: 400 });
+    writeProfileSettings({ resumeDir: dir ? path.resolve(VAULT, dir) : '' });
   }
   if (llmCommand !== undefined || llmArgs !== undefined) {
     const command = String(llmCommand ?? 'claude').trim() || 'claude';
@@ -710,7 +715,7 @@ export function saveSettings({ profile, resumeDir: rd, llmCommand, llmArgs, cont
 const RESUME_EXT = new Set(['.pdf', '.docx', '.md', '.txt']);
 export function listResumes() {
   const dir = resumeDir();
-  const current = readConfigFile().resumeSource || '';
+  const current = profileSettings().resumeSource || '';
   const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => RESUME_EXT.has(path.extname(f).toLowerCase())) : [];
   const rows = files.map((f) => {
     const p = path.join(dir, f);

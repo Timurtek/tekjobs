@@ -10,8 +10,13 @@ const STARTER = fileURLToPath(new URL('./starter/', import.meta.url));
 const SAMPLE = fileURLToPath(new URL('../samples/vault/', import.meta.url));
 const today = () => new Date().toISOString().slice(0, 10);
 
-/** Create the folder layout and starter notes in `dir` (default: the resolved profile dir). Never overwrites. */
-export function initProfile(dir = VAULT) {
+/**
+ * Create the folder layout and starter notes in `dir` (default: the resolved profile dir). Never overwrites.
+ * `remember` writes the machine pointer (~/.tekjobs/config.json): the CLI's `init` asks for it, because that is what
+ * init means; the app and the MCP server never do, since a server reading a profile through TEKJOBS_PROFILE must
+ * not redirect every other session on the machine to it.
+ */
+export function initProfile(dir = VAULT, { remember = false } = {}) {
   const made = [];
   const mk = (rel, content) => {
     const file = path.join(dir, rel);
@@ -25,7 +30,7 @@ export function initProfile(dir = VAULT) {
   mk('Targets/Search Criteria.md', criteriaNote(fs.readFileSync(path.join(STARTER, 'criteria.json'), 'utf8').trim()));
   mk('Targets/Companies.md', companiesNote(fs.readFileSync(path.join(STARTER, 'companies-table.md'), 'utf8')));
   mk('README.md', readme(dir));
-  rememberProfileDir(dir);
+  if (remember) rememberProfileDir(dir);
   return { dir, made };
 }
 
@@ -33,12 +38,12 @@ export function initProfile(dir = VAULT) {
  * Copy the fictional sample search (samples/vault, shipped in the package) into `dir` and make it the profile the
  * app and the MCP server read next. Refuses a folder that already has files in it: it never merges into a real one.
  */
-export function installSample(dir) {
+export function installSample(dir, { remember = false } = {}) {
   if (!fs.existsSync(SAMPLE)) throw new Error(`The sample folder is missing from this install (${SAMPLE}).`);
   if (fs.existsSync(dir) && fs.readdirSync(dir).length) throw new Error(`${dir} already has files in it. Pick an empty folder: tekjobs init --sample <dir>`);
   fs.cpSync(SAMPLE, dir, { recursive: true });
   fs.mkdirSync(path.join(dir, '.tekjobs'), { recursive: true });
-  rememberProfileDir(dir);
+  if (remember) rememberProfileDir(dir);
   const count = (d) => fs.readdirSync(d, { withFileTypes: true }).reduce((n, e) => n + (e.isDirectory() ? count(path.join(d, e.name)) : 1), 0);
   return { dir, files: count(dir) };
 }

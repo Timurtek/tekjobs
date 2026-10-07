@@ -221,9 +221,10 @@ export interface MailState {
   runner: string; lastRun: string | null; lastSinceDays: number | null; items: MailItem[]; groups: MailGroup[];
 }
 
-/** ~/.tekjobs/config.json as the app shows it: where the profile folder is, the resume folder, the LLM command. */
+/** The machine config (where the profile is, the writing CLI, the contact) and the profile's own settings (its resume of record and variants folder). */
 export interface Settings {
   configFile: string;
+  profileSettingsFile: string;
   profile: { active: string; configured: string; fromEnv: boolean; exists: boolean };
   resumeDir: { path: string; configured: string; exists: boolean };
   resumeSource: string;

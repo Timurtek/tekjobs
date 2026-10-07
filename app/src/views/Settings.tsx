@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { api, type Settings as SettingsData } from "../api";
 
 /**
- * Settings: the handful of things that live outside the profile folder because they say where it is.
- * ~/.tekjobs/config.json, edited here. Everything else is a note in the folder and has its own page.
+ * Settings, in two scopes. Machine: where the profile folder is, the writing CLI and the contact, in
+ * ~/.tekjobs/config.json. Profile: the resume of record and the variants folder, kept inside the profile folder so a
+ * second profile on the same machine never sees another person's resumes. Everything else is a note in the folder.
  */
 export function Settings() {
   const [s, setS] = useState<SettingsData | null>(null);
@@ -29,7 +30,7 @@ export function Settings() {
     <>
       <div className="page__head">
         <div>
-          <p>Where things live. These are the only settings kept outside the profile folder, in <code className="mono">{s.configFile}</code>; everything about the search itself is a note in the folder.</p>
+          <p>Where things live. The profile folder, the writing CLI and the contact are about this computer and sit in <code className="mono">{s.configFile}</code>. The resume of record and the variants folder are about this search and sit inside the profile, in <code className="mono">{s.profileSettingsFile}</code>, so a second profile never sees them. Everything else is a note in the folder.</p>
         </div>
       </div>
       <div className="detail">
@@ -37,7 +38,7 @@ export function Settings() {
         <Card padding="md">
           <div className="form">
             <div>
-              <h2 className="settings__h">Profile folder</h2>
+              <h2 className="settings__h">Profile folder <span className="muted">(this computer)</span></h2>
               <p className="muted">Your job search: profile, resume, criteria, watchlist, one note per job, logs. Plain markdown; point Obsidian at it. Reading now: <code className="mono">{s.profile.active}</code>{s.profile.fromEnv ? " (set by TEKJOBS_PROFILE in the environment, which wins over this file)" : ""}.</p>
             </div>
             <TextField label="Folder" value={form.profile} onChange={(e) => setForm({ ...form, profile: e.target.value })} description="Must exist. To start a new profile somewhere, run tekjobs init <dir> instead; it writes the starter notes. Takes effect on the next server start." />
@@ -46,7 +47,7 @@ export function Settings() {
         <Card padding="md">
           <div className="form">
             <div>
-              <h2 className="settings__h">Resume variants folder</h2>
+              <h2 className="settings__h">Resume variants folder <span className="muted">(this profile)</span></h2>
               <p className="muted">PDF, DOCX, Markdown or text files, one per variant. The Profile page lists them and makes any one the resume of record; the packet's Resume variant field offers their names. {s.resumeDir.exists ? "" : "This folder does not exist yet; it is optional until you keep more than one resume."}</p>
             </div>
             <TextField label="Folder" value={form.resumeDir} onChange={(e) => setForm({ ...form, resumeDir: e.target.value })} description={`Default: Templates/Resume inside the profile folder. Resume of record now: ${s.resumeSource || "not set. Import one on the Onboarding page, or run tekjobs resume <file>"}.`} />
@@ -55,7 +56,7 @@ export function Settings() {
         <Card padding="md">
           <div className="form">
             <div>
-              <h2 className="settings__h">Writing CLI</h2>
+              <h2 className="settings__h">Writing CLI <span className="muted">(this computer)</span></h2>
               <p className="muted">The local coding CLI that writes letters and tailored resumes and reads the mailbox. It must be signed in on this machine. Claude Code by default; another CLI works if it takes the prompt on stdin and prints the answer.</p>
             </div>
             <div className="form__row">
@@ -67,7 +68,7 @@ export function Settings() {
         <Card padding="md">
           <div className="form">
             <div>
-              <h2 className="settings__h">Contact for scans</h2>
+              <h2 className="settings__h">Contact for scans <span className="muted">(this computer)</span></h2>
               <p className="muted">Optional. Added to the user agent on every request the scan makes, so a site can reach the person running it.</p>
             </div>
             <TextField label="Email" type="email" value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />

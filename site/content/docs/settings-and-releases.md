@@ -6,7 +6,7 @@ summary: The few things outside the folder, and how versions happen.
 
 ## Settings
 
-The Settings page edits `~/.tekjobs/config.json`, the only file kept outside the profile folder because it says where the folder is: the profile folder itself (a change takes effect on the next server start; `tekjobs init <dir>` starts a new one with the starter notes), the resume variants folder, the writing CLI's command and arguments, and an optional contact added to the user agent on scan requests so a site can reach the person running it.
+The Settings page edits two files. `~/.tekjobs/config.json` is about this computer and is the only file kept outside the profile folder, because it says where the folder is: the profile folder itself (a change takes effect on the next server start; `tekjobs init <dir>` starts a new one with the starter notes), the writing CLI's command and arguments, and an optional contact added to the user agent on scan requests so a site can reach the person running it. `.tekjobs/settings.json` inside the profile is about this search: the resume of record and the resume variants folder. They live with the profile so a second profile on the same machine, such as the sample or a test persona, never sees another person's resumes. An install older than 0.38 kept them in the machine file; they are moved into the profile they were saved for the first time it is read, and never applied to any other.
 
 `TEKJOBS_PROFILE` in the environment wins over the file, and the page says when it does.
 

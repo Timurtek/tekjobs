@@ -157,7 +157,7 @@ The app's **Criteria** page edits the same JSON as fields (bar, penalties, title
 
 The **Profile** page edits the notes applications are written from: `Profile/Profile.md` (who you are), `Positioning.md` (how the story is told), `Voice.md` (how you write), each with an Edit and a Preview; the resume note is shown read-only because `tekjobs resume sync` replaces it. Above it, **resume variants**: every PDF, DOCX, Markdown or text file in the variants folder (`Templates/Resume` inside the profile folder unless Settings says otherwise), each one a click from being the resume of record, and offered by name in the packet's Resume variant field.
 
-**Settings** (System) holds the few things kept outside the profile folder, in `~/.tekjobs/config.json`: the profile folder itself (a change takes effect on the next server start; `tekjobs init <dir>` starts a new one), the resume variants folder, the writing CLI's command and arguments, and the optional contact for scan requests.
+**Settings** (System) holds two kinds of thing. About this computer, in `~/.tekjobs/config.json`: the profile folder itself (a change takes effect on the next server start; `tekjobs init <dir>` starts a new one), the writing CLI's command and arguments, and the optional contact for scan requests. About this search, inside the profile in `.tekjobs/settings.json`: the resume of record and the resume variants folder, so a second profile on the same machine (the sample, a test persona) never sees another person's resumes.
 
 ## Commands
 

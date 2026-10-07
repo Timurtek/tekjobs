@@ -42,6 +42,38 @@ export const PROFILE_DIR = VAULT;
 /** Scan state lives inside the profile so a profile folder is self-contained and portable. */
 export const DATA_DIR = path.join(VAULT, '.tekjobs');
 
+/**
+ * Settings that belong to one person's search, kept inside the profile folder: the resume of record and the folder
+ * of resume variants. They used to live in ~/.tekjobs/config.json, which every profile on the machine read, so a
+ * second profile (the sample, a test persona) saw the first person's resume files. Now the machine config says only
+ * where the profile is, which CLI writes, and whom to contact; an older install's resume settings are adopted into
+ * the profile they were saved for (the one the machine config points at) the first time they are read, and are
+ * never applied to any other profile.
+ */
+export const PROFILE_SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
+export function readProfileSettings() {
+  try { return JSON.parse(fs.readFileSync(PROFILE_SETTINGS_FILE, 'utf8')); } catch { return {}; }
+}
+export function writeProfileSettings(patch) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  const next = { ...readProfileSettings(), ...patch };
+  for (const k of Object.keys(next)) if (next[k] === '' || next[k] === null || next[k] === undefined) delete next[k];
+  fs.writeFileSync(PROFILE_SETTINGS_FILE, JSON.stringify(next, null, 2));
+  return next;
+}
+export function profileSettings() {
+  const own = readProfileSettings();
+  if (own.resumeSource || own.resumeDir || own.adopted) return own;
+  const cfg = readConfig();
+  if (!cfg.resumeSource && !cfg.resumeDir) return own;
+  const savedFor = cfg.profile ? path.resolve(cfg.profile) : '';
+  if (savedFor !== VAULT) return own; // another profile's settings: not ours to read
+  const adopted = writeProfileSettings({ resumeSource: cfg.resumeSource || '', resumeDir: cfg.resumeDir || '', adopted: new Date().toISOString().slice(0, 10) });
+  const { resumeSource, resumeDir, ...machine } = cfg;
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(machine, null, 2));
+  return adopted;
+}
+
 export const P = {
   profile: path.join(VAULT, 'Profile', 'Profile.md'),
   profileDir: path.join(VAULT, 'Profile'),

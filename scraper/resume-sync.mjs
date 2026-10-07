@@ -14,7 +14,7 @@
 //   - a local .md, .txt, .docx or .pdf — including a Doc downloaded with File > Download
 import fs from 'node:fs';
 import path from 'node:path';
-import { P, VAULT, CONFIG_FILE, HOME_DIR } from './config.mjs';
+import { P, VAULT, profileSettings, writeProfileSettings } from './config.mjs';
 import { htmlToText } from './sources.mjs';
 import { extractText } from './resume.mjs';
 
@@ -27,15 +27,12 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 // ---------------- the remembered source ----------------
 
-function readConfig() {
-  try { return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8')); } catch { return {}; }
-}
+// Kept in the profile (<profile>/.tekjobs/settings.json), never in the machine config: it is this person's resume.
 export function rememberedSource() {
-  return readConfig().resumeSource || '';
+  return profileSettings().resumeSource || '';
 }
 function rememberSource(source) {
-  fs.mkdirSync(HOME_DIR, { recursive: true });
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify({ ...readConfig(), resumeSource: source }, null, 2));
+  writeProfileSettings({ resumeSource: source });
 }
 
 // ---------------- fetching ----------------
