@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.41.0 (2026-10-07)
+
+* feat(app): the phone strip labels its icons, and search keeps a row under tablet width ([9b148ea](https://github.com/Timurtek/tekjobs/commit/9b148ea))
+
 ## 0.40.0 (2026-10-07)
 
 * feat(app): the Today page shows one card per job on narrow screens ([bea39c4](https://github.com/Timurtek/tekjobs/commit/bea39c4))
