@@ -2,6 +2,13 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.41.1](https://github.com/Timurtek/tekjobs/compare/v0.41.0...v0.41.1) (2026-10-07)
+
+### Fixes
+
+* **mcp:** the server reports the package version to clients, not a stale constant ([61f2d2c](https://github.com/Timurtek/tekjobs/commit/61f2d2ccc847a97c00e678545eeb41445df6e16e))
+* **release:** pin the conventional-commits preset to the line the release notes writer can load ([7449101](https://github.com/Timurtek/tekjobs/commit/7449101550c768b4f735b0e1591b0b0c50d72a6d))
+
 ## 0.41.0 (2026-10-07)
 
 * feat(app): the phone strip labels its icons, and search keeps a row under tablet width ([9b148ea](https://github.com/Timurtek/tekjobs/commit/9b148ea))
