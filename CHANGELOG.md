@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## 0.36.0 (2026-10-07)
+
+* feat(cli): tekjobs init --sample, company exclusions, and the rest of the first-run notes ([a0b88b0](https://github.com/Timurtek/tekjobs/commit/a0b88b0))
+
 ## <small>0.35.2 (2026-10-07)</small>
 
 * fix(app): first-run fixes from a new-user test of the site, init and app ([ae0bc44](https://github.com/Timurtek/tekjobs/commit/ae0bc44))
