@@ -1,7 +1,7 @@
 import { Toast, Tooltip } from "@/components/ui";
 import { useEffect, useState } from "react";
 import { api } from "./api";
-import { Shell, type Page } from "./components/Shell";
+import { Shell, possessive, type Page } from "./components/Shell";
 import { Agent } from "./views/Agent";
 import { Companies } from "./views/Companies";
 import { Criteria } from "./views/Criteria";
@@ -59,6 +59,7 @@ export function App() {
   const [onboarded, setOnboarded] = useState(true);
   const [counts, setCounts] = useState<Partial<Record<Page, number>>>({});
   const [lastScan, setLastScan] = useState("");
+  const [who, setWho] = useState<{ name: string; dir: string; folder: string } | null>(null);
   // A fresh profile lands on Get started; once every step is done Today is home, because the decisions are
   // the point and the inventory is not.
   useEffect(() => {
@@ -69,6 +70,7 @@ export function App() {
     api.summary().then((s) => {
       setCounts((c) => ({ ...c, jobs: s.open, companies: s.companies }));
       if (s.lastRun) setLastScan(`Last scan ${s.lastRun.when.slice(11, 16)} · ${s.lastRun.boardsOk}/${s.lastRun.boardsTotal} boards`);
+      if (s.who) { setWho(s.who); document.title = s.who.name ? `${possessive(s.who.name)} search · TekJobs` : "TekJobs"; }
     }).catch(() => {});
     api.today().then((t) => setCounts((c) => ({ ...c, today: t.sections.triage.length }))).catch(() => {});
     api.mail().then((m) => setCounts((c) => ({ ...c, mail: m.groups.length }))).catch(() => {});
@@ -76,7 +78,7 @@ export function App() {
   return (
     <Tooltip.Provider>
       <Toast.Provider position="bottom-right">
-        <Shell page={page} onNavigate={(p) => go(p)} onSearch={(text) => go("jobs", text)} theme={theme} onToggleTheme={toggleTheme} onboarded={onboarded} counts={counts} lastScan={lastScan}>
+        <Shell page={page} onNavigate={(p) => go(p)} onSearch={(text) => go("jobs", text)} theme={theme} onToggleTheme={toggleTheme} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who}>
           <div key={page} className="page z-enter-fade">
             {page === "onboarding" && <Onboarding onDone={() => go("overview")} />}
             {page === "today" && <Today onNavigate={go} />}

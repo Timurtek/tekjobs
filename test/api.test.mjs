@@ -107,3 +107,10 @@ test('unknown API paths are 404 JSON; the static fallback answers with the build
   const root = await fetch(base + '/');
   assert.ok([200, 503].includes(root.status), `static -> ${root.status}`);
 });
+
+test('the summary names whose search it is, from the profile note and the folder', async () => {
+  const s = (await get('/api/summary')).body;
+  assert.equal(s.who.name, 'Jordan Example');
+  assert.equal(s.who.folder, path.basename(vault));
+  assert.equal(path.resolve(s.who.dir), path.resolve(vault));
+});

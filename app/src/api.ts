@@ -99,6 +99,8 @@ export interface Summary {
   ceiling: number;
   companies: number;
   vault: string;
+  /** Whose search this is: the profile's name and folder, shown in the shell. */
+  who: { name: string; dir: string; folder: string };
 }
 export type RunOutcome = "success" | "partial" | "failed";
 export interface RunEntry {

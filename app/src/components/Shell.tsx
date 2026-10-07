@@ -47,11 +47,20 @@ interface ShellProps {
   /** Counts beside nav items (today's queue, open matches, boards) and the last scan, for the footer. */
   counts?: Partial<Record<Page, number>>;
   lastScan?: string;
+  /** Whose search this is; null until the summary answers. */
+  who?: { name: string; dir: string; folder: string } | null;
   children: ReactNode;
 }
 
 /** The frame every page sits in: sidebar navigation, a top bar with search and theme, and the content column. */
-export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboarded = true, counts = {}, lastScan = "", children }: ShellProps) {
+/** "Maya's search": the first name, possessive, or a nickname given in quotes. A name ending in s takes the apostrophe alone. */
+export function possessive(name: string) {
+  const nick = name.match(/["“]([^"”]+)["”]/);
+  const first = (nick?.[1] ?? name.trim().split(/\s+/)[0] ?? "").trim();
+  return /s$/i.test(first) ? `${first}'` : `${first}'s`;
+}
+
+export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboarded = true, counts = {}, lastScan = "", who = null, children }: ShellProps) {
   const [drawer, setDrawer] = useState(false);
   // On a phone the sidebar is a horizontal strip of icons across the top: the collapsed navigation laid out in a
   // row, tooltips below. Between phone and desktop widths it is the drawer behind the menu button.
@@ -84,7 +93,7 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   return (
     <div className={`shell${collapsed ? " shell--collapsed" : ""}${strip ? " shell--strip" : ""}`}>
       <aside className="sidebar" aria-label="Primary">
-        <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} collapsed={collapsed || strip} onToggleCollapsed={strip ? undefined : toggleCollapsed} tipSide={strip ? "bottom" : "right"} />
+        <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who} collapsed={collapsed || strip} onToggleCollapsed={strip ? undefined : toggleCollapsed} tipSide={strip ? "bottom" : "right"} />
       </aside>
 
       <div className="main">
@@ -96,7 +105,7 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
             <Sheet.Content>
               <Sheet.Title>Navigation</Sheet.Title>
               <div className="sidebar sidebar--sheet">
-                <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} collapsed={false} />
+                <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who} collapsed={false} />
               </div>
             </Sheet.Content>
           </Sheet>
@@ -117,7 +126,7 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   );
 }
 
-function Navigation({ page, onNavigate, onboarded, counts, lastScan, collapsed, onToggleCollapsed, tipSide = "right" }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; collapsed: boolean; onToggleCollapsed?: () => void; tipSide?: "right" | "bottom" }) {
+function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collapsed, onToggleCollapsed, tipSide = "right" }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; who: ShellProps["who"]; collapsed: boolean; onToggleCollapsed?: () => void; tipSide?: "right" | "bottom" }) {
   const byPage = new Map(NAV.map((n) => [n.page, n]));
   // Before onboarding is done, Get started leads on its own; after, it is a System item.
   const groups = onboarded ? GROUPS : [{ title: "Start", pages: ["onboarding"] as Page[] }, ...GROUPS.map((g) => ({ ...g, pages: g.pages.filter((p) => p !== "onboarding") }))];
@@ -131,6 +140,21 @@ function Navigation({ page, onNavigate, onboarded, counts, lastScan, collapsed, 
           </Tooltip>
         )}
       </div>
+      {/* Whose search this is. Two profiles on one machine (the sample, a test persona, a second person) look the same otherwise. */}
+      {who && (() => {
+        const title = who.name ? `${possessive(who.name)} search` : "Your search";
+        const initials = (who.name || "?").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+        return (
+          <div className={collapsed ? "sidebar__who sidebar__who--collapsed" : "sidebar__who"} role="note" aria-label={`${title}, profile folder ${who.dir}`} title={who.dir}>
+            {collapsed ? <span className="sidebar__who-initials num" aria-hidden="true">{initials}</span> : (
+              <>
+                <span className="sidebar__who-name">{title}</span>
+                <span className="sidebar__who-dir num">{who.folder}</span>
+              </>
+            )}
+          </div>
+        );
+      })()}
       <nav className="nav" aria-label="Pages">
         {groups.map((g) => (
           <div key={g.title} className="nav__group">

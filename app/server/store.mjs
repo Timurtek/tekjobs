@@ -364,6 +364,13 @@ export function runs() {
     return { date: f.replace(/\.md$/, ''), runs: blocks };
   });
 }
+/** Whose search this is: the name from Profile.md's Basics, and the folder. The shell shows it so two profiles on one machine are never confused. */
+export function who() {
+  const md = safe(() => fs.readFileSync(P.profile, 'utf8'), '');
+  const m = md.match(/^- \*\*Name[^*]*\*\*\s*(.+)$/m);
+  const name = m ? m[1].trim().replace(/\*\*/g, '').replace(/\s+/g, ' ') : '';
+  return { name: /^\(?the interview fills/i.test(name) ? '' : name, dir: VAULT, folder: path.basename(VAULT) };
+}
 export function summary() {
   const rows = listJobs().filter((r) => r.listing === 'open');
   const count = (k) => rows.reduce((m, r) => ((m[r[k]] = (m[r[k]] || 0) + 1), m), {});
@@ -377,7 +384,7 @@ export function summary() {
     lastRun: last ? { ...last, date: lastLog.date } : null,
     floor: criteria.salary?.minAnnual || null, stretch: criteria.salary?.stretchAnnual || null, minScore: criteria.minScore || null,
     ceiling: fitCeiling(criteria),
-    companies: safe(() => loadCompanies().length, 0), vault: VAULT,
+    companies: safe(() => loadCompanies().length, 0), vault: VAULT, who: who(),
   };
 }
 const safe = (fn, d) => { try { return fn(); } catch { return d; } };
