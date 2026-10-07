@@ -2,6 +2,7 @@
 // TekJobs MCP server (stdio, JSON-RPC 2.0). Lets Claude Code / Claude Desktop run the job search without the UI:
 // search and read matches, move them through the pipeline, add notes, edit criteria, add boards, trigger a scan,
 // and pull the materials needed to tailor an application. Hand-rolled: no SDK dependency.
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as store from './store.mjs';
@@ -10,6 +11,9 @@ import * as tailored from './tailored-resume.mjs';
 import * as mail from './mail-check.mjs';
 import * as people from './people.mjs';
 import * as linkedin from './linkedin-import.mjs';
+
+// The version a client shows beside the server is the package's, not a constant that goes stale.
+const VERSION = (() => { try { return JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).version; } catch { return '0.0.0'; } })();
 
 export const TOOLS = [
   { name: 'list_snippets', description: 'The copy panel: the person\'s standard answers for application forms (name, email, phone, links, availability, salary answer, anything they added), grouped, from Profile/Snippets.md. Use these verbatim when drafting form answers; never invent a value that is empty here.', inputSchema: { type: 'object', properties: {} } },
@@ -132,7 +136,7 @@ if (isMain) process.stdin.on('data', (chunk) => {
 });
 function handle(msg) {
   const { id, method, params = {} } = msg;
-  if (method === 'initialize') return write({ jsonrpc: '2.0', id, result: { protocolVersion: params.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'tekjobs', version: '0.1.0' } } });
+  if (method === 'initialize') return write({ jsonrpc: '2.0', id, result: { protocolVersion: params.protocolVersion || '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'tekjobs', version: VERSION } } });
   if (method === 'notifications/initialized' || method?.startsWith('notifications/')) return;
   if (method === 'ping') return write({ jsonrpc: '2.0', id, result: {} });
   if (method === 'tools/list') return write({ jsonrpc: '2.0', id, result: { tools: TOOLS } });
