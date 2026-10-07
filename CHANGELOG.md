@@ -2,6 +2,10 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## <small>0.32.1 (2026-10-07)</small>
+
+* fix(scan): a Hacker News post's header is split into role and pay, not carried whole ([1eaa2af](https://github.com/Timurtek/tekjobs/commit/1eaa2af))
+
 ## 0.32.0 (2026-10-07)
 
 * feat(mail): recruiters who reach out are read too, and the searches match the mail that arrives ([eb99906](https://github.com/Timurtek/tekjobs/commit/eb99906))
