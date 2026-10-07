@@ -214,15 +214,35 @@ export function runLLM(prompt, { timeoutMs = 240000, extraArgs = [] } = {}) {
     child.on('error', (e) => { clearTimeout(timer); reject(new Error(`Could not start "${command}": ${e.message}`)); });
     child.on('close', (code) => {
       clearTimeout(timer);
-      const all = `${out}\n${err}`;
-      if (/not recognized as|command not found|ENOENT/i.test(all)) return reject(Object.assign(new Error(`"${command}" is not installed or not on PATH. Install Claude Code, or set another CLI under "llm" in ${CONFIG_FILE}.`), { kind: 'missing' }));
-      if (/failed to authenticate|oauth|not logged in|please log in|login required|unauthorized|401/i.test(all)) return reject(Object.assign(new Error(`${command} is signed out. Open a terminal, run "${command}", sign in, then try again. (The desktop app's login is separate from the terminal's.)`), { kind: 'auth' }));
-      if (/requires a newer version|please upgrade/i.test(all)) return reject(Object.assign(new Error(`${command} is out of date and its model refused the request. Update it (npm i -g, or its own updater), then try again.`), { kind: 'outdated' }));
-      if (code !== 0 && !out.trim()) return reject(new Error(`${command} exited with code ${code}: ${err.trim().split('\n').slice(-2).join(' ') || 'no output'}`));
+      const failure = classifyRun({ code, out, err, command });
+      if (failure) return reject(failure);
       resolve(out.replace(/^```[a-z]*\n|\n```\s*$/g, '').trim());
     });
     child.stdin.write(prompt); child.stdin.end();
   });
+}
+
+/**
+ * What a finished CLI run means: null when it answered, otherwise an Error with a `kind` (missing, auth,
+ * outdated, failed) and the CLI's last words. A run that exited 0 with output answered, whatever words the
+ * answer contains: the earlier version read "401" and "OAuth" anywhere in the output as a sign-out, and a
+ * recruiter's "401(k) match" turned a healthy morning mail check into "claude is signed out".
+ */
+export function classifyRun({ code, out = '', err = '', command = 'claude' }) {
+  const tail = err.trim().split('\n').slice(-3).join(' ').slice(0, 300);
+  if (/not recognized as an internal|command not found|ENOENT|is not recognized/i.test(err) && !out.trim()) {
+    return Object.assign(new Error(`"${command}" is not installed or not on PATH. Install Claude Code, or set another CLI under "llm" in ${CONFIG_FILE}.`), { kind: 'missing' });
+  }
+  if (code === 0 && out.trim()) return null;
+  const signedOut = /not logged in|please run \/login|run `?\/login|failed to authenticate|authentication[_ ]error|invalid[_ ]api[_ ]key|token (has )?expired|(^|\W)unauthorized(\W|$)|\b(http|status|error)\s*:?\s*401\b/i;
+  if (signedOut.test(err) || (!out.trim() && signedOut.test(out))) {
+    return Object.assign(new Error(`${command} is signed out. Open a terminal, run "${command}", sign in, then try again. (The desktop app's login is separate from the terminal's.) It said: ${tail || 'nothing'}`), { kind: 'auth' });
+  }
+  if (/requires a newer version|please upgrade/i.test(`${out}\n${err}`)) {
+    return Object.assign(new Error(`${command} is out of date and its model refused the request. Update it (npm i -g, or its own updater), then try again.`), { kind: 'outdated' });
+  }
+  if (!out.trim()) return Object.assign(new Error(`${command} exited with code ${code}: ${tail || 'no output'}`), { kind: 'failed' });
+  return null;
 }
 
 const drafts = new Map();   // id → { running, startedAt, finishedAt, error, errorKind }
