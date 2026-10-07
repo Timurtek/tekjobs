@@ -43,14 +43,14 @@ export function prompt({ sinceDays = 21, companies = [] } = {}) {
 Run these searches, each with newer_than:${sinceDays}d appended, then stop:
 ${[...SEARCHES, companySearch(companies)].filter(Boolean).map((s, i) => `${i + 1}. ${s} newer_than:${sinceDays}d`).join('\n')}
 
-Search results already carry subject, sender, date and a snippet. Decide from those. Read a thread when the sender is a LinkedIn relay and the person's name is not in the search result, and otherwise only when the subject and snippet do not say whether the message is a confirmation of receipt, a rejection, or an advance (an interview, a screen, a scheduling request). Do not read threads that are plainly confirmations.
+Search results already carry subject, sender, date and a snippet. Decide from those. Read a thread when the sender is a LinkedIn relay and the person's name is not in the search result, when a confirmation or rejection names no role or the person has several applications at that company (to find the posting link or the requisition id), and otherwise only when the subject and snippet do not say whether the message is a confirmation of receipt, a rejection, or an advance (an interview, a screen, a scheduling request). Do not read threads that are plainly confirmations.
 
 Report every message that is about one of the person's job applications: confirmations of receipt, rejections, invitations to interview or to schedule, requests to complete or add to an application. Also report a recruiter or hiring manager writing to the person about a specific role at a named company (kind "outreach"; company is the hiring company, not the agency; role is the role they name; fromName is the human's name even when the address is a LinkedIn relay). Ignore mass job alerts, newsletters, "I want to connect" notes that name no role, and anything not tied to an application or to a specific role.${companies.length ? `
 
 The person's own records show applications at these companies (others may exist): ${companies.join(', ')}.` : ''}
 
 Output ONLY a JSON array, no prose, no code fence, one object per message:
-{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|outreach|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "the sender exactly as the header shows it, Display Name <address>", "fromName": "the human who wrote, from the sender display name or the signature; empty only when no human is named. For a LinkedIn relay address (inmail-hit-reply@linkedin.com, hit-reply@linkedin.com) the display name is the person, so read the message if the search result does not show it; required for outreach", "messageId": "gmail message id", "subject": "subject line"}
+{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|outreach|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "the sender exactly as the header shows it, Display Name <address>", "fromName": "the human who wrote, from the sender display name or the signature; empty only when no human is named. For a LinkedIn relay address (inmail-hit-reply@linkedin.com, hit-reply@linkedin.com) the display name is the person, so read the message if the search result does not show it; required for outreach", "postingUrl": "a link in the email to the job posting or to the application itself, if there is one, else empty string", "reqId": "a requisition or job id the email quotes (R-12345, JR361297, Job ID 10502343), else empty string", "messageId": "gmail message id", "subject": "subject line"}
 
 If nothing matches, output [].`;
 }
@@ -65,6 +65,7 @@ export function parseOutput(text) {
   return arr.filter((m) => m && typeof m === 'object' && m.company && m.messageId).map((m) => ({
     company: String(m.company).trim(), role: String(m.role || '').trim(), kind: KINDS.includes(m.kind) ? m.kind : 'other',
     date: /^\d{4}-\d{2}-\d{2}$/.test(String(m.date || '')) ? m.date : '', gist: String(m.gist || '').trim().slice(0, 300),
+    postingUrl: /^https?:\/\//i.test(String(m.postingUrl || '').trim()) ? String(m.postingUrl).trim().slice(0, 500) : '', reqId: String(m.reqId || '').trim().slice(0, 60),
     from: String(m.from || '').trim(), fromName: String(m.fromName || '').trim().slice(0, 80), messageId: String(m.messageId).trim(), subject: String(m.subject || '').trim().slice(0, 200),
   }));
 }
@@ -88,6 +89,21 @@ export function suggestionFor(kind, noteStatus, date) {
  * Match mail entries to notes: same company by name, the exact role when the title matches, otherwise the
  * note that is furthest along, with the other candidates listed so a person can pick. Pure.
  */
+const cleanUrl = (u) => String(u || '').toLowerCase().replace(/[?#].*$/, '').replace(/\/+$/, '');
+/** The posting's own id inside a URL: a long number (Greenhouse, Lever ids) or a UUID (Ashby). */
+const postingIdOf = (u) => { const c = cleanUrl(u); const m = c.match(/\/(\d{6,})(?:\/|$)/) || c.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/); return m ? m[1] : ''; };
+/** The note an email points at by its posting link or requisition id, when it carries one. Beats any title guess. */
+export function linkMatch(m, notes) {
+  const url = cleanUrl(m.postingUrl), pid = postingIdOf(m.postingUrl), req = String(m.reqId || '').trim().toLowerCase();
+  if (!url && !req) return null;
+  return notes.find((n) => {
+    const nu = cleanUrl(n.url), nj = String(n.jobId || '').toLowerCase();
+    if (url && nu && (nu === url || (pid && (nu.includes(pid) || nj.includes(pid))))) return true;
+    if (req && req.length >= 4 && (nj.endsWith(':' + req) || nu.includes(req) || String(n.title || '').toLowerCase().includes(req))) return true;
+    return false;
+  }) || null;
+}
+
 export function reconcile(mails, notes) {
   const byCompany = new Map();
   for (const n of notes) { const k = norm(n.company); if (!k) continue; if (!byCompany.has(k)) byCompany.set(k, []); byCompany.get(k).push(n); }
@@ -96,16 +112,18 @@ export function reconcile(mails, notes) {
     const key = norm(m.company);
     let cands = byCompany.get(key) || [];
     if (!cands.length && key) cands = [...byCompany.entries()].filter(([k]) => k.startsWith(key + ' ') || key.startsWith(k + ' ')).flatMap(([, v]) => v);
-    const exact = m.role ? cands.find((n) => norm(n.title) === norm(m.role)) : null;
+    const linked = linkMatch(m, notes);
+    const exact = linked || (m.role ? cands.find((n) => norm(n.title) === norm(m.role)) : null);
     const byRank = [...cands].sort((a, b) => rank(b) - rank(a) || (b.score || 0) - (a.score || 0));
     // An email that names a role the vault does not have is a different application, not the note that
     // happens to share the company: default to a new note and offer the company's notes as a pick. (Learned
     // on the first real run, when a Staff Product Designer confirmation landed on an Engineering Manager note.)
     const otherRole = !exact && m.role && cands.length > 0;
+    const via = linked ? 'link' : exact ? 'title' : '';
     const best = exact || (otherRole ? null : byRank[0] || null);
     const match = exact ? 'exact' : otherRole ? 'company-other-role' : best ? 'company' : 'none';
     return {
-      id: m.messageId, ...m, match, link: gmailLink(m.messageId),
+      id: m.messageId, ...m, match, via, link: gmailLink(m.messageId),
       noteId: best ? best.id : '', noteTitle: best ? best.title : '', noteStatus: best ? best.status : '',
       candidates: byRank.slice(0, 6).map((n) => ({ id: n.id, title: n.title, status: n.status })),
       suggestion: suggestionFor(m.kind, best ? best.status : '', m.date),
@@ -187,7 +205,7 @@ function appliedOnEmpty(id) {
  * Do what the group's strongest email suggests, to the note the person chose (or the matched one), record
  * every email in the group on that note, and mark them all confirmed.
  */
-export function confirm(id, { noteId } = {}) {
+export async function confirm(id, { noteId } = {}) {
   const d = load();
   const group = groupItems(d.items || []).find((g) => g.ids.includes(id));
   const item = (d.items || []).find((i) => i.id === (group ? group.id : id));
@@ -197,10 +215,14 @@ export function confirm(id, { noteId } = {}) {
   const appliedOn = members.filter((m) => m.kind === 'confirmation' && m.date).map((m) => m.date).sort()[0] || item.date;
   let target = noteId || item.noteId;
   const s = target ? suggestionFor(item.kind, store.getJob(target).status, appliedOn) : suggestionFor(item.kind, '', appliedOn);
+  if (!target && s.action === 'create' && item.postingUrl) {
+    // The email links the posting: the note comes from the posting, scored and described, not from the email.
+    try { const r = (await store.importLinks([item.postingUrl]))[0]; if (r?.ok && r.id) target = r.id; } catch { /* the stub below */ }
+  }
   if (!target) {
     if (s.action !== 'create') throw Object.assign(new Error('This entry matched no note; pick one or create one.'), { status: 400 });
     const criteria = loadCriteria();
-    const job = { id: `mail:${item.messageId}`, source: 'mail', company: item.company, title: item.role || 'Role not stated in the email', url: gmailLink(item.messageId), location: '', remote: false, posted: item.date || null, salary: '', department: '', employmentType: '',
+    const job = { id: `mail:${item.messageId}`, source: 'mail', company: item.company, title: item.role || 'Role not stated in the email', url: item.postingUrl || gmailLink(item.messageId), location: '', remote: false, posted: item.date || null, salary: '', department: '', employmentType: '',
       descriptionHtml: `<p>Created from an application email (${item.kind}, ${item.date || 'undated'}): ${item.gist}</p><p>Subject: ${item.subject}</p><p>From: ${item.from}</p>`, foundVia: 'created from an application email', addedBy: 'mail' };
     job.descriptionText = htmlToText(job.descriptionHtml);
     const file = writeJobNote(job, scoreJob(job, criteria), criteria);
@@ -226,9 +248,9 @@ export function confirm(id, { noteId } = {}) {
 export function safeGroups() {
   return groupItems(load().items || []).filter((g) => g.kind === 'confirmation' && g.match === 'exact' && g.noteId);
 }
-export function confirmSafe() {
+export async function confirmSafe() {
   const done = [];
-  for (const g of safeGroups()) { try { confirm(g.id); done.push(g.id); } catch { /* the next group still gets its turn */ } }
+  for (const g of safeGroups()) { try { await confirm(g.id); done.push(g.id); } catch { /* the next group still gets its turn */ } }
   return { confirmed: done.length, ...items() };
 }
 export function dismiss(id) {

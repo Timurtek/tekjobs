@@ -141,7 +141,7 @@ export function MailSays({ onOpen, onChanged }: { onOpen: (id: string) => void; 
                       {i.match === "none" ? (
                         <span className="muted">no note; confirm creates one</span>
                       ) : i.match === "exact" || (i.match === "company" && i.candidates.length <= 1) ? (
-                        <Button variant="link" size="sm" tone="neutral" onClick={() => onOpen(i.noteId)}>{i.noteTitle} · {i.noteStatus}</Button>
+                        <span className="who__text"><Button variant="link" size="sm" tone="neutral" onClick={() => onOpen(i.noteId)}>{i.noteTitle} · {i.noteStatus}</Button>{m.items.find((x) => x.id === i.id)?.via === "link" && <small>matched by the posting link</small>}</span>
                       ) : (
                         <Select size="sm" label={i.match === "company-other-role" ? "Not a role in the vault" : "Which role"} value={target || "__new__"} onValueChange={(v) => setPicks((p) => ({ ...p, [i.id]: v === "__new__" ? "" : v }))}>
                           <Select.Item value="__new__">New note for this role</Select.Item>

@@ -86,3 +86,25 @@ test('every item carries the Gmail link for its message, and a group carries the
   const items = reconcile(parseOutput('[{"company":"Vanta","role":"Staff Visual Product Designer, Design Systems","kind":"confirmation","date":"2026-09-20","gist":"Received.","from":"no-reply@ashbyhq.com","messageId":"abc123","subject":"Thanks for applying"}]'), notes);
   assert.equal(items[0].link, 'https://mail.google.com/mail/u/0/#all/abc123');
 });
+
+test('a posting link or a requisition id in the email picks the note, whatever the role is called', () => {
+  const linkedNotes = [
+    ...notes,
+    { id: 'Vanta - Staff Visual Product Designer, Design Systems (2)', company: 'Vanta', title: 'Staff Visual Product Designer, Design Systems', status: 'applied', score: 128, url: 'https://jobs.ashbyhq.com/vanta/ed632c31-2a66-4c91-8d29-f450bbd4de67', jobId: 'ab:vanta:ed632c31-2a66-4c91-8d29-f450bbd4de67' },
+    { id: 'Salesforce - Lead Product Designer, Design Systems (9)', company: 'Salesforce', title: 'Lead Product Designer, Design Systems', status: 'applied', score: 100, url: 'https://salesforce.wd12.myworkdayjobs.com/External_Career_Site/job/x/Lead-Product-Designer--Design-Systems_JR361297', jobId: 'wd:salesforce:JR361297' },
+  ];
+  const parsed = parseOutput(JSON.stringify([
+    { company: 'Vanta', role: 'Designer', kind: 'confirmation', date: '2026-10-01', gist: 'Received.', from: 'no-reply@ashbyhq.com', messageId: 'l1', subject: 'Thanks', postingUrl: 'https://jobs.ashbyhq.com/vanta/ed632c31-2a66-4c91-8d29-f450bbd4de67?utm=mail' },
+    { company: 'Salesforce', role: '', kind: 'rejection', date: '2026-10-02', gist: 'No.', from: 'salesforce@myworkday.com', messageId: 'l2', subject: 'Update', reqId: 'JR361297' },
+    { company: 'Vanta', role: 'Designer', kind: 'confirmation', date: '2026-10-03', gist: 'x', from: 'a@b.c', messageId: 'l3', subject: 's', postingUrl: 'not a url' },
+  ]));
+  assert.equal(parsed[0].postingUrl, 'https://jobs.ashbyhq.com/vanta/ed632c31-2a66-4c91-8d29-f450bbd4de67?utm=mail');
+  assert.equal(parsed[2].postingUrl, '', 'a non-http value is dropped');
+  const r = reconcile(parsed, linkedNotes);
+  assert.equal(r[0].match, 'exact');
+  assert.equal(r[0].via, 'link');
+  assert.equal(r[0].noteId, 'Vanta - Staff Visual Product Designer, Design Systems (2)');
+  assert.equal(r[1].match, 'exact');
+  assert.equal(r[1].noteId, 'Salesforce - Lead Product Designer, Design Systems (9)');
+  assert.equal(r[2].match, 'company-other-role', 'without a usable link the role text decides, as before');
+});

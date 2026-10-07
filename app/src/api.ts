@@ -194,6 +194,8 @@ export interface CriteriaPreview {
 export interface MailItem {
   id: string; company: string; role: string; kind: "confirmation" | "rejection" | "advance" | "scheduling" | "info-request" | "outreach" | "other";
   date: string; gist: string; from: string; fromName?: string; messageId: string; subject: string;
+  /** A posting or application link the email carried, and a requisition id it quoted; matching uses them first. */
+  postingUrl?: string; reqId?: string; via?: "link" | "title" | "";
   /** The message in Gmail's web app, built by the server. */
   link: string;
   person?: MailPerson | null;
