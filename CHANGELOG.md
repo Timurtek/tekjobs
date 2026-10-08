@@ -2,6 +2,16 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.52.0](https://github.com/Timurtek/tekjobs/compare/v0.51.2...v0.52.0) (2026-10-08)
+
+### Features
+
+* **site:** the showreel plays in the hero, in place of the Today screenshot ([1e87cb1](https://github.com/Timurtek/tekjobs/commit/1e87cb1361764136eea14f04aebf6da1e12d080e))
+
+### Docs
+
+* **site:** the calendar on the README, the landing page and a doc page of its own ([cdd54d8](https://github.com/Timurtek/tekjobs/commit/cdd54d8b1fb41063917d5b4974b88eea0ba1e15c))
+
 ## [0.51.2](https://github.com/Timurtek/tekjobs/compare/v0.51.1...v0.51.2) (2026-10-08)
 
 ### Fixes
