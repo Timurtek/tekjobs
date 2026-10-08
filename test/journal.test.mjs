@@ -11,6 +11,7 @@ const vault = fs.mkdtempSync(path.join(os.tmpdir(), 'tekjobs-journal-'));
 process.env.TEKJOBS_PROFILE = vault;
 const { P, DATA_DIR, ensureDirs } = await import('../scraper/config.mjs');
 const { buildJournal, renderJournal, writeJournal, JOURNAL_HEADING } = await import('../scraper/journal.mjs');
+const { signalsOf } = await import('../app/server/store.mjs');
 ensureDirs();
 fs.mkdirSync(P.logs, { recursive: true });
 fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -76,4 +77,22 @@ test('a day with nothing in it says so, and a day with no log note gets one', ()
   const text = fs.readFileSync(w.file, 'utf8');
   assert.match(text, /^---\ntype: log\ndate: 2020-02-02\n---/);
   assert.match(text, /## Journal/);
+});
+
+test('the markers read the lines the mail and calendar checks write under Notes, counted, with the latest', () => {
+  const text = [
+    '## Notes',
+    '- 2026-10-01 (app): Mail, 2026-09-30 (confirmation): Thanks for applying. [message](https://mail.google.com/mail/u/0/#all/abc)',
+    '- 2026-10-05 (app): Mail, 2026-10-05 (scheduling): Please pick a slot. [message](https://mail.google.com/mail/u/0/#all/def)',
+    '- 2026-10-07 (app): Calendar, 2026-10-09 09:00 to 09:45 (interview): Interview with Northwind, with Sam Example [https://meet.example]',
+    '- 2026-10-07 (app): a line the person wrote, which is not a signal',
+  ].join('\n');
+  const s = signalsOf(text);
+  assert.equal(s.mail, 2);
+  assert.equal(s.mailLast, '2026-10-05');
+  assert.equal(s.mailKind, 'scheduling');
+  assert.equal(s.calendar, 1);
+  assert.equal(s.calendarLast, '2026-10-09');
+  assert.equal(s.calendarKind, 'interview');
+  assert.deepEqual(signalsOf('nothing here'), { mail: 0, mailLast: '', mailKind: '', calendar: 0, calendarLast: '', calendarKind: '' });
 });

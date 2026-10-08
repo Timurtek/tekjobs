@@ -344,6 +344,18 @@ export function applicationPacket(id) {
   return { id, fields: APPLICATION_FIELDS, values, missing, ready: missing.length === 0, filled, total: FIELD_NAMES.length };
 }
 
+/**
+ * What the mail and calendar checks have confirmed onto a note, read from the lines they write under Notes
+ * ("Mail, <date> (<kind>): …", "Calendar, <date> … (<kind>): …"): how many of each and the latest. Today's
+ * in-flight rows show them, so a row that moved shows it without the sheet being opened.
+ */
+export function signalsOf(text) {
+  const mail = [...String(text || '').matchAll(/^- (\d{4}-\d{2}-\d{2}) \([^)]*\): Mail, (\d{4}-\d{2}-\d{2}|undated) \(([a-z-]+)\)/gm)].map((m) => ({ date: m[2] === 'undated' ? m[1] : m[2], kind: m[3] }));
+  const calendar = [...String(text || '').matchAll(/^- (\d{4}-\d{2}-\d{2}) \([^)]*\): Calendar, (\d{4}-\d{2}-\d{2})[^(\n]*\(([a-z-]+)\)/gm)].map((m) => ({ date: m[2], kind: m[3] }));
+  const latest = (a) => [...a].sort((x, y) => x.date.localeCompare(y.date)).pop() || { date: '', kind: '' };
+  return { mail: mail.length, mailLast: latest(mail).date, mailKind: latest(mail).kind, calendar: calendar.length, calendarLast: latest(calendar).date, calendarKind: latest(calendar).kind };
+}
+
 // ---------- summary & runs ----------
 export function runs() {
   if (!fs.existsSync(P.logs)) return [];
@@ -501,12 +513,12 @@ export function today({ cap = 7, agingDays = 2, waitingDays = 14 } = {}) {
     .filter((r) => r.packet > 0 && !DONE.includes(r.status) && !triageIds.has(r.id))
     .sort((a, b) => b.packet - a.packet || b.score - a.score)
     .slice(0, cap)
-    .map((r) => ({ ...withFit(r), packet: r.packet, closed: r.listing.startsWith('closed') ? r.listing.replace('closed ', '') : '' }));
+    .map((r) => ({ ...withFit(r), packet: r.packet, closed: r.listing.startsWith('closed') ? r.listing.replace('closed ', '') : '', signals: signalsOf(safe(() => fs.readFileSync(notePath(r.id), 'utf8'), '')) }));
 
   const inFlight = rows.filter((r) => IN_FLIGHT.includes(r.status));
   // Whoever is on the thread rides along with every in-flight row, so a nudge names the person to write to.
   const noteText = (id) => { try { return fs.readFileSync(notePath(id), 'utf8'); } catch { return ''; } };
-  const withContact = (r) => { const text = noteText(r.id); return { ...withFit(r), contact: contactOf(text), appliedOn: appliedOnOf(text) }; };
+  const withContact = (r) => { const text = noteText(r.id); return { ...withFit(r), contact: contactOf(text), appliedOn: appliedOnOf(text), signals: signalsOf(text) }; };
   const preparing = inFlight.filter((r) => r.status === 'applying').map((r) => ({ ...withContact(r), since: daysSince(r.found) }));
   const followUps = inFlight
     .map((r) => ({ ...withContact(r), due: applicationField(r.id, 'Follow-up due') }))

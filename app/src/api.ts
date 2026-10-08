@@ -44,6 +44,8 @@ export interface TodayRow extends JobRow {
   /** Who to write to about this thread, from the note's People section. In-flight sections only. */
   contact?: { id: string; name: string; email: string; role: string; others: number } | null;
   appliedOn?: string;
+  /** What the mail and calendar checks confirmed onto the note: counts and the latest of each. In-flight and started rows. */
+  signals?: { mail: number; mailLast: string; mailKind: string; calendar: number; calendarLast: string; calendarKind: string };
 }
 export interface Today {
   generated: string;

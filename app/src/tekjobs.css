@@ -932,6 +932,26 @@
   justify-content: flex-end;
 }
 
+/* The mail and calendar markers beside a role: small counts, quiet, with the detail on hover. */
+.today__role {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+.today__signals {
+  display: inline-flex;
+  gap: var(--spacing-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.today__signal {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  cursor: default;
+}
+
 /* Calendar: the day's name above its first row, the time beside each. */
 .cal__day {
   display: block;

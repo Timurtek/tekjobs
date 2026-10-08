@@ -1,4 +1,4 @@
-import { Badge, Button, Card, EmptyState, Icon, Loader, Menu, Select, Skeleton, Table, toast } from "@/components/ui";
+import { Badge, Button, Card, EmptyState, Icon, Loader, Menu, Select, Skeleton, Table, Tooltip, toast } from "@/components/ui";
 import { useEffect, useState, type ReactNode } from "react";
 import { isPosted, PostedMark } from "@/components/PostedMark";
 import { useMediaQuery } from "@/lib/useMediaQuery";
@@ -149,7 +149,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
           {narrow ? (
             <ul className="tcards" aria-label="Applications with a packet started">
               {sections.started.map((r) => (
-                <TodayCard key={r.id} r={r} lead={<Fit value={r.fit} />} badges={<><Badge size="sm" tone="primary" variant="soft">{r.packet} filled</Badge>{r.salaryMax > 0 && pay(r)}{r.closed ? <Badge size="sm" tone="danger">closed {r.closed}</Badge> : <Badge size="sm" tone={r.status === "ready" ? "warning" : "neutral"}>{r.status}</Badge>}</>} onOpen={() => setSelected(r.id)} />
+                <TodayCard key={r.id} r={r} lead={<Fit value={r.fit} />} badges={<><Badge size="sm" tone="primary" variant="soft">{r.packet} filled</Badge><Signals r={r} />{r.salaryMax > 0 && pay(r)}{r.closed ? <Badge size="sm" tone="danger">closed {r.closed}</Badge> : <Badge size="sm" tone={r.status === "ready" ? "warning" : "neutral"}>{r.status}</Badge>}</>} onOpen={() => setSelected(r.id)} />
               ))}
             </ul>
           ) : (
@@ -170,7 +170,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
                   <Table.Row key={r.id} interactive data-posted={isPosted(r.source) || undefined} selected={selected === r.id} onClick={() => setSelected(r.id)}>
                     <Table.Cell align="end" numeric><Fit value={r.fit} /></Table.Cell>
                     <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
-                    <Table.Cell>{r.title}</Table.Cell>
+                    <Table.Cell><span className="today__role">{r.title}<Signals r={r} /></span></Table.Cell>
                     <Table.Cell><Badge size="sm" tone="primary" variant="soft">{r.packet} filled</Badge></Table.Cell>
                     <Table.Cell>{r.salaryMax > 0 ? <Badge tone={BAND_TONE[r.payBand]} size="sm">{shortPay(r.salary)}</Badge> : <span className="muted">—</span>}</Table.Cell>
                     <Table.Cell>
@@ -246,7 +246,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
           ) : narrow ? (
             <ul className="tcards" aria-label="In flight">
               {inFlight.map((r) => (
-                <TodayCard key={r.id} r={r} lead={<Fit value={r.fit} />} meta={r.due ? `due ${r.due}` : undefined} badges={<Badge size="sm" tone="primary">{r.status}</Badge>} foot={<WriteTo contact={r.contact} />} onOpen={() => setSelected(r.id)} />
+                <TodayCard key={r.id} r={r} lead={<Fit value={r.fit} />} meta={r.due ? `due ${r.due}` : undefined} badges={<><Badge size="sm" tone="primary">{r.status}</Badge><Signals r={r} /></>} foot={<WriteTo contact={r.contact} />} onOpen={() => setSelected(r.id)} />
               ))}
             </ul>
           ) : (
@@ -266,7 +266,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
                   <Table.Row key={r.id} interactive data-posted={isPosted(r.source) || undefined} onClick={() => setSelected(r.id)}>
                     <Table.Cell align="end" numeric><Fit value={r.fit} /></Table.Cell>
                     <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
-                    <Table.Cell>{r.title}</Table.Cell>
+                    <Table.Cell><span className="today__role">{r.title}<Signals r={r} /></span></Table.Cell>
                     <Table.Cell><Badge size="sm" tone="primary">{r.status}</Badge></Table.Cell>
                     <Table.Cell>{r.due || <span className="muted">—</span>}</Table.Cell>
                     <Table.Cell><WriteTo contact={r.contact} /></Table.Cell>
@@ -308,7 +308,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
                   <Table.Row key={r.id} interactive data-posted={isPosted(r.source) || undefined} onClick={() => setSelected(r.id)}>
                     <Table.Cell align="end" numeric><span className="num" data-tone={(r.days ?? 0) >= 21 ? "danger" : undefined}>{r.days}</span></Table.Cell>
                     <Table.Cell><span className="posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span></Table.Cell>
-                    <Table.Cell>{r.title}</Table.Cell>
+                    <Table.Cell><span className="today__role">{r.title}<Signals r={r} /></span></Table.Cell>
                     <Table.Cell><span className="num muted">{r.appliedOn}</span></Table.Cell>
                     <Table.Cell><WriteTo contact={r.contact} /></Table.Cell>
                   </Table.Row>
@@ -365,6 +365,29 @@ function TodayCard({ r, lead, meta, badges, foot, actions, onOpen }: { r: TodayR
         <Button size="sm" variant="ghost" tone="neutral" onClick={onOpen} trailingIcon={<Icon.ArrowRight />}>Open</Button>
       </div>
     </li>
+  );
+}
+
+/**
+ * What the mail and calendar checks confirmed onto this note, as two small counts with the latest in a tooltip.
+ * Nothing when there is nothing, so a quiet row stays quiet.
+ */
+function Signals({ r }: { r: TodayRow }) {
+  const s = r.signals;
+  if (!s || (s.mail === 0 && s.calendar === 0)) return null;
+  return (
+    <span className="today__signals">
+      {s.mail > 0 && (
+        <Tooltip content={`${s.mail} confirmed email${s.mail === 1 ? "" : "s"}; latest ${s.mailKind}, ${s.mailLast}`}>
+          <span className="today__signal num" aria-label={`${s.mail} confirmed emails, latest ${s.mailKind} on ${s.mailLast}`}><Icon.Mail /> {s.mail}</span>
+        </Tooltip>
+      )}
+      {s.calendar > 0 && (
+        <Tooltip content={`${s.calendar} confirmed calendar event${s.calendar === 1 ? "" : "s"}; latest ${s.calendarKind}, ${s.calendarLast}`}>
+          <span className="today__signal num" aria-label={`${s.calendar} confirmed calendar events, latest ${s.calendarKind} on ${s.calendarLast}`}><Icon.Calendar /> {s.calendar}</span>
+        </Tooltip>
+      )}
+    </span>
   );
 }
 
