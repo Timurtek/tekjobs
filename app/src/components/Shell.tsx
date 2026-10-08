@@ -188,6 +188,7 @@ function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collap
             Notes are the record.
             {lastScan && <><br /><span className="num">{lastScan}</span></>}
             <br /><span className="num">v{__APP_VERSION__}</span>
+            <br />by <a className="sidebar__legal" href="https://www.timurtek.com" target="_blank" rel="noreferrer">timurtek.com</a>
             <br /><a className="sidebar__legal" href="https://tekjobs.timurtek.com/legal/terms" target="_blank" rel="noreferrer">Terms</a> · <a className="sidebar__legal" href="https://tekjobs.timurtek.com/legal/privacy" target="_blank" rel="noreferrer">Privacy</a>
           </div>
         </div>

@@ -43,6 +43,10 @@
     "url": "git+https://github.com/Timurtek/tekjobs.git"
   },
   "homepage": "https://tekjobs.timurtek.com",
+  "author": {
+    "name": "Timurtek Bizel",
+    "url": "https://www.timurtek.com"
+  },
   "bugs": {
     "url": "https://github.com/Timurtek/tekjobs/issues"
   },

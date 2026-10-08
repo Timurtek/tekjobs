@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: { default: "TekJobs", template: "%s · TekJobs" },
   description: "A job search that remembers who you are. Your resume, criteria, decisions and applications as markdown on your own machine; your AI works from it over MCP. Scans hundreds of company boards, says why each role matched, stops before anything is sent.",
   metadataBase: SITE_URL,
+  authors: [{ name: "Timurtek Bizel", url: "https://www.timurtek.com" }],
+  creator: "Timurtek Bizel",
+  publisher: "Timurtek LLC",
   icons: { icon: "/brand/tekjobs-avatar-192.png" },
   openGraph: {
     title: "TekJobs",
