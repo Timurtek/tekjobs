@@ -10,7 +10,7 @@ const EMPLOYMENT = [["full-time", "Full-time"], ["part-time", "Part-time"], ["co
 const SENIORITY = [["", "Not stated"], ["junior", "Junior"], ["mid", "Mid"], ["senior", "Senior"], ["staff", "Staff"], ["principal", "Principal"], ["lead", "Lead"], ["director", "Director"]] as const;
 const PRICE = "$49";
 
-const blank: PostingInput = { title: "", company: "", companyUrl: "", location: "", workplace: "remote", regions: ["United States"], employmentType: "full-time", seniority: "", department: "", salaryMin: 0, salaryMax: 0, currency: "USD", description: "", applyUrl: "", applyEmail: "", tags: [] };
+const blank: PostingInput = { title: "", company: "", companyUrl: "", location: "", workplace: "remote", regions: ["United States"], employmentType: "full-time", seniority: "", department: "", salaryMin: 0, salaryMax: 0, currency: "USD", benefits: "", description: "", applyUrl: "", applyEmail: "", tags: [], attestedAt: "" };
 const money = (n: number) => (n ? `$${Math.round(n / 1000)}k` : "");
 const withCommas = (n: number) => (n ? n.toLocaleString("en-US") : "");
 const digits = (s: string) => Number(s.replace(/[^0-9]/g, "")) || 0;
@@ -32,6 +32,8 @@ export function PostingForm({ posting, purchasesOpen }: { posting?: Posting; pur
   const [payError, setPayError] = useState<string>("");
   const [applyVia, setApplyVia] = useState<"website" | "email">(posting && posting.applyEmail && !posting.applyUrl ? "email" : "website");
   const [tagsText, setTagsText] = useState((posting?.tags ?? []).join(", "));
+  // The confirmation the Terms rest on. Once ticked on a saved posting it stays ticked; the server keeps the time.
+  const [attest, setAttest] = useState(!!posting?.attestedAt);
   const set = <K extends keyof PostingInput>(k: K, v: PostingInput[K]) => setF((cur) => ({ ...cur, [k]: v }));
   const locked = status === "closed" || status === "removed";
   const remote = f.workplace === "remote";
@@ -40,7 +42,7 @@ export function PostingForm({ posting, purchasesOpen }: { posting?: Posting; pur
   const tags = useMemo(() => tagsText.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean), [tagsText]);
   const haystack = useMemo(() => `${f.title}\n${f.description}`.toLowerCase(), [f.title, f.description]);
   const unsupported = tags.filter((t) => !haystack.includes(t));
-  const payload = useMemo(() => ({ ...f, tags, applyUrl: applyVia === "website" ? f.applyUrl : "", applyEmail: applyVia === "email" ? f.applyEmail : "" }), [f, tags, applyVia]);
+  const payload = useMemo(() => ({ ...f, tags, applyUrl: applyVia === "website" ? f.applyUrl : "", applyEmail: applyVia === "email" ? f.applyEmail : "", attest }), [f, tags, applyVia, attest]);
   const payBelowMin = f.salaryMin > 0 && f.salaryMax > 0 && f.salaryMax < f.salaryMin;
 
   const save = async (kind: Busy = "save"): Promise<string | null> => {
@@ -153,7 +155,8 @@ export function PostingForm({ posting, purchasesOpen }: { posting?: Posting; pur
               <TextField label="From, a year *" inputMode="numeric" placeholder="180,000" leadingIcon={<span className="pform__cur">$</span>} value={withCommas(f.salaryMin)} onChange={(e) => set("salaryMin", digits(e.target.value))} disabled={locked} font="mono" />
               <TextField label="To, a year *" inputMode="numeric" placeholder="240,000" leadingIcon={<span className="pform__cur">$</span>} value={withCommas(f.salaryMax)} onChange={(e) => set("salaryMax", digits(e.target.value))} disabled={locked} font="mono" error={payBelowMin ? "Below the bottom of the range." : undefined} />
             </div>
-            <p className="muted">Annual base pay in US dollars, both ends. Required: every TekJobs reader carries a pay floor, and a posting without a stated range scores below one with. Equity and bonus belong in the description.</p>
+            <p className="muted">Annual base pay in US dollars, both ends. Required: every TekJobs reader carries a pay floor, and a posting without a stated range scores below one with. Equity and bonus belong below.</p>
+            <TextArea label="Benefits and other compensation" rows={3} value={f.benefits} onChange={(e) => set("benefits", e.target.value)} disabled={locked} description="Equity, bonus, health cover, retirement match, leave, in a sentence or two. Washington, Colorado, New York and California require a general description of benefits in a posting that recruits there; readers everywhere want it." />
           </div>
         </Card>
 
@@ -208,6 +211,16 @@ export function PostingForm({ posting, purchasesOpen }: { posting?: Posting; pur
           </div>
         )}
 
+        {!locked && (
+          <Card padding="md">
+            <Checkbox
+              label="I confirm this is a real, currently open position that I am authorised to post for the employer named, that it states pay (and benefits where the law requires them) and complies with the employment and anti-discrimination laws that apply where it is offered, and I agree to the Terms of Use and the Refund Policy."
+              checked={attest}
+              onCheckedChange={(c) => setAttest(c === true)}
+            />
+          </Card>
+        )}
+
         <div className="form__actions">
           {status === "live" && <Button variant="ghost" tone="danger" size="sm" disabled={!!busy} loading={busy === "close"} onClick={close}>Close posting</Button>}
           {savedAt && <span className="muted pform__saved num">{status === "draft" ? "Draft saved" : "Saved"} {savedAt.slice(11, 16)} UTC</span>}
@@ -219,7 +232,7 @@ export function PostingForm({ posting, purchasesOpen }: { posting?: Posting; pur
               : <Badge tone="neutral" variant="outline">Payment opens soon; the draft keeps</Badge>
           )}
         </div>
-        <p className="consent">Checkout is Stripe&apos;s; your card never reaches this site. By paying you agree to the <a href="/legal/terms#3-job-postings">posting rules</a> and the <a href="/legal/refunds">refund policy</a>. The posting runs 30 days from the day it goes live.</p>
+        <p className="consent">Checkout is Stripe&apos;s; your card never reaches this site. The <a href="/legal/terms">Terms of Use</a> (with the <a href="/legal/terms#3-job-postings">posting rules</a>) and the <a href="/legal/refunds">refund policy</a> apply; Stripe asks you to accept them once more at checkout, and adds sales tax where the billing address requires it. The posting runs 30 days from the day it goes live.</p>
       </div>
 
       <aside className="pform__aside">

@@ -2,7 +2,7 @@
 title: Terms of Use
 order: 1
 summary: The agreement between you and Timurtek LLC for tekjobs.timurtek.com, the TekJobs software, and job postings bought here.
-updated: 2026-09-23
+updated: 2026-10-07
 ---
 
 These terms govern your use of **tekjobs.timurtek.com** (the "Site"), the accounts and job-posting service offered on it (the "Service"), and the TekJobs software published at github.com/Timurtek/tekjobs (the "Software"). The Site and the Service are operated by **Timurtek LLC**, a Washington limited liability company ("we", "us"). By using the Site, creating an account, or buying a posting, you agree to these terms and to the [Privacy Policy](/legal/privacy) and [Refund Policy](/legal/refunds). If you do not agree, do not use the Site or the Service.
@@ -20,7 +20,7 @@ You need an account to buy a posting. You must be at least 18 and able to enter 
 A posting is a description of a genuine, currently open position, submitted by you, that we distribute to TekJobs users as one more source their software may read and score. You represent that:
 
 - you are authorised to post the position for the employer named in it;
-- the posting is truthful, describes a real job that is open when posted, and states pay where the law of the job's location requires it;
+- the posting is truthful, describes a real job that is open when posted, and states pay, and a general description of benefits and other compensation, where the law of the job's location requires them (Washington, Colorado, New York and California among others);
 - the posting complies with the employment and anti-discrimination laws that apply to it. Postings that discriminate on a protected basis, request payment from applicants, advertise multi-level-marketing or unpaid "opportunities" presented as jobs, or collect applicant data for any purpose other than hiring for the posted role are not permitted;
 - you will not post anything unlawful, defamatory, infringing, or misleading.
 
@@ -30,11 +30,11 @@ A posting runs for the period stated at purchase (currently 30 days) or until yo
 
 ## 4. Payment
 
-Prices are shown at checkout in US dollars. Payment is processed by Stripe under Stripe's own terms; we never receive or store your card number. Taxes are added where we are required to collect them. Refunds are governed by the [Refund Policy](/legal/refunds).
+Prices are shown at checkout in US dollars. Payment is processed by Stripe under Stripe's own terms; we never receive or store your card number. Taxes are added where we are required to collect them: Washington State treats a paid posting as an advertising service, so a buyer with a Washington billing address is charged Washington sales tax at checkout, calculated by Stripe from the address given. Refunds are governed by the [Refund Policy](/legal/refunds).
 
 ## 5. Our content and yours
 
-The Site's text, design and code are ours or our licensors', except the parts published under open-source licenses in the repository. You may not scrape, mirror or resell the Site or the postings on it. You keep the rights to the postings you submit and grant us a non-exclusive, worldwide licence to store, display and distribute them for the purpose of running the Service for the posting's term and a reasonable period after, and to keep records as the law requires.
+The Site's text, design and code are ours or our licensors', except the parts published under open-source licenses in the repository. You may not scrape, mirror or resell the Site or the postings on it. You keep the rights to the postings you submit and grant us a non-exclusive, worldwide licence to store, display and distribute them for the purpose of running the Service for the posting's term and a reasonable period after, and to keep records as the law requires. The TekJobs name and logo are trademarks of Timurtek LLC and are not licensed under the MIT License or these terms.
 
 ## 6. Acceptable use
 
@@ -52,18 +52,22 @@ To the fullest extent permitted by law, Timurtek LLC and its members, officers a
 
 You will defend and indemnify us against claims, losses and reasonable legal costs arising from a posting you submitted, your breach of these terms, or your violation of any law or of a third party's rights.
 
-## 10. Termination
+## 10. Copyright complaints
 
-You may stop using the Site at any time. We may suspend or end your access to the Service if you break these terms, if the law requires it, or if we discontinue the Service, in which case any unused posting term is refunded as the Refund Policy describes. Sections 5 to 12 survive termination.
+Postings are written by the employers who submit them. If you believe a posting infringes your copyright, send a notice that meets the requirements of 17 U.S.C. § 512(c)(3) to our designated agent: Timurtek LLC, Attn: Copyright Agent, Everett, Washington, USA, hello@timurtek.com. We remove or disable access to material identified in a valid notice, tell the employer who posted it, and close the accounts of repeat infringers.
 
-## 11. Changes
+## 11. Termination
+
+You may stop using the Site at any time. We may suspend or end your access to the Service if you break these terms, if the law requires it, or if we discontinue the Service, in which case any unused posting term is refunded as the Refund Policy describes. Sections 5 to 13 survive termination.
+
+## 12. Changes
 
 We may change these terms. The date at the top says when they last changed, and a material change is announced on the Site before it takes effect. Continuing to use the Service after that date means you accept the change; if you do not, stop using the Service and write to us about any posting still running.
 
-## 12. Governing law and disputes
+## 13. Governing law and disputes
 
 These terms are governed by the laws of the State of Washington, without regard to its conflict-of-law rules. Any dispute that cannot be settled by talking to us first will be brought in the state or federal courts located in Snohomish County, Washington, and you consent to their jurisdiction. Nothing here limits rights you have as a consumer under mandatory law in your place of residence.
 
-## 13. Contact
+## 14. Contact
 
 Timurtek LLC, Everett, Washington, USA. hello@timurtek.com.

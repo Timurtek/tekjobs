@@ -44,7 +44,7 @@ export const POSTING = {
   price: "$49",
   term: "30 days",
   steps: [
-    { title: "Write it", body: "Title, company, location and whether it is remote, the pay range, and the description. The pay range is required: a posting without one scores lower in every TekJobs user's criteria, and most of them have a floor." },
+    { title: "Write it", body: "Title, company, location and whether it is remote, the pay range and a line on benefits, and the description. The pay range is required: a posting without one scores lower in every TekJobs user's criteria, and most of them have a floor." },
     { title: "Pay once", body: "$49 for 30 days, through Stripe. No subscription, no per-view charge, no upsell. The refund policy is one page." },
     { title: "It enters the morning scan", body: "The posting becomes one more source every TekJobs user's software reads the next morning, scored against that user's own criteria like any Greenhouse or Ashby board. It is never emailed, pushed or promoted; it is found." },
     { title: "Fits apply to you directly", body: "A user whose criteria the posting clears sees it on their Today page with the reasons it scored, and applies through your own link. We are not in the middle of the application, and we never hand you a list of who saw it." },

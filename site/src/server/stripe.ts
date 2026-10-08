@@ -25,6 +25,15 @@ export async function createJobPostingCheckout({ userId, email, postingId }: { u
     "metadata[sku]": SKU.jobPosting,
     "metadata[postingId]": postingId,
     allow_promotion_codes: "true",
+    // Washington taxes advertising services (ESSB 5814, from 2025-10-01), and a paid posting is one. Stripe Tax
+    // calculates by the billing address, which is why the address is required; the product must be classified
+    // as advertising services and Stripe Tax switched on in the dashboard, or session creation fails loudly here.
+    "automatic_tax[enabled]": "true",
+    billing_address_collection: "required",
+    "tax_id_collection[enabled]": "true",
+    // Terms acceptance at the point of payment, on top of the checkbox on the form. Needs the Terms URL set under
+    // the account's public details in the dashboard.
+    "consent_collection[terms_of_service]": "required",
   });
   if (email) params.set("customer_email", email);
   const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {

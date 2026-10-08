@@ -56,6 +56,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
               <span>{p.employmentType}{p.seniority ? ` · ${p.seniority}` : ""}</span>
             </p>
           </header>
+          {p.benefits && <p className="job__benefits"><strong>Benefits and other compensation.</strong> {p.benefits}</p>}
           <DocBody text={p.description} />
           {p.tags.length > 0 && <p className="job__tags mono">{p.tags.join(" · ")}</p>}
         </article>

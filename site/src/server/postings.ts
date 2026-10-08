@@ -1,6 +1,7 @@
 import "server-only";
 import { adminConfigured, db } from "./firebase";
 import { whereOf } from "@/lib/where";
+import { screenPosting } from "@/lib/posting-screen";
 
 /**
  * A job posting an employer writes here, in Firestore under `postings/{id}`. It is a draft until paid, live
@@ -19,7 +20,11 @@ export type PostingInput = {
   location: string; workplace: (typeof WORKPLACES)[number]; regions: string[];
   employmentType: (typeof EMPLOYMENT)[number]; seniority: string; department: string;
   salaryMin: number; salaryMax: number; currency: "USD";
+  /** Benefits and other compensation, in the employer's words. Washington, Colorado, New York and California require it in a posting. */
+  benefits: string;
   description: string; applyUrl: string; applyEmail: string; tags: string[];
+  /** When the employer ticked the confirmation (a real, open, authorised, lawful posting; agreement to the Terms). Empty until they do. */
+  attestedAt: string;
 };
 export type Posting = PostingInput & {
   id: string; ownerUid: string; ownerEmail: string; status: PostingStatus;
@@ -42,9 +47,12 @@ export function validatePosting(raw: Partial<PostingInput>): { input: PostingInp
     seniority: (SENIORITY as readonly string[]).includes(String(raw.seniority ?? "")) ? String(raw.seniority ?? "") : "",
     department: str(raw.department, 80),
     salaryMin: num(raw.salaryMin), salaryMax: num(raw.salaryMax), currency: "USD",
+    benefits: String(raw.benefits ?? "").trim().slice(0, 1200),
     description: String(raw.description ?? "").trim().slice(0, 20000),
     applyUrl: url(raw.applyUrl), applyEmail: str(raw.applyEmail, 160).toLowerCase(),
     tags: list(raw.tags).flatMap((t) => t.split(",")).map((t) => str(t, 40).toLowerCase()).filter(Boolean).slice(0, 20),
+    // The checkbox on the form sends `attest: true`; the time it was ticked is what is kept.
+    attestedAt: (raw as { attest?: unknown }).attest === true ? new Date().toISOString() : "",
   };
   const errors: string[] = [];
   if (input.title.length < 3) errors.push("A title, at least three characters.");
@@ -56,6 +64,9 @@ export function validatePosting(raw: Partial<PostingInput>): { input: PostingInp
   else if (input.salaryMin < 10000 || input.salaryMax > 2000000) errors.push("The pay range should be annual figures (for example 180000 to 240000).");
   if (input.description.length < 200) errors.push("A description of at least 200 characters. Keywords in the text are what the score reads.");
   if (!input.applyUrl && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(input.applyEmail)) errors.push("How candidates apply: a working application link, or an email address.");
+  // The content screen: phrases that are never lawful in a job advertisement stop the save, with the phrase quoted.
+  for (const hit of screenPosting(`${input.title}\n${input.benefits}\n${input.description}`)) errors.push(`${hit.why}: remove "${hit.phrase}".`);
+  if (!input.attestedAt) errors.push("Tick the confirmation at the bottom: a real, open position you are authorised to post, lawful where it is offered, and agreement to the Terms of Use and the Refund Policy.");
   // A matching term counts only when the posting itself carries it; the form says so before this strips it.
   const haystack = `${input.title}\n${input.description}`.toLowerCase();
   input.tags = input.tags.filter((t) => haystack.includes(t));
@@ -126,7 +137,7 @@ export function toFeedJob(p: Posting, site: string) {
   return {
     id: p.id, source: "tekjobs", company: p.company, title: p.title, url: `${site}/jobs/${p.id}`, applyUrl: p.applyUrl || undefined,
     location, remote: p.workplace === "remote", posted: p.publishedAt, expires: p.expiresAt,
-    salary: pay, salaryMin: p.salaryMin, salaryMax: p.salaryMax, currency: p.currency,
+    salary: pay, salaryMin: p.salaryMin, salaryMax: p.salaryMax, currency: p.currency, benefits: p.benefits || undefined,
     department: p.department, employmentType: p.employmentType, seniority: p.seniority, tags: p.tags,
     description: p.description, applyEmail: p.applyEmail || undefined, companyUrl: p.companyUrl || undefined,
   };

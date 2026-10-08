@@ -2,7 +2,7 @@
 title: Privacy Policy
 order: 2
 summary: What tekjobs.timurtek.com collects, why, who processes it, and what the TekJobs software does not send anywhere.
-updated: 2026-09-24
+updated: 2026-10-07
 ---
 
 This policy covers **tekjobs.timurtek.com** and the accounts and job-posting service on it, operated by **Timurtek LLC**, Everett, Washington, USA (hello@timurtek.com). It also says, because people ask, what the TekJobs software does with your data: nothing that leaves your computer.
@@ -22,6 +22,8 @@ TekJobs, the software in the repository, runs locally. Your profile, resume, cri
 **Server logs.** Our host, Vercel, keeps standard request logs (IP address, user agent, path, time) for a short period for security and debugging.
 
 **Analytics.** The Site uses Google Analytics 4 to count visits and see which pages are read: page views, the referring site, approximate location from the IP address (Google does not store the address itself), browser and device type. It runs only on the public site at tekjobs.timurtek.com, not in preview builds and never in the TekJobs software on your computer. We do not send it your account email, your postings, or anything you type. Google processes this data under [its privacy policy](https://policies.google.com/privacy); its [browser add-on](https://tools.google.com/dlpage/gaoptout) opts you out everywhere, and a browser that blocks the `googletagmanager.com` script has the same effect here. We do not run advertising trackers.
+
+**What we do not collect.** The Site collects no consumer health data in the sense of Washington's My Health My Data Act, no precise location, and nothing about job seekers: it has no view of who reads or applies to a posting. The Site is operated from and directed at the United States.
 
 **Cookies.** One cookie of ours, `tj_session`, keeps you signed in for up to fourteen days. It is strictly necessary for the account to work and holds no tracking. Google Analytics sets its own cookies (`_ga` and `_ga_*`) to tell a returning browser from a new one; they hold a random id, not your name or email. The theme you pick is remembered in your browser's local storage and never sent to us.
 

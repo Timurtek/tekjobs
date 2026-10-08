@@ -14,7 +14,9 @@ That is the whole product. There is no inbox blast, no promoted slot, no list of
 
 Sign in at [Post a job](/post-a-job). With no postings yet, the form is the page. It asks for the job, where it is, what it pays, what the work is, and how to apply.
 
-Pay is required, both ends, as annual base in US dollars. Every reader's criteria carry a pay floor, and a posting with no stated range scores below one with, so leaving it out costs you the readers you most want.
+Pay is required, both ends, as annual base in US dollars. Every reader's criteria carry a pay floor, and a posting with no stated range scores below one with, so leaving it out costs you the readers you most want. A line on benefits and other compensation sits under it; Washington, Colorado, New York and California require one in a posting that recruits there.
+
+Before a posting saves you tick one confirmation: a real, open position you are authorised to post, lawful where it is offered, and agreement to the Terms and the Refund Policy. A short content screen runs at the same time and sends the posting back, with the phrase quoted, if it charges applicants, screens by age, origin, religion, sex, family status or disability, or recruits for a scheme rather than a job. Lawful statements, such as declining visa sponsorship, pass.
 
 The description takes Markdown and has a preview. Keywords in the text are what the score reads. A paragraph that says what the team builds and which systems it uses beats a list of buzzwords, because the score caps keyword points and a reader's title terms need the real title.
 
