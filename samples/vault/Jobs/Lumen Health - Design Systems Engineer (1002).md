@@ -10,8 +10,8 @@ source: lever
 url: "https://jobs.example.com/lumen/design-systems-engineer"
 score: 109
 weights: 3e895160
-posted: "2026-09-11"
-found: 2026-09-12
+posted: "2026-09-26"
+found: 2026-09-27
 salary: "$175k–$205k"
 salary_max: 205000
 pay_band: floor
@@ -32,7 +32,7 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-12 — found by scraper (score 109). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-09-27 — found by scraper (score 109). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
 
 ## Notes
 

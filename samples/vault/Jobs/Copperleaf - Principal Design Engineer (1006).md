@@ -10,8 +10,8 @@ source: greenhouse
 url: "https://jobs.example.com/copperleaf/principal-design-engineer"
 score: 134
 weights: 3e895160
-posted: "2026-09-19"
-found: 2026-09-20
+posted: "2026-10-04"
+found: 2026-10-05
 salary: "$240k–$290k"
 salary_max: 290000
 pay_band: floor
@@ -33,8 +33,8 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-20 — found by scraper (score 134). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
-- 2026-09-20 — new → **reviewing** (via app)
+- 2026-10-05 — found by scraper (score 134). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-05 — new → **reviewing** (via app)
 
 ## Notes
 

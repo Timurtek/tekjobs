@@ -170,6 +170,8 @@ criteriaRaw.titleTerms = { 'design engineer': 40, 'design systems': 30, 'design 
 criteriaRaw.descTerms = { 'design system': 6, 'design systems': 6, 'react': 4, 'typescript': 4, 'storybook': 4, 'figma': 3, 'accessibility': 4, 'tokens': 3, 'component library': 4, 'wcag': 3 };
 criteriaRaw.salary = { ...criteriaRaw.salary, minAnnual: 200000, stretchAnnual: 170000 };
 criteriaRaw.location = { ...criteriaRaw.location, requireRemote: true };
+// The profile says gambling is out; the company rule is how the scan honours it, and staffing agencies are a common ask.
+criteriaRaw.companyExclude = ["gambling", "casino", "staffing"];
 at(20, () => store.setCriteria(JSON.stringify(criteriaRaw, null, 2)));
 const criteria = loadCriteria();
 

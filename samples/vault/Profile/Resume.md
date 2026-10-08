@@ -1,6 +1,6 @@
 ---
 type: resume
-updated: 2026-09-03
+updated: 2026-09-18
 source: Resume - Jordan Example.pdf
 ---
 # Jordan Example

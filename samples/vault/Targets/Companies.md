@@ -1,6 +1,6 @@
 ---
 type: config
-updated: 2026-09-23
+updated: 2026-10-08
 ---
 # Company Watchlist
 
@@ -117,7 +117,7 @@ This starter list is the community registry: tech companies whose boards answer 
 | DoorDash | greenhouse | doordashusa | C | |  |
 | Lyft | greenhouse | lyft | C | |  |
 | Roblox | greenhouse | roblox | C | |  |
-| Amplitude | greenhouse | amplitude | C | |  |
+| Amplitude | ashby | amplitude | C | | moved to ashby 2026-10-07 |
 | Mixpanel | greenhouse | mixpanel | C | |  |
 | Lattice | greenhouse | lattice | C | |  |
 | Carta | greenhouse | carta | C | |  |
@@ -209,7 +209,7 @@ This starter list is the community registry: tech companies whose boards answer 
 | GitLab | greenhouse | gitlab | A | |  |
 | Headway | ashby | headway | B | |  |
 | Hex | ashby | hex | A | |  |
-| Hightouch | greenhouse | hightouch | B | |  |
+| Hightouch | ashby | hightouch | B | | moved to ashby 2026-10-07 |
 | Honeycomb | greenhouse | honeycomb | B | |  |
 | Included Health | lever | includedhealth | B | |  |
 | Inngest | ashby | inngest | B | |  |
@@ -236,7 +236,7 @@ This starter list is the community registry: tech companies whose boards answer 
 | Orum | ashby | orum | B | |  |
 | Oscar | greenhouse | oscar | B | |  |
 | Otter | greenhouse | otter | B | |  |
-| Outschool | greenhouse | outschool | B | |  |
+| Outschool | ashby | outschool | B | | moved to ashby 2026-10-07 |
 | Parloa | greenhouse | parloa | B | |  |
 | Payoneer | greenhouse | payoneer | B | |  |
 | Peloton | greenhouse | peloton | B | |  |

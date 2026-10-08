@@ -11,8 +11,8 @@ source: lever
 url: "https://jobs.example.com/quill/design-engineer-editor"
 score: 63
 weights: 3e895160
-posted: "2026-09-05"
-found: 2026-09-06
+posted: "2026-09-20"
+found: 2026-09-21
 salary: "$170k–$210k"
 salary_max: 210000
 pay_band: floor
@@ -34,9 +34,9 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-06 — found by scraper (score 63). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
-- 2026-09-07 — new → **reviewing** (via app)
-- 2026-09-08 — reviewing → **passed** (wrong role shape) (via app)
+- 2026-09-21 — found by scraper (score 63). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-09-22 — new → **reviewing** (via app)
+- 2026-09-23 — reviewing → **passed** (wrong role shape) (via app)
 
 ## Notes
 

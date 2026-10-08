@@ -68,7 +68,7 @@ test('title abbreviations are spelled out before matching, and a company exclusi
   assert.equal(casino.excluded, true);
   assert.equal(casino.score, -999);
   assert.match(casino.reasons[0], /excluded by company: "casino"/);
-  assert.equal(scoreJob(posting({ company: 'Casino Alpha' }), c, { now }).excluded, false, 'without the key nothing changes');
+  assert.equal(scoreJob(posting({ company: 'Casino Alpha' }), { ...c, companyExclude: [] }, { now }).excluded, false, 'without the key nothing changes');
 });
 
 test('the pieces move the score the way the docs say: no title match, not remote, stretch and below-floor pay, staleness', () => {

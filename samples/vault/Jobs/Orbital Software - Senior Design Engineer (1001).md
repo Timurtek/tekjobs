@@ -10,8 +10,8 @@ source: ashby
 url: "https://jobs.example.com/orbital/senior-design-engineer"
 score: 129
 weights: 3e895160
-posted: "2026-09-17"
-found: 2026-09-18
+posted: "2026-10-02"
+found: 2026-10-03
 salary: "$190k–$230k"
 salary_max: 230000
 pay_band: floor
@@ -33,7 +33,7 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-18 — found by scraper (score 129). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-03 — found by scraper (score 129). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
 
 ## Notes
 

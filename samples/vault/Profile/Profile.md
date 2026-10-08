@@ -1,6 +1,6 @@
 ---
 type: profile
-updated: 2026-09-03
+updated: 2026-09-18
 status: reviewed
 ---
 # Candidate profile

@@ -10,8 +10,8 @@ source: ashby
 url: "https://jobs.example.com/halcyon/senior-ux-engineer"
 score: 106
 weights: 3e895160
-posted: "2026-09-08"
-found: 2026-09-09
+posted: "2026-09-23"
+found: 2026-09-24
 salary: "$180k–$215k"
 salary_max: 215000
 pay_band: floor
@@ -33,7 +33,7 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-09 — found by scraper (score 106). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-09-24 — found by scraper (score 106). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
 
 ## Notes
 
