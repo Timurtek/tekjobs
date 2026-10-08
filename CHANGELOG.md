@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.42.0](https://github.com/Timurtek/tekjobs/compare/v0.41.1...v0.42.0) (2026-10-08)
+
+### Features
+
+* **site:** the legal pre-live list for job postings ([c6d9d53](https://github.com/Timurtek/tekjobs/commit/c6d9d53273b67bddd5d4fc3524a61f27a50d1e6c))
+
 ## [0.41.1](https://github.com/Timurtek/tekjobs/compare/v0.41.0...v0.41.1) (2026-10-07)
 
 ### Fixes
