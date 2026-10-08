@@ -61,13 +61,25 @@ export function parseOutput(text) {
 
 const INTERVIEWISH = new Set(['interview', 'screen', 'onsite', 'offer-call']);
 
-/** What confirming an event would do to the note it matched. */
-export function suggestionFor(kind, noteStatus) {
-  if (!noteStatus) return { action: 'none', text: 'No note at this company; the event is noted here only.' };
-  if (kind === 'deadline') return { action: 'deadline', text: 'Puts the date in the note\'s Deadline field.' };
-  if (!INTERVIEWISH.has(kind)) return { action: 'record', text: 'Records the call on the note.' };
-  if (['interviewing', 'offer'].includes(noteStatus)) return { action: 'record', text: 'Records the time in the note\'s Interview on field.' };
-  return { action: 'status', status: 'interviewing', text: 'Moves the note to interviewing and records the time in Interview on.' };
+/** What confirming an event would do to the note it matched. `past` says the event has already happened, which changes the words, not the writes. */
+export function suggestionFor(kind, noteStatus, { past = false } = {}) {
+  if (!noteStatus) return { action: 'none', text: past ? 'No note at this company; the event is kept here as a record only.' : 'No note at this company; the event is noted here only.' };
+  if (kind === 'deadline') return { action: 'deadline', text: past ? 'Records the deadline, already passed, in the note\'s Deadline field.' : 'Puts the date in the note\'s Deadline field.' };
+  if (['rejected', 'passed'].includes(noteStatus)) return { action: 'record', text: `Records the ${INTERVIEWISH.has(kind) ? 'interview' : 'event'} on the note; it stays ${noteStatus}.` };
+  if (!INTERVIEWISH.has(kind)) return { action: 'record', text: past ? 'Records that the call happened, on the note.' : 'Records the call on the note.' };
+  if (['interviewing', 'offer'].includes(noteStatus)) return { action: 'record', text: past ? 'Records that the interview happened; the note stays as it is.' : 'Records the time in the note\'s Interview on field.' };
+  return { action: 'status', status: 'interviewing', text: past ? 'Records that the interview happened and moves the note to interviewing.' : 'Moves the note to interviewing and records the time in Interview on.' };
+}
+
+/** Where an event sits against today, in the person's own calendar days: behind, today, or ahead, with the distance. */
+export function timing(start, now = new Date()) {
+  const day = String(start || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { when: 'upcoming', days: 0, label: '' };
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const days = Math.round((Date.parse(day) - Date.parse(today)) / 864e5);
+  if (days < 0) return { when: 'past', days, label: days === -1 ? 'yesterday' : `${-days} days ago` };
+  if (days === 0) return { when: 'today', days, label: 'today' };
+  return { when: 'upcoming', days, label: days === 1 ? 'tomorrow' : `in ${days} days` };
 }
 
 /** Each event matched to the notes: the one note at that company in flight, or a pick among several. */
@@ -100,7 +112,7 @@ export function eventLink(i) {
 }
 export function items() {
   const d = load();
-  const all = (d.items || []).map((i) => ({ ...i, link: eventLink(i) }));
+  const all = (d.items || []).map((i) => { const t = timing(i.start); return { ...i, link: eventLink(i), timing: t, suggestion: suggestionFor(i.kind, i.noteStatus, { past: t.when === 'past' }) }; });
   return { ...run, runner: runnerConfig().command, lastRun: d.lastRun, lastDays: d.days, items: all, pending: all.filter((i) => i.state === 'pending') };
 }
 export function start({ days } = {}) {

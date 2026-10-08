@@ -48,6 +48,26 @@ test('every item has a place to open in Google Calendar: its own link, else the 
   assert.equal(parsed[1].link, '', 'only a Google Calendar address is kept as the link');
 });
 
+test('an event that already happened reads as such: the timing says how long ago, and the confirm wording changes while the writes do not', () => {
+  const now = new Date('2026-10-08T12:00:00');
+  assert.deepEqual(cc.timing('2026-10-05 09:30', now), { when: 'past', days: -3, label: '3 days ago' });
+  assert.deepEqual(cc.timing('2026-10-07', now), { when: 'past', days: -1, label: 'yesterday' });
+  assert.deepEqual(cc.timing('2026-10-08 15:00', now), { when: 'today', days: 0, label: 'today' });
+  assert.deepEqual(cc.timing('2026-10-09', now), { when: 'upcoming', days: 1, label: 'tomorrow' });
+  assert.deepEqual(cc.timing('2026-10-20', now), { when: 'upcoming', days: 12, label: 'in 12 days' });
+  const ahead = cc.suggestionFor('interview', 'applied');
+  const behind = cc.suggestionFor('interview', 'applied', { past: true });
+  assert.equal(ahead.action, behind.action, 'the same write either way');
+  assert.equal(behind.status, 'interviewing');
+  assert.match(behind.text, /happened/);
+  assert.match(ahead.text, /Moves the note/);
+  assert.match(cc.suggestionFor('interview', 'interviewing', { past: true }).text, /stays as it is/);
+  const closed = cc.suggestionFor('interview', 'rejected', { past: true });
+  assert.equal(closed.action, 'record', 'a rejected note never moves back to interviewing');
+  assert.match(closed.text, /stays rejected/);
+  assert.equal(cc.suggestionFor('screen', 'passed').action, 'record');
+});
+
 test('reconcile matches by role, then by the one note in flight at the company, and offers the rest as a pick', () => {
   const notes = store.listJobs();
   const northwind = notes.find((n) => n.company === 'Northwind Labs');

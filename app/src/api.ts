@@ -164,6 +164,8 @@ export interface CalendarCheckItem {
   start: string; end: string; summary: string; gist: string; with: string; location: string; calendar: string;
   /** Where the event opens in Google Calendar: its own link, or the day it is on. */
   link: string;
+  /** Behind, today, or ahead, with the distance in days and a word for it; the suggestion is worded for it. */
+  timing: { when: "past" | "today" | "upcoming"; days: number; label: string };
   state: "pending" | "confirmed" | "dismissed"; match: "role" | "company" | "none";
   noteId: string; noteTitle: string; noteStatus: string; candidates: { id: string; title: string; status: string }[];
   suggestion: { action: string; status?: string; text: string };

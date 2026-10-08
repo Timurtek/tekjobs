@@ -215,7 +215,7 @@ async function main() {
       const r = cc.items();
       if (r.error) return console.error(`Calendar check failed (${r.errorKind}): ${r.error}`);
       console.log(`${r.pending.length} event${r.pending.length === 1 ? '' : 's'} waiting for a decision in the app's Calendar page.`);
-      for (const i of r.pending) console.log(`  ${i.start}  ${i.kind.padEnd(14)} ${i.company} — ${i.summary || i.gist}${i.noteId ? `  → ${i.noteTitle} (${i.noteStatus})` : '  → no note'}`);
+      for (const i of r.pending) console.log(`  ${i.start}  ${(i.timing?.label || '').padEnd(12)} ${i.kind.padEnd(14)} ${i.company} — ${i.summary || i.gist}${i.noteId ? `  → ${i.noteTitle} (${i.noteStatus})` : '  → no note'}`);
       return;
     }
     const r = cc.items();

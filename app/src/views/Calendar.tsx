@@ -167,7 +167,12 @@ function FromGoogleCalendar({ onChanged }: { onChanged: () => void }) {
               <Table.Body>
                 {c.pending.map((i) => (
                   <Table.Row key={i.id}>
-                    <Table.Cell><span className="num">{i.start}</span></Table.Cell>
+                    <Table.Cell>
+                      <div className="who__text">
+                        <span className="num">{i.start}</span>
+                        <small><Badge size="sm" tone={i.timing.when === "past" ? "neutral" : i.timing.when === "today" ? "warning" : "success"} variant={i.timing.when === "past" ? "outline" : "soft"}>{i.timing.when === "past" ? `happened ${i.timing.label}` : i.timing.label}</Badge></small>
+                      </div>
+                    </Table.Cell>
                     <Table.Cell>
                       <div className="who__text">
                         <span><Badge size="sm" tone="primary" variant="soft">{CHECK_KIND[i.kind]}</Badge> {i.company}{i.role ? ` · ${i.role}` : ""}</span>
