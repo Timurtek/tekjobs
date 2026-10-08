@@ -37,6 +37,17 @@ test('parseOutput takes the array out of whatever surrounds it, keeps the time, 
   assert.throws(() => cc.parseOutput('I could not read the calendar.'), /no JSON array/);
 });
 
+test('every item has a place to open in Google Calendar: its own link, else the edit address from the ids, else its day', () => {
+  assert.equal(cc.eventLink({ link: 'https://calendar.google.com/calendar/event?eid=abc' }), 'https://calendar.google.com/calendar/event?eid=abc');
+  const built = cc.eventLink({ id: 'evt123', calendarId: 'someone@example.test', start: '2026-10-09 09:00' });
+  assert.match(built, /^https:\/\/calendar\.google\.com\/calendar\/u\/0\/r\/eventedit\/[A-Za-z0-9+/]+$/);
+  assert.equal(Buffer.from(built.split('/').pop(), 'base64').toString(), 'evt123 someone@example.test');
+  assert.equal(cc.eventLink({ id: 'Acme|2026-10-09', start: '2026-10-09 09:00' }), 'https://calendar.google.com/calendar/u/0/r/day/2026/10/9');
+  const parsed = cc.parseOutput(JSON.stringify([{ company: 'Acme', kind: 'interview', start: '2026-10-09 09:00', eventId: 'e9', calendarId: 'me@example.test', link: 'https://calendar.google.com/calendar/event?eid=xyz' }, { company: 'Acme', kind: 'interview', start: '2026-10-10 09:00', eventId: 'e10', link: 'https://evil.example/phish' }]));
+  assert.equal(parsed[0].link, 'https://calendar.google.com/calendar/event?eid=xyz');
+  assert.equal(parsed[1].link, '', 'only a Google Calendar address is kept as the link');
+});
+
 test('reconcile matches by role, then by the one note in flight at the company, and offers the rest as a pick', () => {
   const notes = store.listJobs();
   const northwind = notes.find((n) => n.company === 'Northwind Labs');

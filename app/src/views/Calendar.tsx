@@ -68,6 +68,8 @@ export function Calendar() {
         <Button asChild variant="soft" size="sm"><a href={data.ics} download="tekjobs.ics">Download .ics</a></Button>
       </div>
 
+      <FromGoogleCalendar onChanged={load} />
+
       <section className="today__section">
         <div className="today__section-head">
           <h2 className="today__heading">Coming up</h2>
@@ -86,8 +88,6 @@ export function Calendar() {
           <Card padding="none">{table(data.past, "The last two weeks")}</Card>
         </section>
       )}
-
-      <FromGoogleCalendar onChanged={load} />
 
       <section className="today__section">
         <h2 className="today__heading">In your calendar app</h2>
@@ -145,7 +145,7 @@ function FromGoogleCalendar({ onChanged }: { onChanged: () => void }) {
       </div>
       <Card padding="md">
         <div className="panel">
-          <p className="muted">Interviews and calls already on your calendar, read through the local CLI&apos;s Google Calendar connector with its read tools only, matched to your notes. You confirm each one; confirming puts the time into the note&apos;s Interview on field and moves a note that is not yet interviewing. Nothing is ever written to the calendar. Needs Claude Code with the Google Calendar connector enabled.</p>
+          <p className="muted">Interviews and calls already on your calendar, read through the local CLI&apos;s Google Calendar connector with its read tools only, matched to your notes. Each event opens in Google Calendar from its title. You confirm each one here; confirming puts the time into the note&apos;s Interview on field and moves a note that is not yet interviewing. Nothing is ever written to the calendar. Needs Claude Code with the Google Calendar connector enabled.</p>
           <div className="form__actions form__actions--start">
             <Button size="sm" variant="soft" tone="primary" loading={c.running} disabled={c.running} onClick={check}>{c.running ? "Reading the calendar" : "Check Google Calendar"}</Button>
             {c.running && <Loader size="sm" />}
@@ -171,7 +171,7 @@ function FromGoogleCalendar({ onChanged }: { onChanged: () => void }) {
                     <Table.Cell>
                       <div className="who__text">
                         <span><Badge size="sm" tone="primary" variant="soft">{CHECK_KIND[i.kind]}</Badge> {i.company}{i.role ? ` · ${i.role}` : ""}</span>
-                        <small>{i.summary}{i.with ? ` · with ${i.with}` : ""}</small>
+                        <small><a className="people__thread" href={i.link} target="_blank" rel="noreferrer">{i.summary || "the event"} ↗</a>{i.with ? ` · with ${i.with}` : ""}</small>
                       </div>
                     </Table.Cell>
                     <Table.Cell>

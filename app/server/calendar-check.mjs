@@ -34,7 +34,7 @@ Look at every event from ${back} days ago to ${days} days ahead, on every calend
 Decide the company from the title, the description, the organiser's or attendees' email domains, or the meeting link. Use the exact start time the event has.
 
 Output ONLY a JSON array, no prose, no code fence, one object per event:
-{"company": "company name", "role": "role title if the event or its description names one, else empty string", "kind": "${KINDS.join('|')}", "start": "YYYY-MM-DD HH:MM in the person's own time zone", "end": "YYYY-MM-DD HH:MM or empty", "summary": "the event title", "gist": "one plain sentence on what it is", "with": "the other people on it by name, comma separated, or empty", "location": "the meeting link or place, or empty", "eventId": "the event id", "calendar": "the calendar's name"}
+{"company": "company name", "role": "role title if the event or its description names one, else empty string", "kind": "${KINDS.join('|')}", "start": "YYYY-MM-DD HH:MM in the person's own time zone", "end": "YYYY-MM-DD HH:MM or empty", "summary": "the event title", "gist": "one plain sentence on what it is", "with": "the other people on it by name, comma separated, or empty", "location": "the meeting link or place, or empty", "eventId": "the event id", "calendarId": "the calendar's id (its email-like id) if the tool gives it, else empty", "calendar": "the calendar's name", "link": "the event's htmlLink (its calendar.google.com address) if the tool gives it, else empty"}
 
 If nothing matches, output [].${companies.length ? `
 
@@ -55,6 +55,7 @@ export function parseOutput(text) {
     id: String(m.eventId || `${m.company}|${m.start}`).trim(), company: String(m.company).trim(), role: String(m.role || '').trim(),
     kind: KINDS.includes(m.kind) ? m.kind : 'other', start: when(m.start), end: when(m.end), summary: String(m.summary || '').trim().slice(0, 160),
     gist: String(m.gist || '').trim().slice(0, 300), with: String(m.with || '').trim().slice(0, 200), location: String(m.location || '').trim().slice(0, 300), calendar: String(m.calendar || '').trim().slice(0, 80),
+    calendarId: String(m.calendarId || '').trim().slice(0, 160), link: /^https:\/\/(calendar\.google\.com|www\.google\.com\/calendar)\//i.test(String(m.link || '').trim()) ? String(m.link).trim() : '',
   }));
 }
 
@@ -87,9 +88,20 @@ export function reconcile(events, notes) {
 
 // ---------------- running ----------------
 const run = { running: false, startedAt: null, finishedAt: null, error: '', errorKind: '', days: null, lastOutput: '' };
+/**
+ * Where the event opens in Google Calendar: its own htmlLink when the connector gave one; else the edit address
+ * built from the event and calendar ids the way Google encodes it; else the day it is on.
+ */
+export function eventLink(i) {
+  if (i.link) return i.link;
+  if (i.id && i.calendarId && !/\|/.test(i.id)) return `https://calendar.google.com/calendar/u/0/r/eventedit/${Buffer.from(`${i.id} ${i.calendarId}`).toString('base64').replace(/=+$/, '')}`;
+  const [y, m, d] = String(i.start || '').slice(0, 10).split('-');
+  return y && m && d ? `https://calendar.google.com/calendar/u/0/r/day/${y}/${Number(m)}/${Number(d)}` : 'https://calendar.google.com/';
+}
 export function items() {
   const d = load();
-  return { ...run, runner: runnerConfig().command, lastRun: d.lastRun, lastDays: d.days, items: d.items || [], pending: (d.items || []).filter((i) => i.state === 'pending') };
+  const all = (d.items || []).map((i) => ({ ...i, link: eventLink(i) }));
+  return { ...run, runner: runnerConfig().command, lastRun: d.lastRun, lastDays: d.days, items: all, pending: all.filter((i) => i.state === 'pending') };
 }
 export function start({ days } = {}) {
   if (run.running) return items();

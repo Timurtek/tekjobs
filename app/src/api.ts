@@ -162,6 +162,8 @@ export interface Calendar { today: string; events: CalendarEvent[]; upcoming: Ca
 export interface CalendarCheckItem {
   id: string; company: string; role: string; kind: "interview" | "screen" | "onsite" | "offer-call" | "recruiter-call" | "deadline" | "other";
   start: string; end: string; summary: string; gist: string; with: string; location: string; calendar: string;
+  /** Where the event opens in Google Calendar: its own link, or the day it is on. */
+  link: string;
   state: "pending" | "confirmed" | "dismissed"; match: "role" | "company" | "none";
   noteId: string; noteTitle: string; noteStatus: string; candidates: { id: string; title: string; status: string }[];
   suggestion: { action: string; status?: string; text: string };
