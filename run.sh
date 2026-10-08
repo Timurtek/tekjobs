@@ -1,5 +1,5 @@
 #!/bin/sh
-# Daily TekJobs scan for cron and launchd: the scan, then the read-only mail pass. `tekjobs schedule` prints
+# Daily TekJobs scan for cron and launchd: the scan, then the read-only mail and calendar passes. `tekjobs schedule` prints
 # the one line that calls this at 07:30; run.cmd is the Windows twin.
 cd "$(dirname "$0")" || exit 1
 export TEKJOBS_RUN_VIA=schedule
@@ -9,4 +9,6 @@ mkdir -p data
   node run.mjs
   echo "----- mail $(date) -----"
   node cli.mjs mail
+  echo "----- calendar $(date) -----"
+  node cli.mjs calendar check
 } >> data/runs.log 2>&1

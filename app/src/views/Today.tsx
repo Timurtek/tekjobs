@@ -5,6 +5,7 @@ import { useMediaQuery } from "@/lib/useMediaQuery";
 import { api, BAND_TONE, daysAgo, PASS_REASONS, shortPay, type Job, type Learned, type MailGroup, type MailItem, type MailState, type PassReason, type Today as TodayData, type TodayRow } from "../api";
 
 import { MailStrip } from "./Mail";
+import { CalendarStrip } from "./Calendar";
 import { JobSheet } from "./Jobs";
 import type { Page } from "../components/Shell";
 
@@ -140,6 +141,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
       </section>
 
       <MailStrip onOpen={() => onNavigate("mail")} />
+      <CalendarStrip onOpen={() => onNavigate("calendar")} />
 
       {sections.started.length > 0 && (
         <section className="today__section">

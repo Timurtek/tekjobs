@@ -1,4 +1,4 @@
-import { Badge, Button, Card, CodeBlock, EmptyState, Loader, Select, Skeleton, Table, toast } from "@/components/ui";
+import { Badge, Button, Card, CodeBlock, EmptyState, Icon, Loader, Select, Skeleton, Table, toast } from "@/components/ui";
 import { useEffect, useState } from "react";
 import { api, type Calendar as CalendarData, type CalendarCheckItem, type CalendarCheckState, type CalendarEvent } from "../api";
 import { JobSheet } from "./Jobs";
@@ -197,5 +197,24 @@ function FromGoogleCalendar({ onChanged }: { onChanged: () => void }) {
         </div>
       </Card>
     </section>
+  );
+}
+
+/** On Today: how many calendar events wait for a decision, with the way to them. Nothing when there are none and no run is going. */
+export function CalendarStrip({ onOpen }: { onOpen: () => void }) {
+  const [c, setC] = useState<CalendarCheckState | null>(null);
+  useEffect(() => { api.calendarItems().then(setC).catch(() => {}); }, []);
+  const n = c?.pending.length ?? 0;
+  if (!c || (n === 0 && !c.running)) return null;
+  return (
+    <Card padding="md">
+      <div className="mailstrip">
+        <span>
+          {c.running ? <><Loader size="sm" /> Reading the calendar.</> : <><b className="num">{n}</b> calendar {n === 1 ? "event waits" : "events wait"} for a decision.</>}
+          {c.lastRun && <span className="muted"> Last read <span className="num">{c.lastRun.slice(0, 16).replace("T", " ")}</span> UTC.</span>}
+        </span>
+        <Button size="sm" variant="soft" tone="primary" leadingIcon={<Icon.Calendar />} onClick={onOpen}>Open Calendar</Button>
+      </div>
+    </Card>
   );
 }

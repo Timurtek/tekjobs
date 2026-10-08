@@ -24,6 +24,10 @@ Some sites are not reachable from a scan and the docs say so rather than pretend
 
 Flags: `--dry` scores without writing, `--only <slug>` fetches one board, `--check-slugs` reports boards that answer with nothing, `--criteria <name|file>` scores this run with a preset.
 
+## The morning run
+
+`tekjobs schedule` installs one task (Windows) or prints the one line (cron, launchd) that runs three things in a row at 07:30: the scan, the read-only mail pass, and the read-only calendar pass. The two passes need Claude Code with the Gmail and Google Calendar connectors; each leaves proposals on the Mail and Calendar pages for you to confirm, and neither sends, replies, or creates anything. A pass that cannot run (no connector, signed out) says so in `data/runs.log` and the next one still runs.
+
 ## The journal
 
 Every real scan ends by rewriting the last section of that day's log note, `Logs/<date>.md`, as a journal of the day read from the record: the runs and what they read and wrote, what was found and the best of it, every decision made that day with who made it (you, the app, an agent, the mail check, the LinkedIn export), the mail items confirmed or dismissed, and the lines added to job notes. It is rebuilt each time, so the day's journal is always the whole day so far. `tekjobs journal` prints it for today or any date; `--write` puts it in the note without a scan. The Overview page shows today's.

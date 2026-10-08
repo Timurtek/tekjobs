@@ -34,7 +34,7 @@ const HELP = `tekjobs — a local job-search machine
                                          (for location, description or seniority rule changes); notes already
                                          at these weights are left alone
   tekjobs schedule [--time HH:MM] [--print]
-                                         run the scan and the mail read every morning: creates the Windows task
+                                         run the scan, then the read-only mail and calendar passes, every morning: creates the Windows task
                                          (07:30 by default), or prints the crontab or launchd line for macOS and
                                          Linux; --print shows the command without installing anything
   tekjobs import linkedin <zip|folder>   your LinkedIn data export into the search: who you know at each
@@ -335,7 +335,7 @@ function schedule() {
   const printOnly = rest.includes('--print');
   if (process.platform === 'win32') {
     const cmd = `schtasks /Create /F /SC DAILY /ST ${time} /TN "TekJobs Daily Scan" /TR "\\"${path.join(ROOT, 'run.cmd')}\\""`;
-    console.log(`Windows Task Scheduler entry "TekJobs Daily Scan", daily at ${time}, running run.cmd (the scan, then the mail read):\n  ${cmd}`);
+    console.log(`Windows Task Scheduler entry "TekJobs Daily Scan", daily at ${time}, running run.cmd (the scan, then the read-only mail and calendar passes):\n  ${cmd}`);
     if (printOnly) return;
     const r = spawnSync(cmd, { shell: true, encoding: 'utf8' });
     if (r.status === 0) console.log('Installed. See it in Task Scheduler, or remove it with: schtasks /Delete /TN "TekJobs Daily Scan" /F');
@@ -359,5 +359,5 @@ function schedule() {
 EOF
   launchctl load ${plist}`);
   }
-  console.log('\nBoth run run.sh: the scan, then the read-only mail pass, appending to data/runs.log.');
+  console.log('\nBoth run run.sh: the scan, then the read-only mail and calendar passes, appending to data/runs.log.');
 }

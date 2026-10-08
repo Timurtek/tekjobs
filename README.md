@@ -64,7 +64,7 @@ It does not fit if you want a hosted service with nothing to install (TekJobs is
 
    ```
    tekjobs up           # the app on http://127.0.0.1:8787, detached: it stays up until `tekjobs down`
-   tekjobs schedule     # the scan and the read-only mail pass, daily at 07:30 (--time to change it)
+   tekjobs schedule     # the scan, then the read-only mail and calendar passes, daily at 07:30 (--time to change it)
    ```
 
 About twenty-five minutes end to end on a fresh machine, most of it the interview. To change the code, or to run the app from source, clone instead: `git clone https://github.com/Timurtek/tekjobs && cd tekjobs && npm install`, then `npm run init -- --resume <file>`; the app is `cd app && npm install && npm run dev` with `npm run server` beside it. The clone's `app/.mcp.json` connects the server for Claude Code on its own.
