@@ -2,6 +2,16 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.45.0](https://github.com/Timurtek/tekjobs/compare/v0.44.0...v0.45.0) (2026-10-08)
+
+### Features
+
+* **app:** intent leads on Criteria; the tool catalogue sits behind a filter on Agent access ([de95df3](https://github.com/Timurtek/tekjobs/commit/de95df30150e9467890d4e14056877f2a4536282))
+
+### Fixes
+
+* **app:** the shortcut hint stays on one line; sample vault and landing screenshots rebuilt ([90ce578](https://github.com/Timurtek/tekjobs/commit/90ce5787a6933ed7308a7a3fc4d79fab54707e5f))
+
 ## [0.44.0](https://github.com/Timurtek/tekjobs/compare/v0.43.0...v0.44.0) (2026-10-08)
 
 ### Features
