@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.51.1](https://github.com/Timurtek/tekjobs/compare/v0.51.0...v0.51.1) (2026-10-08)
+
+### Fixes
+
+* **calendar:** an event that already happened reads as such, and a closed note never moves back ([830be07](https://github.com/Timurtek/tekjobs/commit/830be07e4713cfd06cbe9d16ec6d29adbed43278))
+
 ## [0.51.0](https://github.com/Timurtek/tekjobs/compare/v0.50.0...v0.51.0) (2026-10-08)
 
 ### Features
