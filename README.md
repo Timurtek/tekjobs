@@ -203,7 +203,7 @@ scraper/starter/           the notes a new profile folder starts with (including
 app/                       Zengin UI front end, API server, MCP server
 site/                      tekjobs.timurtek.com: the landing page and docs (Next.js on Zengin UI, deployed from this folder on Vercel)
 samples/vault/             the fictional profile folder
-tools/                     board discovery scripts, the sample-vault builder, the counts the README and the site print
+tools/                     board discovery scripts, the sample-vault builder, the landing screenshots (npm run screens), the counts the README and the site print
 ```
 
 ## Releases
