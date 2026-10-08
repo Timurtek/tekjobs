@@ -123,8 +123,8 @@ const PAGE_SIZE = 25;
 const DAY_OPTIONS: [string, string][] = [["", "any time"], ["2", "2 days"], ["7", "7 days"], ["14", "14 days"], ["30", "30 days"], ["90", "90 days"]];
 
 /** Every filter on the view. Lists are arrays; numbers stay strings while they are being typed. */
-interface Filters { q: string; location: string; remote: boolean; kind: string; band: string[]; status: string[]; source: string[]; company: string[]; minScore: string; maxScore: string; payMin: string; payMax: string; payKnown: boolean; postedDays: string; foundDays: string }
-const DEFAULTS: Filters = { q: "", location: "", remote: false, kind: "all", band: [], status: [], source: [], company: [], minScore: "45", maxScore: "", payMin: "", payMax: "", payKnown: false, postedDays: "", foundDays: "" };
+interface Filters { q: string; location: string[]; remote: boolean; kind: string; band: string[]; status: string[]; source: string[]; company: string[]; minScore: string; maxScore: string; payMin: string; payMax: string; payKnown: boolean; postedDays: string; foundDays: string }
+const DEFAULTS: Filters = { q: "", location: [], remote: false, kind: "all", band: [], status: [], source: [], company: [], minScore: "45", maxScore: "", payMin: "", payMax: "", payKnown: false, postedDays: "", foundDays: "" };
 const hashParams = () => new URLSearchParams(window.location.hash.split("?")[1] ?? "");
 
 /** The filter dimensions that can become chips, in the order they appear. Search is its own field. */
@@ -147,7 +147,7 @@ const isActive = (f: Filters, key: DimKey) => {
 /** Filters live in the hash (#/jobs?status=applied,applying&payMin=200000), so a filtered view is a link you can keep or send. */
 function readFilters(from?: string): Filters {
   const qs = from !== undefined ? new URLSearchParams(from) : hashParams();
-  const f = { ...DEFAULTS, band: [] as string[], status: [] as string[], source: [] as string[], company: [] as string[] };
+  const f = { ...DEFAULTS, location: [] as string[], band: [] as string[], status: [] as string[], source: [] as string[], company: [] as string[] };
   const bag = f as unknown as Record<string, unknown>;
   for (const k of Object.keys(DEFAULTS) as (keyof Filters)[]) {
     const v = qs.get(k);
@@ -175,7 +175,7 @@ function writeFilters(f: Filters, sort: string, dir: string) {
   window.history.replaceState(null, "", `#/jobs${s ? `?${s}` : ""}`);
 }
 const toQuery = (f: Filters): JobQuery => ({
-  q: f.q, location: f.location, remote: f.remote ? 1 : undefined, kind: f.kind === "all" ? undefined : (f.kind as Kind),
+  q: f.q, location: f.location.join(","), remote: f.remote ? 1 : undefined, kind: f.kind === "all" ? undefined : (f.kind as Kind),
   band: f.band.join(","), status: f.status.join(","), source: f.source.join(","), company: f.company.join(","),
   // "any" sends no floor at all, so notes with a negative score (created from an email or a link) show too.
   minScore: f.minScore === "0" || f.minScore === "" ? undefined : Number(f.minScore), maxScore: f.maxScore ? Number(f.maxScore) : undefined,
@@ -280,6 +280,9 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   const sourceOptions = withCount(sourceValues, facets?.source, (s) => (s === "link" ? "added by link" : s));
   const companyValues = Array.from(new Set([...f.company, ...Object.entries(facets?.company ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([c]) => c)]));
   const companyOptions = withCount(companyValues, facets?.company, (c) => c);
+  // Places read from the postings' location text, most common first; a chosen place stays listed at zero.
+  const locationValues = Array.from(new Set([...f.location, ...Object.entries(facets?.location ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([p]) => p)]));
+  const locationOptions = withCount(locationValues, facets?.location, (p) => p);
   const pay = facets?.pay;
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -341,7 +344,7 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   // The editor inside a chip's popover, per dimension.
   const editorFor = (key: DimKey) => {
     switch (key) {
-      case "location": return <TextField size="sm" label="Location" description="Comma-separated, any of; whole words." placeholder="seattle, wa, united states" value={f.location} onChange={(e) => set("location", e.target.value)} autoFocus />;
+      case "location": return <Combobox size="sm" multiple label="Location" description="Any of these. Remote, a country, a US state or a city, as the postings name them." placeholder="Any place" emptyMessage="No place in the current results by that name." options={locationOptions} value={f.location} onValueChange={(v) => set("location", v)} />;
       case "remote": return <Switch size="sm" label={`Remote only${facets ? ` (${facets.remote.remote})` : ""}`} checked={f.remote} onCheckedChange={(v) => set("remote", v === true)} />;
       case "payKnown": return <Switch size="sm" label="Stated pay only" checked={f.payKnown} onCheckedChange={(v) => set("payKnown", v === true)} />;
       case "kind": return (

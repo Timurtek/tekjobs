@@ -14,7 +14,7 @@
 //   - a local .md, .txt, .docx or .pdf — including a Doc downloaded with File > Download
 import fs from 'node:fs';
 import path from 'node:path';
-import { P, VAULT, profileSettings, writeProfileSettings } from './config.mjs';
+import { P, VAULT, profileSettings, writeProfileSettings, localDay } from './config.mjs';
 import { htmlToText } from './sources.mjs';
 import { extractText } from './resume.mjs';
 
@@ -23,7 +23,7 @@ export const RESUME_NOTE = 'Profile/Resume.md';
 /** Where earlier versions of this project kept it. Read as a fallback, never written. */
 export const LEGACY_RESUME_NOTES = ['Profile/Resume - Design Engineer (Staff).md', 'Profile/Resume - Master.md'];
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => localDay();
 
 // ---------------- the remembered source ----------------
 

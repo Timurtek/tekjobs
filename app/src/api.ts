@@ -12,6 +12,8 @@ export interface JobRow {
   company: string;
   title: string;
   location: string;
+  /** Place tags read from the location text: Remote, countries, US states, cities. */
+  places: string[];
   remote: boolean;
   source: string;
   url: string;
@@ -349,6 +351,8 @@ export interface Facets {
   kind: Record<string, number>;
   source: Record<string, number>;
   company: Record<string, number>;
+  /** Place tags with counts, under the other filters. */
+  location: Record<string, number>;
   remote: { remote: number; onsite: number };
   pay: { stated: number; unstated: number; min: number; max: number; median: number };
 }
@@ -372,7 +376,7 @@ export interface ImportResult {
 
 export interface JobQuery {
   q?: string;
-  /** Comma-separated any-of list matched against the posting's location text. */
+  /** Comma-separated any-of list: a place tag (Remote, United States, Washington, Seattle) or a whole word in the posting's location text. */
   location?: string;
   /** 1 keeps only rows the scan marked remote. */
   remote?: 1;

@@ -31,3 +31,7 @@ The app's Profile page opens on a summary read from these notes: who, the target
 A job note is written once. After that the scan only flips `listing: open` to `listing: closed <date>` when the posting disappears. Everything the app writes later is an append: a status-log line, a note, a packet field, a mail line, a person. The two exceptions are things you ask for on one note: Attach posting, which replaces the posting's facts, and `rescore --full`, which rewrites the score and reasons under new criteria and says so in the log.
 
 Your `status:` edits are the record. `applied`, `interviewing` and `offer` can only be set by a person, in the app or by hand, because only a person knows.
+
+## Dates
+
+Every date TekJobs writes into the folder (a note's found date, a status-log line, the name of a day's log, the journal's day) is your local calendar day, the one on your clock when it happened. Before 0.54 these were the UTC day, which in the American evening is already tomorrow; dates written before then are left as they were.

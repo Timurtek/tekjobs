@@ -4,6 +4,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url));
+
+/**
+ * The calendar day as YYYY-MM-DD, in this machine's own time zone. Every date the product stamps into the
+ * record (a note's found date, a status-log line, a log file's name, the journal's day, a backup's suffix)
+ * uses this, so an evening decision lands in the day the person made it. Until 2026-10-08 these used the UTC
+ * day, which in the US Pacific evening is already tomorrow; dates already written are left as they are.
+ */
+export function localDay(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 export const HOME_DIR = path.join(os.homedir(), '.tekjobs');
 export const CONFIG_FILE = path.join(HOME_DIR, 'config.json');
 
@@ -68,7 +78,7 @@ export function profileSettings() {
   if (!cfg.resumeSource && !cfg.resumeDir) return own;
   const savedFor = cfg.profile ? path.resolve(cfg.profile) : '';
   if (savedFor !== VAULT) return own; // another profile's settings: not ours to read
-  const adopted = writeProfileSettings({ resumeSource: cfg.resumeSource || '', resumeDir: cfg.resumeDir || '', adopted: new Date().toISOString().slice(0, 10) });
+  const adopted = writeProfileSettings({ resumeSource: cfg.resumeSource || '', resumeDir: cfg.resumeDir || '', adopted: localDay() });
   const { resumeSource, resumeDir, ...machine } = cfg;
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(machine, null, 2));
   return adopted;

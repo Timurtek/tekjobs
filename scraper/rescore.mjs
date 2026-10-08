@@ -16,7 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { P, loadCriteria } from './config.mjs';
+import { P, loadCriteria, localDay } from './config.mjs';
 import { scoreJob, normalizeTitle } from './score.mjs';
 
 /**
@@ -214,7 +214,7 @@ export function rescoreFull({ dry = false, now: proposed = null } = {}) {
       text = stampWeights(text, fingerprint);
       const why = `## Why it matched\n${reasons.map((r) => `- ${r}`).join('\n')}\n\n`;
       text = /^## Why it matched[ \t]*\n/m.test(text) ? text.replace(/^## Why it matched[ \t]*\n[\s\S]*?(?=^## |(?![\s\S]))/m, () => why) : text;
-      if (delta) text = appendUnder(text, 'Status log', `- ${new Date().toISOString().slice(0, 10)} — rescored ${stored} → **${score}** with criteria ${fingerprint} (via cli)`);
+      if (delta) text = appendUnder(text, 'Status log', `- ${localDay()} — rescored ${stored} → **${score}** with criteria ${fingerprint} (via cli)`);
       fs.writeFileSync(file, text);
     }
   }

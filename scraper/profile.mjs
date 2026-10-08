@@ -3,13 +3,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { P, VAULT, rememberProfileDir, loadCriteria, profileSettings, writeProfileSettings } from './config.mjs';
+import { P, VAULT, rememberProfileDir, loadCriteria, profileSettings, writeProfileSettings, localDay } from './config.mjs';
 import { RESUME_NOTE, LEGACY_RESUME_NOTES } from './resume-sync.mjs';
 import { extractText } from './resume.mjs';
 
 const STARTER = fileURLToPath(new URL('./starter/', import.meta.url));
 const SAMPLE = fileURLToPath(new URL('../samples/vault/', import.meta.url));
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => localDay();
 
 /**
  * Create the folder layout and starter notes in `dir` (default: the resolved profile dir). Never overwrites.

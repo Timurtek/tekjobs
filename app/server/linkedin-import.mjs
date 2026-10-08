@@ -4,7 +4,7 @@
 // appended again.
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadCriteria, P, DATA_DIR } from '../../scraper/config.mjs';
+import { loadCriteria, P, DATA_DIR, localDay } from '../../scraper/config.mjs';
 import { readExport, buildIndex, peopleCandidates, warmPaths, companyKey, sameCompany } from '../../scraper/linkedin.mjs';
 import * as people from './people.mjs';
 import * as store from './store.mjs';
@@ -12,7 +12,7 @@ import { writeJobNote } from '../../scraper/vault.mjs';
 import { scoreJob, normalizeTitle } from '../../scraper/score.mjs';
 import { htmlToText } from '../../scraper/sources.mjs';
 
-const isoDay = (d = new Date()) => d.toISOString().slice(0, 10);
+const isoDay = (d = new Date()) => localDay(d);
 const daysAgo = (n) => isoDay(new Date(Date.now() - n * 864e5));
 
 // ---------- the index ----------

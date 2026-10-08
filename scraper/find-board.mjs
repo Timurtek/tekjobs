@@ -3,7 +3,7 @@
 // from Greenhouse to Ashby). This asks every platform the scan can read, with the same slug, and reports the
 // ones that answer with jobs; `moveCompany` rewrites the row when the person says so.
 import fs from 'node:fs';
-import { P, loadCompanies } from './config.mjs';
+import { P, loadCompanies, localDay } from './config.mjs';
 import { fetchCompany } from './sources.mjs';
 
 /** Platforms a slug alone identifies. Workday needs host/tenant/site; the career APIs are not per-company boards. */
@@ -27,7 +27,7 @@ export async function probeBoard(slug, { name = slug, except = '', fetch = fetch
 }
 
 /** Rewrite one watchlist row's platform in place; the status cell is cleared for the scan, the move is noted. */
-export function moveCompany({ name, slug, from, to }, { today = new Date().toISOString().slice(0, 10) } = {}) {
+export function moveCompany({ name, slug, from, to }, { today = localDay() } = {}) {
   if (!slug || !to) throw Object.assign(new Error('slug and to are required'), { status: 400 });
   const row = loadCompanies().find((c) => c.slug === slug && (!from || c.ats === from) && (!name || c.name === name));
   if (!row) throw Object.assign(new Error(`No row for ${from ? from + ':' : ''}${slug} on the watchlist`), { status: 404 });

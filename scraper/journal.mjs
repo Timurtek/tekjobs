@@ -5,10 +5,10 @@
 // day's whole story. The site promises that the notes are the record; this is the record read back as a day.
 import fs from 'node:fs';
 import path from 'node:path';
-import { P, DATA_DIR } from './config.mjs';
+import { P, DATA_DIR, localDay } from './config.mjs';
 
 export const JOURNAL_HEADING = '## Journal';
-const isoDay = (d = new Date()) => d.toISOString().slice(0, 10);
+const isoDay = (d = new Date()) => localDay(d);
 
 const readFm = (text) => {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);

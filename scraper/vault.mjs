@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { P, VAULT } from './config.mjs';
+import { P, VAULT, localDay } from './config.mjs';
 import { weightsFingerprint } from './rescore.mjs';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => localDay();
 const yaml = (v) => JSON.stringify(v ?? '');
 const safe = (s) => (s || '').replace(/[<>:"/\\|?*\x00-\x1f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
 // The tail of the id becomes part of the filename, so only word characters may reach it. A link id ends in a

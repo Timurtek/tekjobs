@@ -6,7 +6,8 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { readStatus as readScanStatus, writeStatus as writeScanStatus, scanState, tail as tailLog, logFile } from '../../scraper/scan-status.mjs';
 import { fileURLToPath } from 'node:url';
-import { DATA_DIR, P, VAULT, HOME_DIR, CONFIG_FILE, PROFILE_SETTINGS_FILE, profileSettings, writeProfileSettings, loadCriteria, loadCompanies, criteriaPresetFile } from '../../scraper/config.mjs';
+import { DATA_DIR, P, VAULT, HOME_DIR, CONFIG_FILE, PROFILE_SETTINGS_FILE, profileSettings, writeProfileSettings, loadCriteria, loadCompanies, criteriaPresetFile, localDay } from '../../scraper/config.mjs';
+import { placesOf, countPlaces } from '../../scraper/places.mjs';
 import { loadHealth, healthState } from '../../scraper/health.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../scraper/vault.mjs';
 import { parseHNHeader } from '../../scraper/sources.mjs';
@@ -16,7 +17,7 @@ import { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetch
 export { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile };
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url)); // the scraper repo root
-const isoDay = () => new Date().toISOString().slice(0, 10);
+const isoDay = () => localDay();
 const DE = /design (engineer|technologist|system)|ux engineer|ui engineer|creative technologist|prototyp/i;
 // `ready` is the approval boundary: a packet drafted and waiting on a person. `reviewing` already serves as
 // shortlisted and `applying` as preparing, so this is the one state the pipeline was missing rather than a
@@ -75,7 +76,7 @@ function countPacketFields(text = '') {
 function rowOf(fm, text = '') {
   return {
     id: fm._name,
-    company: fm.company || '', title: fm.source === 'hn' && /\|/.test(fm.title || '') ? parseHNHeader(fm.title).title : (fm.title || ''), location: fm.location || '',
+    company: fm.company || '', title: fm.source === 'hn' && /\|/.test(fm.title || '') ? parseHNHeader(fm.title).title : (fm.title || ''), location: fm.location || '', places: placesOf(fm.location || ''),
     remote: fm.remote === 'true' || isRemoteRow({ remote: false, location: fm.location || '' }), source: fm.source || '', url: fm.url || '',
     score: Number(fm.score) || 0, posted: fm.posted || '', found: fm.found || '',
     salary: fm.source === 'hn' ? (parseHNHeader(fm.title || '').salary || fm.salary || '') : (fm.salary || ''), salaryMax: Number(fm.salary_max) || 0, payBand: fm.pay_band || 'unknown',
@@ -109,7 +110,9 @@ export function filterJobs(f = {}) {
   // note added by pasting a link, whatever board it turned out to be on.
   const sources = listOf(source), statuses = listOf(status), bands = listOf(band), kinds = listOf(kind);
   const companies = new Set([...listOf(company)].map((s) => s.toLowerCase()));
-  // Whole words, so "wa" finds "Seattle, WA" and not "Hawaii".
+  // A location term is a place tag ("United States" finds every spelling a board uses) or a whole word in the
+  // raw text, so "wa" finds "Seattle, WA" and not "Hawaii" and a view saved for the text keeps working.
+  const locTags = new Set(String(location).split(',').map((s) => s.trim().toLowerCase()).filter(Boolean));
   const locTerms = String(location).split(',').map((s) => s.trim()).filter(Boolean).map((t) => new RegExp(`(^|[^a-z])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^a-z])`, 'i'));
   // No minScore means no floor at all. A note created from an email or a pasted link can carry a negative
   // score (nothing for the title terms to match, no location), and it must still show on the board.
@@ -127,7 +130,7 @@ export function filterJobs(f = {}) {
     && (!fd || withinDays(r.found, fd))
     && (!remoteOnly || isRemoteRow(r))
     && (!openOnly || r.listing === 'open')
-    && (!locTerms.length || locTerms.some((t) => t.test(r.location)))
+    && (!locTerms.length || r.places.some((p) => locTags.has(p.toLowerCase())) || locTerms.some((t) => t.test(r.location)))
     && (!ql || `${r.company} ${r.title} ${r.location}`.toLowerCase().includes(ql)));
 }
 export function searchJobs({ sort = 'score', dir = 'desc', limit = 500, offset = 0, ...f } = {}) {
@@ -158,6 +161,7 @@ export function jobFacets(f = {}) {
     kind: count(without('kind'), (r) => r.kind),
     source,
     company: count(without('company'), (r) => r.company),
+    location: countPlaces(without('location')),
     remote: { remote: remoteRows.filter(isRemoteRow).length, onsite: remoteRows.filter((r) => !isRemoteRow(r)).length },
     pay: { stated: tops.length, unstated: payRows.length - tops.length, min: tops[0] || 0, max: tops[tops.length - 1] || 0, median: tops[Math.floor(tops.length / 2)] || 0 },
   };

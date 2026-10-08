@@ -16,7 +16,8 @@ ensureDirs();
 fs.mkdirSync(P.logs, { recursive: true });
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const today = new Date().toISOString().slice(0, 10);
+const { localDay } = await import('../scraper/config.mjs');
+const today = localDay();
 const note = (name, fm, body) => fs.writeFileSync(path.join(P.jobs, `${name}.md`), `---\n${Object.entries(fm).map(([k, v]) => `${k}: ${v}`).join('\n')}\n---\n# ${name}\n\n## Status log\n${body}\n`);
 note('Northwind Labs - Staff Design Engineer (1)', { company: '"Northwind Labs"', title: '"Staff Design Engineer"', status: 'applied', score: 148, found: today },
   `- ${today} — new → **reviewing** (via app)\n- ${today} — reviewing → **applying** (via mcp)\n- ${today} — applying → **applied** (via linkedin-export)\n\n## Notes\n- ${today} (app): Applied through LinkedIn on ${today} (from the LinkedIn export).`);
@@ -95,4 +96,10 @@ test('the markers read the lines the mail and calendar checks write under Notes,
   assert.equal(s.calendarLast, '2026-10-09');
   assert.equal(s.calendarKind, 'interview');
   assert.deepEqual(signalsOf('nothing here'), { mail: 0, mailLast: '', mailKind: '', calendar: 0, calendarLast: '', calendarKind: '' });
+});
+
+test('localDay is the day on the clock here, not the UTC day', () => {
+  const d = new Date(2026, 9, 7, 21, 30); // 2026-10-07 21:30 local, whatever the zone
+  assert.equal(localDay(d), '2026-10-07');
+  assert.match(localDay(), /^\d{4}-\d{2}-\d{2}$/);
 });

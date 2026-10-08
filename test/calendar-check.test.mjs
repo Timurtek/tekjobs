@@ -16,7 +16,8 @@ const { DATA_DIR } = await import('../scraper/config.mjs');
 const store = await import('../app/server/store.mjs');
 const cc = await import('../app/server/calendar-check.mjs');
 
-const plus = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+const { localDay } = await import('../scraper/config.mjs');
+const plus = (n) => localDay(new Date(Date.now() + n * 864e5));
 
 test('the tool lists allow only the connector\'s read tools and deny every write by name', () => {
   assert.deepEqual(cc.READ_TOOLS, ['list_calendars', 'list_events', 'search_events', 'get_event'].map((t) => `mcp__claude_ai_Google_Calendar__${t}`));

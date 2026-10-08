@@ -9,7 +9,7 @@
 // records the event on the note. Nothing is ever written to the calendar.
 import fs from 'node:fs';
 import path from 'node:path';
-import { DATA_DIR } from '../../scraper/config.mjs';
+import { DATA_DIR, localDay } from '../../scraper/config.mjs';
 import { sameCompany } from '../../scraper/linkedin.mjs';
 import * as store from './store.mjs';
 import { runLLM, runnerConfig } from './cover-letter.mjs';
@@ -75,7 +75,7 @@ export function suggestionFor(kind, noteStatus, { past = false } = {}) {
 export function timing(start, now = new Date()) {
   const day = String(start || '').slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { when: 'upcoming', days: 0, label: '' };
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const today = localDay(now);
   const days = Math.round((Date.parse(day) - Date.parse(today)) / 864e5);
   if (days < 0) return { when: 'past', days, label: days === -1 ? 'yesterday' : `${-days} days ago` };
   if (days === 0) return { when: 'today', days, label: 'today' };

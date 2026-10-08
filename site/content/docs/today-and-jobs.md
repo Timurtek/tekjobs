@@ -10,7 +10,7 @@ The short list that wants a decision, not the whole inventory. Measured on one r
 
 ## Jobs
 
-The inventory, filtered. Every dimension is a chip: score floor, remote, location, title kind, pay band, status, source, company, pay range, stated pay only, posted or found within, score ceiling. The URL carries the filter set, so a filtered view is a link you can keep. Six default views come from your criteria (design engineering at the floor, new this week, remote at the floor, the stretch band, waiting on a reply, added by you); saved views live in `Targets/Job Views.md`. Jobs remembers the last set you used in this browser.
+The inventory, filtered. Every dimension is a chip: score floor, remote, location, title kind, pay band, status, source, company, pay range, stated pay only, posted or found within, score ceiling. Location is a picker of places read from the postings' own location text (Remote, a country, a US state, a city) with counts, so one choice of United States finds every spelling a board uses. The URL carries the filter set, so a filtered view is a link you can keep. Six default views come from your criteria (design engineering at the floor, new this week, remote at the floor, the stretch band, waiting on a reply, added by you); saved views live in `Targets/Job Views.md`. Jobs remembers the last set you used in this browser.
 
 The job sheet: match reasons with points, the posting, the application packet, the tailored resume, the cover letter, the people on the thread, your notes. Shortlist and Pass while it is new; a status select after. Open posting, open in Obsidian, show the file, attach a posting.
 

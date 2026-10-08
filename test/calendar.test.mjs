@@ -12,9 +12,10 @@ const vault = fs.mkdtempSync(path.join(os.tmpdir(), 'tekjobs-calendar-'));
 fs.cpSync(path.join(ROOT, 'samples', 'vault'), vault, { recursive: true });
 process.env.TEKJOBS_PROFILE = vault;
 const store = await import('../app/server/store.mjs');
+const { localDay } = await import('../scraper/config.mjs');
 
-const today = new Date().toISOString().slice(0, 10);
-const plus = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+const today = localDay();
+const plus = (n) => localDay(new Date(Date.now() + n * 864e5));
 
 test('the packet has the Interview on field, and the dated fields become events in date order', () => {
   assert.ok(store.APPLICATION_FIELDS.some((f) => f.field === 'Interview on'));

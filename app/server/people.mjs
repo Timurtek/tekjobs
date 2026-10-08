@@ -4,13 +4,13 @@
 // no-reply senders), and they are written when the person confirms the email, like everything else from mail.
 import fs from 'node:fs';
 import path from 'node:path';
-import { VAULT } from '../../scraper/config.mjs';
+import { VAULT, localDay } from '../../scraper/config.mjs';
 import { readFrontmatter } from '../../scraper/vault.mjs';
 import * as store from './store.mjs';
 
 export const PEOPLE_DIR = path.join(VAULT, 'People');
 export const ROLES = ['recruiter', 'hiring-manager', 'interviewer', 'referral', 'other'];
-const isoDay = () => new Date().toISOString().slice(0, 10);
+const isoDay = () => localDay();
 const yaml = (v) => JSON.stringify(v ?? '');
 const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
