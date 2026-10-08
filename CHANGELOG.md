@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.47.0](https://github.com/Timurtek/tekjobs/compare/v0.46.0...v0.47.0) (2026-10-08)
+
+### Features
+
+* **journal:** the day's journal, read from the record and written to the log note ([23c96fa](https://github.com/Timurtek/tekjobs/commit/23c96fa1b4fcdcf345a3be457019bb636b0fa8f8))
+
 ## [0.46.0](https://github.com/Timurtek/tekjobs/compare/v0.45.0...v0.46.0) (2026-10-08)
 
 ### Features
