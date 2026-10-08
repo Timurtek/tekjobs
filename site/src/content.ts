@@ -73,7 +73,7 @@ export const STEPS = [
   },
   {
     title: "Decide",
-    body: "Today shows the few worth a decision and what is about to close. Shortlist or pass, with a reason. The mail pass reads your inbox for confirmations, rejections and interview invitations, then asks you to confirm each change before a note moves.",
+    body: "Today shows the few worth a decision and what is about to close. Shortlist or pass, with a reason. The mail pass reads your inbox for confirmations, rejections and interview invitations, the calendar pass reads your Google Calendar for the interviews already on it, and each asks you to confirm before a note moves. Interviews, follow-ups and deadlines then sit on a calendar of their own, with a feed your calendar app can subscribe to.",
   },
   {
     title: "Apply",
@@ -106,7 +106,7 @@ export const WHO = {
 export const BOUNDARY = [
   { title: "It never submits an application.", body: "Drafts are written into the note and stop there. Applied, interviewing and offer are statuses only a person can set, because only a person knows." },
   { title: "It never touches LinkedIn on your behalf.", body: "No profile scraping, no automated messages. A single job link you paste is read once, the way a browser would open it." },
-  { title: "It never sends mail.", body: "The mail check runs with only Gmail's read tools allowed and every write tool denied by name. The model extracts; matching and every change to a note is ordinary code, and nothing changes until you confirm." },
+  { title: "It never sends mail, and never writes to your calendar.", body: "The mail and calendar checks run with only the Gmail and Google Calendar read tools allowed and every write tool denied by name. The model extracts; matching and every change to a note is ordinary code, and nothing changes until you confirm." },
   {
     title: "Your files stay with you.",
     body: "The scan runs on your machine, the notes live in your folder, and there is no TekJobs account or server holding a copy. What does leave: the requests to public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under its own terms. No telemetry, no separate model API key, nothing sent on your behalf.",
@@ -125,7 +125,7 @@ export const REQUIREMENTS = [
   ["Node 20 or newer", "One command installs it. The scan has one dependency, for reading PDF resumes."],
   ["A folder for your profile", "Plain markdown. Obsidian is the nicest way to read it, and not required."],
   ["An AI client that speaks MCP, signed in", "Claude Code, Codex, Cursor or Claude Desktop. It runs the interview and, over MCP, the search. No separate model API key: TekJobs adds no per-call AI billing, and usage follows the client you already have. The setup for each is one page in the docs."],
-  ["Claude Code with its Gmail connector, for mail", "Optional, and the one thing that needs Claude Code specifically. Check mail is boxed to Gmail's three read tools."],
+  ["Claude Code with its Gmail and Google Calendar connectors, for mail and calendar", "Optional, and the one thing that needs Claude Code specifically. Each check is boxed to that connector's read tools."],
 ] as const;
 
 export const INSTALL = `npx ${PACKAGE} init ~/Obsidian/JobSearch --resume ~/Downloads/resume.pdf

@@ -30,9 +30,9 @@ It does not fit if you want a hosted service with nothing to install (TekJobs is
 
 - **A profile folder** (default `~/.tekjobs/profile`): your profile, your resume as text, the scoring criteria, the board watchlist, one note per matched job, your application history, and scan logs. Plain markdown, readable in Obsidian or anything else.
 - **A daily scan** over Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold boards, the Atlassian, GitHub, Spotify and Amazon career APIs, the Google and Apple career pages (keyword-searched; they have no API), and eleven aggregator feeds including Wellfound's and Built In's remote listing pages. All public; the company-board scan needs no API key. Two optional feeds need a free key of their own: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, which is every federal posting in the United States. Job alert emails saved into `Inbox/` are read too, which is how LinkedIn and Indeed listings get in without anything contacting those sites. Tens of thousands of postings a run, deduplicated, scored with every point written down as a reason, and cut to the ones that fit you.
-- **An app** (Zengin UI): a Today queue, a filterable jobs table with a detail sheet, a drag-and-drop pipeline from reviewing to offer, a Sources page with each board's health and a retry for the failed ones, a criteria editor with a live preview of what a change would do, scan history with a run button, the profile pages, and the agent setup page.
+- **An app** (Zengin UI): a Today queue, a filterable jobs table with a detail sheet, a drag-and-drop pipeline from reviewing to offer, a Sources page with each board's health and a retry for the failed ones, a criteria editor with a live preview of what a change would do, a calendar of interviews, follow-ups and deadlines read from the notes (with an .ics feed for your calendar app and a read-only Google Calendar check), scan history with a run button, a daily journal of what happened, the profile pages, and the agent setup page.
 - **Application material** written from your resume of record and checked against it: a tailored resume, a cover letter in your voice, and a copy panel for the answers forms keep asking for. Nothing is ever submitted; you review and click.
-- **An MCP server** with 47 tools, so Claude Code, Codex, Cursor or Claude Desktop can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans, read the mailbox.
+- **An MCP server** with 47 tools, so Claude Code, Codex, Cursor or Claude Desktop can run the whole search: onboard you, find matches, move them through the pipeline, pull your profile and a posting together to tailor an application, save the draft into the note, add boards, start scans, read the mailbox and the calendar.
 
 ## Quick start
 
@@ -101,7 +101,7 @@ Two kinds of request do leave: the scan's reads of public job boards, and whatev
 - **Node 20 or newer.** The scan has one dependency (PDF reading); the app ships built.
 - **A folder for your profile.** Plain markdown. Obsidian is the nicest way to read it, and not required.
 - **An AI client that speaks MCP, signed in on this machine.** Claude Code by default; Codex, Cursor and Claude Desktop work the same way. The interview and everything an agent does over MCP run there. The app's "Write cover letter" and "Tailor resume" buttons run a CLI with the prompt as an argument and read its output; the default is `claude -p --output-format text`, and another command goes under `"llm"` in `~/.tekjobs/config.json` or on the Settings page. No separate model API key: TekJobs adds no per-call AI billing, and usage follows the client you already have.
-- **"Check mail" needs Claude Code specifically**, with its Gmail connector enabled. The run allows exactly three Gmail read tools by name and denies every write and shell tool, which is what makes it safe to run unattended; another CLI would need a Gmail MCP with matching tool names. Everything else works without it.
+- **"Check mail" and "Check Google Calendar" need Claude Code specifically**, with its Gmail and Google Calendar connectors enabled. The run allows exactly three Gmail read tools by name and denies every write and shell tool, which is what makes it safe to run unattended; another CLI would need a Gmail MCP with matching tool names. Everything else works without it.
 - Optional: free Adzuna and USAJOBS keys for those two feeds, and `"contact"` in `~/.tekjobs/config.json` so the user agent on scan requests names a way to reach you.
 
 Nothing personal lives in this repository. Your profile folder (profile, resume, criteria, watchlist, job notes, logs, mail state) and `~/.tekjobs/config.json` are outside it; the repository is the code and the starter notes a new profile folder begins with.
@@ -109,7 +109,7 @@ Nothing personal lives in this repository. Your profile folder (profile, resume,
 ## Known limitations
 
 - **LinkedIn and Indeed are not scanned.** Their listings arrive through job-alert emails saved into `Inbox/`, or through a link you paste. Indeed blocks signed-out reads, so paste the company's own link instead.
-- **Check mail is Claude Code only**, because it depends on that client's Gmail connector and on denying its tools by name.
+- **Check mail and the calendar check are Claude Code only**, because they depend on that client's Gmail and Google Calendar connectors and on denying their write tools by name.
 - **Boards go quiet.** Company boards move platforms, rename slugs and rate-limit. The Sources page shows each board's health and retries the failed ones, and the registry is a table anyone can fix.
 - **The app has no login.** It serves on 127.0.0.1 and is meant for one person on one machine. Do not expose the port to a network.
 - **Pay parsing reads posted ranges.** A posting that hides its pay scores lower rather than being guessed at, which is the point, and also means some good roles rank below a candid one.
@@ -136,6 +136,10 @@ The scan watches boards. For the posting you saw on LinkedIn, in a newsletter, o
 ## What the mailbox says
 
 Applications come back as email: a confirmation, a rejection, an interview request. "Check mail" on Today reads those through the same local CLI that writes the letters, using the Gmail connector already attached to it, and with the run boxed: only the Gmail read tools are allowed and every write tool is denied by name, so a run can read and nothing else. A recruiter or hiring manager writing about a specific role, including through LinkedIn's InMail relay, is reported too, as outreach: confirming it makes a note at reviewing, or records it on the note that exists, and adds the person to People. The model only extracts (company, role, kind, date, one-line gist, message id); matching each email to a note and everything that changes a note is ordinary code, and nothing changes until you confirm an item. A confirmation on a note you had not marked applied marks it applied as of the mail's date; a rejection marks it rejected; an interview request marks it interviewing; an email about a job with no note offers to create one. Every confirmed item writes a dated line with the gist and a link to the message into the note, and fills the packet's Applied on when it is empty, which is what makes the response numbers on Overview real. Also `tekjobs mail [--days N]`, and `mail_check` / `mail_items` over MCP (read and start only; confirming is yours). The daily task runs the read right after the morning scan (`run.cmd`), and the envelope in the top bar shows how many email groups wait on you from any page, with a Check now for between-times.
+
+## What the calendar says
+
+Interviews, follow-ups and deadlines live in the notes: the packet's Interview on, Follow-up due and Deadline fields. The Calendar page reads them as a list by day, and the server serves the same dates as an `.ics` feed at `/api/calendar.ics` that Apple Calendar or Outlook on this machine can subscribe to (Google imports the download). "Check Google Calendar" is the other direction and works like mail: the local CLI reads your calendar through its Google Calendar connector with only the read tools allowed, reports interviews, screens, recruiter calls and deadlines about jobs on your board, and each one waits for you to confirm; confirming puts the time into the note's Interview on field and moves a note that is not yet interviewing. Past events read as happened. Nothing is ever written to your calendar. The morning task runs the calendar read after the mail read; also `tekjobs calendar check`, and `calendar_check` / `calendar_items` over MCP.
 
 ## People
 
@@ -168,6 +172,8 @@ tekjobs status                         what the onboarding still needs
 tekjobs scan [--dry] [--min N] [--floor N] [--only <slug>] [--criteria <preset name | file>] [--retry-failed]
 tekjobs add <url> [<url>...] [--dry]   add postings you found yourself
 tekjobs mail [--days N]                the read-only mail pass
+tekjobs calendar check [--days N]      the read-only calendar pass
+tekjobs journal [YYYY-MM-DD] [--write] the day's journal from the record
 tekjobs rescore [--full] [--dry]       what existing notes score under the current criteria
 tekjobs schedule [--time HH:MM] [--print]   the morning task, for Windows, macOS or Linux
 tekjobs up [--dev] [--port N]          start the API (and with --dev, Vite) detached; they stay up until `down`

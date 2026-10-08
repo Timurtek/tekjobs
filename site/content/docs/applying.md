@@ -30,7 +30,7 @@ Paste the link: Add by link on Jobs, `tekjobs add <url>`, or `add_job` over MCP.
 
 ## The calendar
 
-The Calendar page reads the dated lines the notes carry: interviews from the packet's **Interview on** field, follow-ups from **Follow-up due**, deadlines from **Deadline**, and the applied dates as the trail behind. You fill Interview on yourself (a date and time in your own time zone, like `2026-10-14 15:00`), or a confirmed scheduling email fills it when it names a time. Nothing comes from a calendar service.
+Interviews, follow-ups and deadlines have [a page of their own](/docs/calendar). In short: the Calendar page reads the dated lines the notes carry: interviews from the packet's **Interview on** field, follow-ups from **Follow-up due**, deadlines from **Deadline**, and the applied dates as the trail behind. You fill Interview on yourself (a date and time in your own time zone, like `2026-10-14 15:00`), or a confirmed scheduling email fills it when it names a time. Nothing comes from a calendar service.
 
 The other direction is a check, like mail: "Check Google Calendar" on the Calendar page reads your Google Calendar through the local CLI's connector with its read tools only (list, search, get; create, update, delete and respond are denied by name), finds interviews, screens, recruiter calls and deadlines about jobs on your board, and shows each one matched to a note for you to confirm. Confirming puts the event's time into the note's Interview on field, moves a note that is not yet interviewing, and records the event on the note. It needs Claude Code with the Google Calendar connector enabled, and it never writes to the calendar. `tekjobs calendar check` does the same from a terminal, and `calendar_check` and `calendar_items` over MCP.
 
