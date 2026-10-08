@@ -38,6 +38,9 @@ test("People has the LinkedIn import card, Sources has boards, Criteria has the 
   await page.goto("/#/companies");
   await expect(page.locator("tbody tr").first()).toBeVisible();
   await page.goto("/#/criteria");
+  // Intent leads; the weights sit behind the advanced tab.
+  await expect(page.locator(".criteria__intent")).toBeVisible();
+  await page.getByRole("tab", { name: "Weights (advanced)" }).click();
   await expect(page.getByText(/minScore|The bar|Bar/).first()).toBeVisible();
 });
 
