@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.53.0](https://github.com/Timurtek/tekjobs/compare/v0.52.1...v0.53.0) (2026-10-08)
+
+### Features
+
+* **app:** mail and calendar markers on Today's in-flight rows ([8de40bb](https://github.com/Timurtek/tekjobs/commit/8de40bbf50f0e4003bdb35b1fd00397c807daf08))
+
 ## [0.52.1](https://github.com/Timurtek/tekjobs/compare/v0.52.0...v0.52.1) (2026-10-08)
 
 ### Fixes
