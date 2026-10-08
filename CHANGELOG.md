@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.49.0](https://github.com/Timurtek/tekjobs/compare/v0.48.0...v0.49.0) (2026-10-08)
+
+### Features
+
+* **calendar:** a read-only Google Calendar check, confirmed one event at a time ([1590e82](https://github.com/Timurtek/tekjobs/commit/1590e82a9d52939c3817d7ef413d7e4075b9007e))
+
 ## [0.48.0](https://github.com/Timurtek/tekjobs/compare/v0.47.0...v0.48.0) (2026-10-08)
 
 ### Features
