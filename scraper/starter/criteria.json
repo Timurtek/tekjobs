@@ -31,7 +31,7 @@
     "remoteok": true, "hn": true, "email": true, "adzuna": false, "usajobs": false,
     "themuse": true, "remotive": false, "himalayas": true, "jobicy": true,
     "workingnomads": true, "arbeitnow": false, "wwr": true,
-    "wellfound": true, "builtin": true
+    "wellfound": false, "builtin": false
   },
   "adzuna": {
     "_note": "Needs ADZUNA_APP_ID and ADZUNA_APP_KEY in the environment (free at developer.adzuna.com), and openSources.adzuna set to true. Searches for your top titleTerms unless queries is set. Descriptions come back as snippets, so these rows score lower than the same job from its ATS.",

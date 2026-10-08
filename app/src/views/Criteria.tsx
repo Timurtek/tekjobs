@@ -57,7 +57,7 @@ function intentLine(doc: Doc): string {
 }
 const ACTIVE = "__active__";
 const KNOWN_SOURCES = ["remoteok", "hn", "email", "adzuna", "usajobs", "themuse", "remotive", "himalayas", "jobicy", "workingnomads", "arbeitnow", "wwr", "wellfound", "builtin"];
-const SOURCE_LABEL: Record<string, string> = { remoteok: "RemoteOK", hn: "HN Who is hiring", email: "Alert emails (Inbox/)", adzuna: "Adzuna (needs a key)", usajobs: "USAJOBS (needs a key)", themuse: "The Muse", remotive: "Remotive", himalayas: "Himalayas", jobicy: "Jobicy", workingnomads: "Working Nomads", arbeitnow: "Arbeitnow", wwr: "We Work Remotely", wellfound: "Wellfound", builtin: "Built In" };
+const SOURCE_LABEL: Record<string, string> = { remoteok: "RemoteOK", hn: "HN Who is hiring", email: "Alert emails (Inbox/)", adzuna: "Adzuna (needs a key)", usajobs: "USAJOBS (needs a key)", themuse: "The Muse", remotive: "Remotive", himalayas: "Himalayas", jobicy: "Jobicy", workingnomads: "Working Nomads", arbeitnow: "Arbeitnow", wwr: "We Work Remotely", wellfound: "Wellfound (reads the page; opt-in)", builtin: "Built In (reads the page; opt-in)" };
 
 const get = (doc: Doc, path: string[]): unknown => path.reduce<unknown>((o, k) => (o && typeof o === "object" ? (o as Doc)[k] : undefined), doc);
 function set(doc: Doc, path: string[], value: unknown): Doc {

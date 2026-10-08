@@ -117,3 +117,10 @@ test('a scored posting becomes a note with the frontmatter the app reads, and an
   writeJobNote(job, scored, c);
   assert.match(fs.readFileSync(file, 'utf8'), /status: applied/, 'a second write leaves the person\'s status alone');
 });
+
+test('the starter criteria leave the page-reading feeds off: Wellfound and Built In are opt-in', () => {
+  const starter = JSON.parse(fs.readFileSync(path.join(ROOT, 'scraper', 'starter', 'criteria.json'), 'utf8'));
+  assert.equal(starter.openSources.wellfound, false);
+  assert.equal(starter.openSources.builtin, false);
+  assert.equal(starter.openSources.remoteok, true, 'the API-backed feeds stay on');
+});

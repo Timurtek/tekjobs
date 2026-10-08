@@ -6,7 +6,7 @@ summary: Hundreds of boards, tens of thousands of postings, a minute, no API key
 
 ## Sources
 
-Company boards on Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold; the Atlassian, GitHub, Spotify and Amazon career APIs; the Google and Apple career pages (keyword-searched; they have no API); and a dozen aggregator feeds including Wellfound's and Built In's remote listing pages. All public, all key-free. Two optional feeds need a free key: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, every federal posting in the United States.
+Company boards on Greenhouse, Lever, Ashby, Workday, Rippling, SmartRecruiters, Workable, BambooHR, Breezy, Personio, Teamtailor and Eightfold; the Atlassian, GitHub, Spotify and Amazon career APIs; the Google and Apple career pages (keyword-searched; they have no API); and a dozen aggregator feeds. All public, all key-free. Two of the feeds, Wellfound and Built In, read listing pages rather than an API and are off until you turn them on under Sources on the Criteria page, since both sites' terms discourage automated reading. Two optional feeds need a free key: Adzuna, which reaches listings that never make it to a company board, and USAJOBS, every federal posting in the United States.
 
 Jobs employers post on tekjobs.timurtek.com arrive through the same scan as one more feed (`openSources.tekjobs`, on by default; set it to `false` to drop it). They are scored like every other posting; paying to post buys the listing a place in the scan, never a place in the ranking. See [Posting a job](/docs/posting-a-job).
 
