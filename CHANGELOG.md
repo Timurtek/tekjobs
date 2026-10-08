@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.44.0](https://github.com/Timurtek/tekjobs/compare/v0.43.0...v0.44.0) (2026-10-08)
+
+### Features
+
+* **onboarding:** a "what TekJobs learned" page after the interview ([5368d01](https://github.com/Timurtek/tekjobs/commit/5368d012b0c5578a5ba55b8097169635c1f3a7d3))
+
 ## [0.43.0](https://github.com/Timurtek/tekjobs/compare/v0.42.0...v0.43.0) (2026-10-08)
 
 ### Features
