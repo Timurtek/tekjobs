@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.50.0](https://github.com/Timurtek/tekjobs/compare/v0.49.0...v0.50.0) (2026-10-08)
+
+### Features
+
+* **schedule:** the morning run reads the calendar after the mail, and Today shows what waits ([1a494b7](https://github.com/Timurtek/tekjobs/commit/1a494b70e0bc69ed6b86f353b9ba332c0ddc8429))
+
 ## [0.49.0](https://github.com/Timurtek/tekjobs/compare/v0.48.0...v0.49.0) (2026-10-08)
 
 ### Features
