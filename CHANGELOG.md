@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.51.2](https://github.com/Timurtek/tekjobs/compare/v0.51.1...v0.51.2) (2026-10-08)
+
+### Fixes
+
+* **app:** an empty note field never borrows the next line; the Today sentence before the interview ([69061f7](https://github.com/Timurtek/tekjobs/commit/69061f7b6ef0b08f3f2c948495245206781c0944))
+
 ## [0.51.1](https://github.com/Timurtek/tekjobs/compare/v0.51.0...v0.51.1) (2026-10-08)
 
 ### Fixes
