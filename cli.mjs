@@ -40,6 +40,8 @@ const HELP = `tekjobs — a local job-search machine
   tekjobs import linkedin <zip|folder>   your LinkedIn data export into the search: who you know at each
                                          company, and the recruiters who wrote
                                          [--since YYYY-MM-DD] [--everyone] [--no-people] [--preview] [--dry]
+                                         [--applications] your LinkedIn applications as notes at "applied", with the date
+                                         [--saved] your saved jobs as notes at "reviewing"
   tekjobs up [--dev] [--port N]          start the API (and with --dev, Vite) detached: they stay up until \`down\`
   tekjobs down                           stop what \`up\` started
   tekjobs ps                             what \`up\` has running
@@ -182,11 +184,21 @@ async function main() {
     if (!source) return console.error('Usage: tekjobs import linkedin <path to the export zip or unpacked folder> [--since YYYY-MM-DD] [--everyone] [--no-people] [--preview] [--dry]\nRequest the larger archive at https://www.linkedin.com/mypreferences/d/download-my-data');
     const li = await import('./app/server/linkedin-import.mjs');
     const o = { since: opt('--since') || undefined, everyone: rest.includes('--everyone'), writePeople: !rest.includes('--no-people'), dry: rest.includes('--dry') };
-    if (rest.includes('--preview')) return console.log(JSON.stringify(li.preview(source, o), null, 2));
+    const jobsOpt = { since: o.since, applications: rest.includes('--applications'), saved: rest.includes('--saved'), dry: o.dry };
+    if (rest.includes('--preview')) {
+      const p = li.preview(source, o);
+      if (jobsOpt.applications || jobsOpt.saved) p.jobs = li.importJobs(source, { ...jobsOpt, dry: true });
+      return console.log(JSON.stringify(p, null, 2));
+    }
     const s = li.runImport(source, o);
+    const jobs = jobsOpt.applications || jobsOpt.saved ? li.importJobs(source, jobsOpt) : null;
     console.log(`LinkedIn export read from ${s.source}${s.dry ? ' (dry run, nothing written)' : ''}`);
     console.log(`  ${s.counts.connections} connections indexed, ${s.counts.threads} conversations and ${s.counts.invitations} invitations since ${s.since}, ${s.counts.applications} applications, ${s.counts.savedJobs} saved jobs`);
     console.log(`  People: ${s.people.created} created, ${s.people.recognised} already there, ${s.people.attached} put on job notes, ${s.people.logged} log lines; ${s.people.skipped} senders skipped (not recruiters or hiring managers; --everyone includes them)`);
+    if (jobs) {
+      if (jobsOpt.applications) console.log(`  Applications: ${jobs.applications.matched} already had a note (${jobs.applications.marked} moved to applied), ${jobs.applications.created} notes created at applied, ${jobs.applications.skipped} before ${jobs.since} or without a company`);
+      if (jobsOpt.saved) console.log(`  Saved jobs: ${jobs.saved.matched} already had a note, ${jobs.saved.created} notes created at reviewing, ${jobs.saved.skipped} before ${jobs.since} or without a company`);
+    }
     if (!s.dry) console.log(`  Index: ${s.indexPath}. Job notes now show who you know at each company.`);
     return;
   }

@@ -932,6 +932,13 @@
   justify-content: flex-end;
 }
 
+/* LinkedIn import: the two opt-in boxes under the form row. */
+.linkedin__opts {
+  display: grid;
+  gap: var(--spacing-2);
+  grid-column: 1 / -1;
+}
+
 /* Criteria: the one-line intent above the explanation. */
 .criteria__intent {
   font-size: var(--text-base);

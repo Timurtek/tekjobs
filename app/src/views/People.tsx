@@ -1,4 +1,4 @@
-import { Badge, Button, Card, Dialog, EmptyState, Icon, Markdown, Select, Sheet, Skeleton, Table, TextArea, TextField, toast } from "@/components/ui";
+import { Badge, Button, Card, Dialog, EmptyState, Icon, Markdown, Select, Sheet, Skeleton, Table, TextArea, TextField, toast, Checkbox } from "@/components/ui";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { api, daysAgo, PERSON_ROLES, STATUS_TONE, type Connections, type Job, type JobPerson, type LinkedInPreview, type LinkedInStatus, type Person, type PersonDetail, type PersonRole, type Status } from "../api";
 
@@ -314,6 +314,9 @@ function LinkedInImport({ onDone }: { onDone: () => void }) {
   const [source, setSource] = useState("");
   const [since, setSince] = useState("");
   const [who, setWho] = useState<"roles" | "everyone">("roles");
+  // Opt-in: the person's own applications and saved jobs from the export, as notes.
+  const [applications, setApplications] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [preview, setPreview] = useState<LinkedInPreview | null>(null);
   const [busy, setBusy] = useState<"" | "preview" | "import">("");
   const refresh = () => api.linkedinStatus().then(setStatus).catch(() => setStatus({ imported: null }));
@@ -328,8 +331,9 @@ function LinkedInImport({ onDone }: { onDone: () => void }) {
   const doImport = async () => {
     setBusy("import");
     try {
-      const s = await api.linkedinImport(source.trim(), { since: since || undefined, everyone });
-      toast({ title: "LinkedIn export imported", description: `${s.people.created} people created, ${s.people.recognised} already there, ${s.people.attached} put on job notes; ${s.counts.connections} connections indexed.`, tone: "success" });
+      const s = await api.linkedinImport(source.trim(), { since: since || undefined, everyone, applications, saved });
+      const jobsLine = s.jobs ? ` Applications: ${s.jobs.applications.created} notes created, ${s.jobs.applications.matched} already had one. Saved jobs: ${s.jobs.saved.created} created, ${s.jobs.saved.matched} already had one.` : "";
+      toast({ title: "LinkedIn export imported", description: `${s.people.created} people created, ${s.people.recognised} already there, ${s.people.attached} put on job notes; ${s.counts.connections} connections indexed.${jobsLine}`, tone: "success" });
       setPreview(null); onDone(); refresh();
     } catch (e) { toast({ title: "Import failed", description: (e as Error).message, tone: "danger" }); }
     setBusy("");
@@ -355,6 +359,10 @@ function LinkedInImport({ onDone }: { onDone: () => void }) {
             <Select.Item value="roles">Recruiters and hiring managers</Select.Item>
             <Select.Item value="everyone">Everyone who wrote</Select.Item>
           </Select>
+          <div className="linkedin__opts">
+            <Checkbox label="My applications as notes at applied, with the date" checked={applications} onCheckedChange={(c) => setApplications(c === true)} />
+            <Checkbox label="My saved jobs as notes at reviewing" checked={saved} onCheckedChange={(c) => setSaved(c === true)} />
+          </div>
           <Button size="sm" variant="soft" onClick={doPreview} loading={busy === "preview"} disabled={!source.trim() || busy !== ""}>Preview</Button>
           <Button size="sm" tone="primary" onClick={doImport} loading={busy === "import"} disabled={!source.trim() || busy !== ""}>Import</Button>
         </div>

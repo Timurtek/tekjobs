@@ -32,6 +32,16 @@ Everything lands in your profile folder. Nothing goes anywhere else, and nothing
 
 Re-running is safe: people are recognised, not duplicated; log lines already present are not appended again; the index is rebuilt.
 
+## Your applications and saved jobs
+
+The export also carries your own record of where you applied through LinkedIn and what you saved. Both are opt-in, because they create notes:
+
+```
+tekjobs import linkedin <zip> --applications --saved
+```
+
+`--applications` turns each application since the date into a note at **applied** with the application date filled in, or, when a note for that posting already exists (same link, or same company and title), moves it to applied and records the date. `--saved` turns each saved job into a note at **reviewing**. The posting itself is never fetched; the note carries the LinkedIn link for you to open, and says it came from the export. Running it again changes nothing. The same two switches are on the People page, and `import_linkedin` over MCP takes `applications` and `saved`; the person's own export is the evidence, so these are the one way an agent's import may set applied.
+
 ## What it never reads
 
 Ads clicked, reactions, shares, comments, search queries, learning history, logins, your saved application answers and screening responses, phone numbers, email addresses of others beyond what the connections file already carries, birth date, addresses. The files are never opened. The export also contains your own profile CSV; the import reads your name from it, to tell your side of a conversation from theirs, and nothing else.

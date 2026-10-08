@@ -285,6 +285,8 @@ export interface LinkedInPreview {
 export interface LinkedInImportSummary {
   source: string; since: string; dry: boolean; counts: LinkedInCounts; indexPath: string;
   people: { created: number; recognised: number; attached: number; skipped: number; logged: number };
+  /** Only when applications or saved jobs were asked for. */
+  jobs?: { since: string; dry: boolean; applications: { matched: number; marked: number; created: number; skipped: number }; saved: { matched: number; created: number; skipped: number } };
 }
 
 /** What the search is producing, read from the notes. */
@@ -442,7 +444,7 @@ export const api = {
   jobConnections: (id: string) => request<Connections>(`/api/jobs/${encodeURIComponent(id)}/connections`),
   linkedinStatus: () => request<LinkedInStatus>("/api/linkedin"),
   linkedinPreview: (source: string, since?: string, everyone?: boolean) => request<LinkedInPreview>("/api/linkedin/preview", { method: "POST", body: JSON.stringify({ source, since, everyone }) }),
-  linkedinImport: (source: string, o: { since?: string; everyone?: boolean; writePeople?: boolean; dry?: boolean } = {}) => request<LinkedInImportSummary>("/api/linkedin/import", { method: "POST", body: JSON.stringify({ source, ...o }) }),
+  linkedinImport: (source: string, o: { since?: string; everyone?: boolean; writePeople?: boolean; applications?: boolean; saved?: boolean; dry?: boolean } = {}) => request<LinkedInImportSummary>("/api/linkedin/import", { method: "POST", body: JSON.stringify({ source, ...o }) }),
   tools: () => request<McpTool[]>("/api/tools"),
   companies: () => request<Company[]>("/api/companies"),
   addCompany: (c: Omit<Company, "status" | "health">) => request<Company[]>("/api/companies", { method: "POST", body: JSON.stringify(c) }),
