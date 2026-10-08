@@ -1,4 +1,4 @@
-import { Card, CodeBlock, Skeleton, Table } from "@/components/ui";
+import { Card, CodeBlock, Skeleton, Table, TextField } from "@/components/ui";
 import { useEffect, useState } from "react";
 import { api, type McpTool } from "../api";
 
@@ -17,7 +17,11 @@ const MCP_JSON = `{
  */
 export function Agent() {
   const [tools, setTools] = useState<McpTool[] | null>(null);
+  const [q, setQ] = useState("");
   useEffect(() => { api.tools().then(setTools).catch(() => setTools([])); }, []);
+  // The catalogue is long; a filter and a closed disclosure keep it from being the page.
+  const needle = q.trim().toLowerCase();
+  const shown = (tools ?? []).filter((t) => !needle || t.name.includes(needle) || t.description.toLowerCase().includes(needle));
   return (
     <>
       <div className="page__head">
@@ -56,6 +60,11 @@ export function Agent() {
           </div>
         </Card>
       </div>
+      <details className="agent__all" open={!!needle || undefined}>
+        <summary>{tools ? `Browse all ${tools.length} tools` : "Browse the tools"}</summary>
+        <div className="agent__filter">
+          <TextField size="sm" label="Filter" placeholder="mail, criteria, person…" value={q} onChange={(e) => setQ(e.target.value)} description={needle ? `${shown.length} of ${tools?.length ?? 0}` : "By name or by what it does."} />
+        </div>
       <Card padding="none">
         {tools === null ? (
           <div className="loading"><Skeleton lines={6} /></div>
@@ -68,7 +77,7 @@ export function Agent() {
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {tools.map((t) => (
+              {shown.map((t) => (
                 <Table.Row key={t.name}>
                   <Table.Cell><code className="mono">{t.name}</code></Table.Cell>
                   <Table.Cell><span className="muted">{t.description}</span></Table.Cell>
@@ -77,10 +86,14 @@ export function Agent() {
               {tools.length === 0 && (
                 <Table.Row><Table.Cell colSpan={2}><span className="muted">The server did not answer; start it with <code className="mono">tekjobs up</code>.</span></Table.Cell></Table.Row>
               )}
+              {tools.length > 0 && shown.length === 0 && (
+                <Table.Row><Table.Cell colSpan={2}><span className="muted">Nothing matches "{q}".</span></Table.Cell></Table.Row>
+              )}
             </Table.Body>
           </Table>
         )}
       </Card>
+      </details>
       <p className="muted">{tools ? `${tools.length} tools, read from the running server.` : ""} Confirming mail items and setting applied, interviewing or offer stay yours: an agent can read and draft, and moves a job only as far as ready.</p>
     </>
   );

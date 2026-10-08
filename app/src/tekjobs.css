@@ -932,6 +932,24 @@
   justify-content: flex-end;
 }
 
+/* Criteria: the one-line intent above the explanation. */
+.criteria__intent {
+  font-size: var(--text-base);
+  color: var(--color-text);
+}
+
+/* Agent access: the whole catalogue behind a disclosure, with a filter inside it. */
+.agent__all > summary {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+.agent__filter {
+  max-width: 24rem;
+  margin: var(--spacing-3) 0;
+}
+
 /* What TekJobs learned: six short blocks, label over text, reflowing by width. */
 .learned {
   display: grid;

@@ -40,6 +40,21 @@ function Movers({ title, rows, empty }: { title: string; rows: PreviewRow[]; emp
 // scan uses. A preset is a second note under Targets/Criteria/ that a scan can run with on request.
 
 type Doc = Record<string, unknown>;
+
+/** One sentence of what a criteria set looks for, read from the document: the strongest titles, the remote rule, the floor. */
+function intentLine(doc: Doc): string {
+  const terms = Object.entries((doc.titleTerms ?? {}) as Record<string, number>).sort((a, b) => b[1] - a[1]).map(([t]) => t);
+  const loc = (doc.location ?? {}) as { requireRemote?: boolean; bayAreaTerms?: string[]; bayAreaBoost?: number };
+  const pay = (doc.salary ?? {}) as { minAnnual?: number | null; stretchAnnual?: number | null };
+  const excl = ((doc.companyExclude ?? []) as string[]).length + ((doc.titleExclude ?? []) as string[]).length;
+  if (terms.length === 0) return "No title terms yet, so the scan finds nothing: add the titles you want under Titles and terms, or run the interview.";
+  const parts = [`Looking for ${terms.slice(0, 4).join(", ")}${terms.length > 4 ? ` and ${terms.length - 4} more` : ""}`];
+  parts.push(loc.requireRemote ? "remote only" : "remote scores higher");
+  if (loc.bayAreaBoost && loc.bayAreaTerms?.length) parts.push(`a bonus near ${loc.bayAreaTerms[0]}`);
+  if (pay.minAnnual) parts.push(`${money(pay.minAnnual)} floor${pay.stretchAnnual ? ` (${money(pay.stretchAnnual)} stretch)` : ""}`);
+  if (excl) parts.push(`${excl} exclusions`);
+  return parts.join(" · ") + ".";
+}
 const ACTIVE = "__active__";
 const KNOWN_SOURCES = ["remoteok", "hn", "email", "adzuna", "usajobs", "themuse", "remotive", "himalayas", "jobicy", "workingnomads", "arbeitnow", "wwr", "wellfound", "builtin"];
 const SOURCE_LABEL: Record<string, string> = { remoteok: "RemoteOK", hn: "HN Who is hiring", email: "Alert emails (Inbox/)", adzuna: "Adzuna (needs a key)", usajobs: "USAJOBS (needs a key)", themuse: "The Muse", remotive: "Remotive", himalayas: "Himalayas", jobicy: "Jobicy", workingnomads: "Working Nomads", arbeitnow: "Arbeitnow", wwr: "We Work Remotely", wellfound: "Wellfound", builtin: "Built In" };
@@ -207,6 +222,7 @@ export function Criteria() {
     <>
       <div className="page__head">
         <div>
+          <p className="criteria__intent">{intentLine(doc)}</p>
           <p>What the scan looks for and how it scores. Fields write into the JSON in {isPreset ? <code>Targets/Criteria/{editing}.md</code> : <code>Targets/Search Criteria.md</code>}; keys this form does not show are kept as they are.</p>
         </div>
         <div className="chips">
@@ -261,12 +277,13 @@ export function Criteria() {
         )}
       </Card>
 
-      <Tabs defaultValue="fields" variant="line" size="sm">
+      {/* What the search is for leads; how the points add up and the raw document sit behind "advanced". */}
+      <Tabs defaultValue="titles" variant="line" size="sm">
         <Tabs.List aria-label="Criteria editors">
-          <Tabs.Trigger value="fields">Fields</Tabs.Trigger>
           <Tabs.Trigger value="titles">Titles and terms</Tabs.Trigger>
           <Tabs.Trigger value="location">Location and pay</Tabs.Trigger>
           <Tabs.Trigger value="sources">Sources</Tabs.Trigger>
+          <Tabs.Trigger value="fields">Weights (advanced)</Tabs.Trigger>
           <Tabs.Trigger value="json">JSON (advanced)</Tabs.Trigger>
         </Tabs.List>
 
