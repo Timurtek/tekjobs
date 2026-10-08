@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.54.0](https://github.com/Timurtek/tekjobs/compare/v0.53.0...v0.54.0) (2026-10-08)
+
+### Features
+
+* **jobs:** location filter is a picker of places; dates use the local day ([6022226](https://github.com/Timurtek/tekjobs/commit/602222697fc059ba08d795eb000aad600e634386))
+
 ## [0.53.0](https://github.com/Timurtek/tekjobs/compare/v0.52.1...v0.53.0) (2026-10-08)
 
 ### Features
