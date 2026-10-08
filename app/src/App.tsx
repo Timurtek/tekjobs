@@ -7,6 +7,7 @@ import { Companies } from "./views/Companies";
 import { Criteria } from "./views/Criteria";
 import { Jobs } from "./views/Jobs";
 import { Mail } from "./views/Mail";
+import { Calendar } from "./views/Calendar";
 import { Onboarding } from "./views/Onboarding";
 import { Overview } from "./views/Overview";
 import { People } from "./views/People";
@@ -38,7 +39,7 @@ function useTheme(): [Theme, () => void] {
 function useRoute(): [Page, string, (page: Page, q?: string) => void] {
   const parse = () => {
     const [p, qs] = window.location.hash.replace(/^#\/?/, "").split("?");
-    const page = (["onboarding", "today", "overview", "jobs", "pipeline", "mail", "people", "companies", "criteria", "profile", "runs", "agent", "settings"].includes(p ?? "") ? p : "today") as Page;
+    const page = (["onboarding", "today", "overview", "jobs", "pipeline", "mail", "calendar", "people", "companies", "criteria", "profile", "runs", "agent", "settings"].includes(p ?? "") ? p : "today") as Page;
     return { page, q: new URLSearchParams(qs).get("q") ?? "" };
   };
   const [route, setRoute] = useState(parse);
@@ -86,6 +87,7 @@ export function App() {
             {page === "jobs" && <Jobs initialQuery={q} />}
             {page === "pipeline" && <Pipeline />}
             {page === "mail" && <Mail />}
+            {page === "calendar" && <Calendar />}
             {page === "people" && <People />}
             {page === "companies" && <Companies />}
             {page === "criteria" && <Criteria />}

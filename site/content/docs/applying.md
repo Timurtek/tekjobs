@@ -27,3 +27,9 @@ The clipboard icon in the top bar opens one-click snippets: name, email, phone, 
 ## Adding a job you found yourself
 
 Paste the link: Add by link on Jobs, `tekjobs add <url>`, or `add_job` over MCP. A Greenhouse, Lever or Ashby link is read through the board's API; a Google or Apple job page through the scan's own parsers; a LinkedIn job link is opened once as a signed-out visitor and its company apply link followed when it names one; any other page through its JSON-LD or its best title and text. A note that has no posting takes one later through the sheet's Attach posting: Attach reads it and replaces the facts, Link only records just the link.
+
+## The calendar
+
+The Calendar page reads the dated lines the notes carry: interviews from the packet's **Interview on** field, follow-ups from **Follow-up due**, deadlines from **Deadline**, and the applied dates as the trail behind. You fill Interview on yourself (a date and time in your own time zone, like `2026-10-14 15:00`), or a confirmed scheduling email fills it when it names a time. Nothing comes from a calendar service.
+
+The same dates are served as an `.ics` feed at `/api/calendar.ics` on the TekJobs server. Apple Calendar and Outlook on this machine can subscribe to that address and refresh it on their own; Google Calendar cannot reach your machine, so download the file from the page and import it. TekJobs never writes to your calendar.

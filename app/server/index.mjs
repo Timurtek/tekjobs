@@ -73,6 +73,8 @@ const routes = [
   ['GET', /^\/api\/profile\/summary$/, () => store.profileSummary()],
   // The one-page confirmation after the interview: roles, where, pay, exclusions, proof points, what remains.
   ['GET', /^\/api\/learned$/, () => store.learned()],
+  // The calendar: the dated lines the notes carry. The .ics feed is served outside the JSON routes below.
+  ['GET', /^\/api\/calendar$/, () => store.calendar()],
   // The day's journal: runs, found, decisions, mail, notes, read from the record. ?date=YYYY-MM-DD for another day.
   ['GET', /^\/api\/journal$/, (_, q) => { const date = q.get('date') || undefined; const j = buildJournal(date); return { ...j, markdown: renderJournal(j) }; }],
   ['POST', /^\/api\/journal$/, async (_, __, req) => { const b = await readBody(req); return writeJournal(b.date || undefined); }],
@@ -114,6 +116,7 @@ function serveStatic(req, res, pathname) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   try {
+    if (url.pathname === '/api/calendar.ics' && req.method === 'GET') { res.writeHead(200, { 'content-type': 'text/calendar; charset=utf-8', 'content-disposition': 'inline; filename="tekjobs.ics"', 'cache-control': 'no-store' }); return res.end(store.calendarIcs()); }
     const printView = url.pathname.match(/^\/api\/jobs\/([^/]+)\/resume\.html$/);
     if (printView && req.method === 'GET') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(tailored.html(decodeURIComponent(printView[1]))); }
     for (const [method, re, handler] of routes) {

@@ -50,7 +50,7 @@ Report every message that is about one of the person's job applications: confirm
 The person's own records show applications at these companies (others may exist): ${companies.join(', ')}.` : ''}
 
 Output ONLY a JSON array, no prose, no code fence, one object per message:
-{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|outreach|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "the sender exactly as the header shows it, Display Name <address>", "fromName": "the human who wrote, from the sender display name or the signature; empty only when no human is named. For a LinkedIn relay address (inmail-hit-reply@linkedin.com, hit-reply@linkedin.com) the display name is the person, so read the message if the search result does not show it; required for outreach", "postingUrl": "a link in the email to the job posting or to the application itself, if there is one, else empty string; never a scheduling, meeting, calendar or unsubscribe link", "reqId": "a requisition or job id the email quotes (R-12345, JR361297, Job ID 10502343), else empty string", "messageId": "gmail message id", "subject": "subject line"}
+{"company": "company name as the email gives it", "role": "role title if stated, else empty string", "kind": "confirmation|rejection|advance|scheduling|info-request|outreach|other", "date": "YYYY-MM-DD", "gist": "one plain sentence", "from": "the sender exactly as the header shows it, Display Name <address>", "fromName": "the human who wrote, from the sender display name or the signature; empty only when no human is named. For a LinkedIn relay address (inmail-hit-reply@linkedin.com, hit-reply@linkedin.com) the display name is the person, so read the message if the search result does not show it; required for outreach", "postingUrl": "a link in the email to the job posting or to the application itself, if there is one, else empty string; never a scheduling, meeting, calendar or unsubscribe link", "when": "for an interview or scheduling email that names a date and time, that moment as YYYY-MM-DD HH:MM in the person's own time zone (date alone if no time is given), else empty string", "reqId": "a requisition or job id the email quotes (R-12345, JR361297, Job ID 10502343), else empty string", "messageId": "gmail message id", "subject": "subject line"}
 
 If nothing matches, output [].`;
 }
@@ -67,6 +67,7 @@ export function parseOutput(text) {
     date: /^\d{4}-\d{2}-\d{2}$/.test(String(m.date || '')) ? m.date : '', gist: String(m.gist || '').trim().slice(0, 300),
     postingUrl: /^https?:\/\//i.test(String(m.postingUrl || '').trim()) && !/calendly|meeting|schedul|zoom\.us|goodtime|modernloop|unsubscribe|list-manage/i.test(String(m.postingUrl)) ? String(m.postingUrl).trim().slice(0, 500) : '', reqId: String(m.reqId || '').trim().slice(0, 60),
     from: String(m.from || '').trim(), fromName: String(m.fromName || '').trim().slice(0, 80), messageId: String(m.messageId).trim(), subject: String(m.subject || '').trim().slice(0, 200),
+    when: /^\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?$/.test(String(m.when || '').trim()) ? String(m.when).trim() : '',
   }));
 }
 
@@ -200,6 +201,10 @@ const mailLine = (i) => `Mail, ${i.date || 'undated'} (${i.kind}): ${i.gist} [me
 function appliedOnEmpty(id) {
   try { return /^- \*\*Applied on:\*\*\s*$/m.test(fs.readFileSync(store.getJob(id).path, 'utf8')); } catch { return false; }
 }
+/** Empty or absent: an older note may not carry the field at all. */
+function fieldEmpty(id, field) {
+  try { return !new RegExp(`^- \\*\\*${field}:\\*\\*\\s*\\S`, 'm').test(fs.readFileSync(store.getJob(id).path, 'utf8')); } catch { return false; }
+}
 
 /**
  * Do what the group's strongest email suggests, to the note the person chose (or the matched one), record
@@ -231,6 +236,9 @@ export async function confirm(id, { noteId } = {}) {
   }
   if (s.action === 'status' || s.action === 'create') store.setStatus(target, s.status, 'app');
   if (appliedOn && members.some((m) => m.kind === 'confirmation') && appliedOnEmpty(target)) store.saveApplicationDraft(target, { field: 'Applied on', value: appliedOn });
+  // A scheduling email that names a time puts the interview on the calendar; the latest one named wins, and a date the person already wrote is kept.
+  const when = members.filter((m) => (m.kind === 'advance' || m.kind === 'scheduling') && m.when).map((m) => m.when).sort().pop();
+  if (when && fieldEmpty(target, 'Interview on')) store.saveApplicationDraft(target, { field: 'Interview on', value: when });
   // Oldest first, so the note's Notes read in the order the mail arrived.
   for (const m of [...members].sort((a, b) => (a.date || '').localeCompare(b.date || ''))) store.addNote(target, mailLine(m), 'app');
   // The humans who wrote go on the note's People and get the mail on their own Log; machines do not.

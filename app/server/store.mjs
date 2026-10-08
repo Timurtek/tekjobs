@@ -273,6 +273,7 @@ export const APPLICATION_FIELDS = [
   { field: 'Contact / referral', hint: 'Who, and how you know them.', required: false },
   { field: 'Deadline', hint: 'When this closes, if it says.', required: false },
   { field: 'Applied on', hint: 'Filled when you actually send it.', required: false },
+  { field: 'Interview on', hint: 'Date and time, like 2026-10-14 15:00, in your own time zone. The Calendar page and the .ics feed read it; a confirmed scheduling email fills it.', required: false },
   { field: 'Follow-up due', hint: 'When to chase, if nothing comes back.', required: false },
 ];
 const FIELD_NAMES = APPLICATION_FIELDS.map((f) => f.field);
@@ -1142,6 +1143,52 @@ export function learned() {
     minScore: c.minScore ?? null,
     searchReady: ob.complete, writingReady: ob.writingReady, remaining,
   };
+}
+
+// ---------- calendar ----------
+// The dated lines the notes carry, read as events. Nothing comes from a calendar service: the packet's Interview
+// on, Follow-up due, Deadline and Applied on fields are the calendar, and the .ics feed is the same record for
+// the calendar app on this machine.
+const DATE_FIELDS = [['Interview on', 'interview'], ['Follow-up due', 'follow-up'], ['Deadline', 'deadline'], ['Applied on', 'applied']];
+const parseWhen = (s) => { const m = String(s).match(/(\d{4}-\d{2}-\d{2})(?:[ T](\d{1,2}):(\d{2}))?/); return m ? { date: m[1], time: m[2] ? `${m[2].padStart(2, '0')}:${m[3]}` : '' } : null; };
+const shiftDay = (iso, days) => new Date(Date.parse(iso) + days * 864e5).toISOString().slice(0, 10);
+export function calendarEvents({ from = '', to = '' } = {}) {
+  const out = [];
+  for (const r of listJobs()) {
+    let text; try { text = fs.readFileSync(notePath(r.id), 'utf8'); } catch { continue; }
+    for (const [field, kind] of DATE_FIELDS) {
+      const m = text.match(new RegExp(`^- \\*\\*${escapeRe(field)}:\\*\\*\\s*(.+)$`, 'm'));
+      if (!m) continue;
+      const when = parseWhen(m[1]);
+      if (!when) continue;
+      out.push({ id: r.id, company: r.company, title: r.title, status: r.status, kind, field, date: when.date, time: when.time, raw: m[1].trim(), url: r.url || '' });
+    }
+  }
+  return out.filter((e) => (!from || e.date >= from) && (!to || e.date <= to)).sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+}
+export function calendar() {
+  const today = isoDay();
+  const events = calendarEvents({ from: shiftDay(today, -14) });
+  return { today, events, upcoming: events.filter((e) => e.date >= today), past: events.filter((e) => e.date < today).reverse(), ics: '/api/calendar.ics' };
+}
+/** The feed: interviews (timed when the note has a time, in local time), follow-ups and deadlines as all-day events. Applied dates stay in the notes. */
+export function calendarIcs() {
+  const esc = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const words = { interview: 'Interview', 'follow-up': 'Follow up', deadline: 'Deadline' };
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//TekJobs//Calendar//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:TekJobs', 'X-WR-CALDESC:Interviews\, follow-ups and deadlines from the job notes'];
+  for (const e of calendarEvents().filter((e) => e.kind !== 'applied')) {
+    const d = e.date.replace(/-/g, '');
+    lines.push('BEGIN:VEVENT', `UID:${e.kind}-${e.id.replace(/[^A-Za-z0-9]+/g, '-')}@tekjobs.local`, `DTSTAMP:${stamp}`);
+    if (e.time) { const t = e.time.replace(':', ''); lines.push(`DTSTART:${d}T${t}00`); }
+    else { lines.push(`DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${shiftDay(e.date, 1).replace(/-/g, '')}`); }
+    lines.push(`SUMMARY:${esc(`${words[e.kind]}: ${e.company} — ${e.title}`)}`);
+    lines.push(`DESCRIPTION:${esc(`${e.field}: ${e.raw}. Status ${e.status}. Note: Jobs/${e.id}.md`)}`);
+    if (e.url) lines.push(`URL:${esc(e.url)}`);
+    lines.push('END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n') + '\r\n';
 }
 
 export function saveProfileNote(key, markdown) {

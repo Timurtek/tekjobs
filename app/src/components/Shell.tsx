@@ -8,7 +8,7 @@ import { CopyPanel } from "./CopyPanel";
 const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 const SEARCH_HINT = IS_MAC ? "⌘K" : "Ctrl K";
 
-export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "mail" | "people" | "companies" | "criteria" | "profile" | "runs" | "agent" | "settings";
+export type Page = "onboarding" | "today" | "overview" | "jobs" | "pipeline" | "mail" | "calendar" | "people" | "companies" | "criteria" | "profile" | "runs" | "agent" | "settings";
 
 const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "onboarding", label: "Get started", icon: Icon.Sparkles },
@@ -17,6 +17,7 @@ const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "jobs", label: "Jobs", icon: Icon.Inbox },
   { page: "pipeline", label: "Pipeline", icon: Icon.Layers },
   { page: "mail", label: "Mail", icon: Icon.Mail },
+  { page: "calendar", label: "Calendar", icon: Icon.Calendar },
   { page: "people", label: "People", icon: Icon.Users },
   { page: "companies", label: "Sources", icon: Icon.Globe },
   { page: "criteria", label: "Criteria", icon: Icon.Filter },
@@ -26,11 +27,11 @@ const NAV: { page: Page; label: string; icon: ComponentType }[] = [
   { page: "settings", label: "Settings", icon: Icon.Settings },
 ];
 
-const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", mail: "Mail", people: "People", companies: "Sources", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access", settings: "Settings" };
+const TITLES: Record<Page, string> = { onboarding: "Get started", today: "Today", overview: "Overview", jobs: "Jobs", pipeline: "Pipeline", mail: "Mail", calendar: "Calendar", people: "People", companies: "Sources", criteria: "Criteria", profile: "Profile", runs: "Runs", agent: "Agent access", settings: "Settings" };
 
 /** Sidebar groups, by intent: the work, the numbers, the setup, the machinery. */
 const GROUPS: { title: string; pages: Page[] }[] = [
-  { title: "Work", pages: ["today", "jobs", "pipeline", "mail", "people"] },
+  { title: "Work", pages: ["today", "jobs", "pipeline", "mail", "calendar", "people"] },
   { title: "Insights", pages: ["overview"] },
   { title: "Setup", pages: ["profile", "criteria", "companies"] },
   { title: "System", pages: ["runs", "agent", "settings", "onboarding"] },
