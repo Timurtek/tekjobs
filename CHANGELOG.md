@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.48.0](https://github.com/Timurtek/tekjobs/compare/v0.47.0...v0.48.0) (2026-10-08)
+
+### Features
+
+* **calendar:** a Calendar page from the notes' dates, and an .ics feed for the calendar app ([d25b958](https://github.com/Timurtek/tekjobs/commit/d25b958ac7ff40d2d6c63a6378d454c846e708e6))
+
 ## [0.47.0](https://github.com/Timurtek/tekjobs/compare/v0.46.0...v0.47.0) (2026-10-08)
 
 ### Features
