@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.43.0](https://github.com/Timurtek/tekjobs/compare/v0.42.0...v0.43.0) (2026-10-08)
+
+### Features
+
+* **site:** the author is credited on npm, in the site metadata and in the app's sidebar ([d5879b0](https://github.com/Timurtek/tekjobs/commit/d5879b02ca4404955e1f412dd251205f54420e9c))
+
 ## [0.42.0](https://github.com/Timurtek/tekjobs/compare/v0.41.1...v0.42.0) (2026-10-08)
 
 ### Features
