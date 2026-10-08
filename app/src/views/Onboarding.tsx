@@ -1,15 +1,17 @@
 import { Badge, Button, Card, CodeBlock, Icon, Skeleton, TextField, toast } from "@/components/ui";
 import { useEffect, useState } from "react";
-import { api, type Onboarding as OnboardingState } from "../api";
+import { api, type Learned, type Onboarding as OnboardingState } from "../api";
+import type { Page } from "../components/Shell";
 
 const INTERVIEW_PROMPT = `Use the tekjobs MCP server. Call onboarding_status, then onboarding_materials, and follow its script: interview me, write my profile, positioning and voice notes with save_profile, set the criteria with set_criteria, run a dry scan, and show me the top matches.`;
 
-export function Onboarding({ onDone }: { onDone: () => void }) {
+export function Onboarding({ onDone, onNavigate }: { onDone: () => void; onNavigate?: (page: Page) => void }) {
   const [state, setState] = useState<OnboardingState | null>(null);
+  const [learned, setLearned] = useState<Learned | null>(null);
   const [resumePath, setResumePath] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const load = () => api.onboarding().then(setState).catch((e: Error) => toast({ title: "Server not answering", description: e.message, tone: "danger" }));
+  const load = () => api.onboarding().then((o) => { setState(o); if (o.steps.some((s) => s.id === "profile" && s.done)) api.learned().then(setLearned).catch(() => setLearned(null)); }).catch((e: Error) => toast({ title: "Server not answering", description: e.message, tone: "danger" }));
   useEffect(() => { load(); }, []);
 
   const init = async () => {
@@ -76,6 +78,67 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
           </Card>
         ))}
       </div>
+
+      {learned && learned.ready && (
+        <>
+          <div className="page__head">
+            <div>
+              <h2>What TekJobs learned</h2>
+              <p className="muted">From your resume and the interview, in your terms. The scan runs on exactly this; if a line is wrong, change it on the Profile or Criteria page, or ask your AI client to.</p>
+            </div>
+            <div className="hero__actions">
+              {onNavigate && <Button variant="ghost" size="sm" onClick={() => onNavigate("profile")}>Profile</Button>}
+              {onNavigate && <Button variant="ghost" size="sm" onClick={() => onNavigate("criteria")}>Criteria</Button>}
+            </div>
+          </div>
+          <Card padding="md">
+            <div className="learned">
+              <div className="learned__item">
+                <span className="learned__label">Roles</span>
+                <ul className="learned__list">
+                  {learned.roles.map((r) => (
+                    <li key={`${r.tier}-${r.title}`}>
+                      <Badge size="sm" tone={r.tier === "A" ? "primary" : "neutral"} variant="soft">{r.tier}</Badge> {r.title}
+                      {r.term ? <small className="muted"> · found by "{r.term}"</small> : <small className="learned__warn"> · no title term finds this</small>}
+                    </li>
+                  ))}
+                  {learned.roles.length === 0 && <li className="muted">No target roles in the profile yet.</li>}
+                </ul>
+                <p className="muted learned__fine">Title terms, strongest first: {learned.titleTerms.map((t) => t.term).join(", ") || "none"}.</p>
+              </div>
+              <div className="learned__item">
+                <span className="learned__label">Where</span>
+                <p>{learned.where.profile || "Not stated in the profile."}</p>
+                <p className="muted learned__fine">The scan: {learned.where.requireRemote ? "remote only; anything else drops out" : "remote scores higher; on-site and hybrid stay in"}{learned.where.metro.length ? `, with a bonus for ${learned.where.metro.join(", ")}` : ""}.</p>
+              </div>
+              <div className="learned__item">
+                <span className="learned__label">Pay</span>
+                <p>{learned.pay.floor ? <>Floor <span className="num">${Math.round(learned.pay.floor / 1000)}k</span>{learned.pay.stretch ? <>, would still look down to <span className="num">${Math.round(learned.pay.stretch / 1000)}k</span></> : null}.</> : "No floor set; pay does not move the score."}</p>
+                {learned.pay.profile && <p className="muted learned__fine">Profile says: {learned.pay.profile}</p>}
+              </div>
+              <div className="learned__item">
+                <span className="learned__label">Never</span>
+                <p>{learned.exclusions.companies.length ? <>Companies matching <span className="mono">{learned.exclusions.companies.join(", ")}</span>. </> : null}{learned.exclusions.titles.length} excluded title words{learned.exclusions.titles.length ? `, such as ${learned.exclusions.titles.slice(0, 6).join(", ")}` : ""}.</p>
+                {learned.exclusions.industries && <p className="muted learned__fine">Profile says: {learned.exclusions.industries}</p>}
+              </div>
+              <div className="learned__item">
+                <span className="learned__label">What letters will lean on</span>
+                <ul className="learned__list">
+                  {learned.proofPoints.map((p) => <li key={p}>{p}</li>)}
+                  {learned.proofPoints.length === 0 && <li className="muted">No proof points yet; letters fall back to the resume.</li>}
+                </ul>
+                {learned.keywords.length > 0 && <p className="muted learned__fine">Keywords the description score reads: {learned.keywords.join(", ")}.</p>}
+              </div>
+              <div className="learned__item">
+                <span className="learned__label">What remains</span>
+                {learned.remaining.length === 0
+                  ? <p>Nothing. Search ready and writing ready.</p>
+                  : <ul className="learned__list">{learned.remaining.map((r) => <li key={r}>{r}</li>)}</ul>}
+              </div>
+            </div>
+          </Card>
+        </>
+      )}
 
       <div className="page__head">
         <div>

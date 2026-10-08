@@ -114,3 +114,19 @@ test('the summary names whose search it is, from the profile note and the folder
   assert.equal(s.who.folder, path.basename(vault));
   assert.equal(path.resolve(s.who.dir), path.resolve(vault));
 });
+
+test('what TekJobs learned reads the sample in its own terms', async () => {
+  const r = await get('/api/learned');
+  assert.equal(r.status, 200);
+  const l = r.body;
+  assert.equal(l.ready, true);
+  assert.equal(l.name, 'Jordan Example');
+  assert.ok(l.roles.length > 0, 'roles from the profile table');
+  assert.ok(l.roles.every((x) => /^[A-Z]$/.test(x.tier) && x.title));
+  assert.ok(l.titleTerms.length > 0 && l.titleTerms[0].weight >= l.titleTerms[l.titleTerms.length - 1].weight, 'title terms strongest first');
+  assert.equal(typeof l.pay.floor, 'number');
+  assert.ok(Array.isArray(l.exclusions.titles) && Array.isArray(l.exclusions.companies));
+  assert.ok(l.proofPoints.length > 0);
+  assert.equal(typeof l.searchReady, 'boolean');
+  assert.ok(Array.isArray(l.remaining));
+});

@@ -155,6 +155,21 @@ export interface ProfileSummary {
   resumeAgeDays: number | null;
 }
 
+/** What TekJobs learned from the interview, for the confirmation page and the Today sentence. */
+export interface Learned {
+  ready: boolean;
+  name: string; location: string; currentRole: string; summary: string;
+  roles: { tier: string; title: string; term: string }[];
+  titleTerms: { term: string; weight: number }[];
+  where: { profile: string; requireRemote: boolean; metro: string[] };
+  pay: { floor: number | null; stretch: number | null; profile: string };
+  exclusions: { titles: string[]; companies: string[]; industries: string };
+  keywords: string[];
+  proofPoints: string[];
+  minScore: number | null;
+  searchReady: boolean; writingReady: boolean; remaining: string[];
+}
+
 export type CoverLetterEmphasis = "auto" | "design-systems" | "ai-product";
 export interface CoverLetterOptions { emphasis: CoverLetterEmphasis; length: "short" | "standard"; extra: string }
 export interface CoverLetterWarning { kind: "claim" | "style" | "placeholder" | "specific" | "length"; text: string }
@@ -414,6 +429,7 @@ export const api = {
   activateCriteriaPreset: (name: string) => request<Criteria>(`/api/criteria/presets/${encodeURIComponent(name)}/activate`, { method: "POST" }),
   profileNotes: () => request<ProfileNotes>("/api/profile"),
   profileSummary: () => request<ProfileSummary>("/api/profile/summary"),
+  learned: () => request<Learned>("/api/learned"),
   saveProfileNote: (note: string, markdown: string) => request<{ saved: string }>("/api/profile", { method: "PUT", body: JSON.stringify({ note, markdown }) }),
   snippets: () => request<Snippets>("/api/snippets"),
   saveSnippets: (items: Snippet[]) => request<Snippets>("/api/snippets", { method: "PUT", body: JSON.stringify({ items }) }),

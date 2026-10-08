@@ -2,7 +2,7 @@ import { Badge, Button, Card, EmptyState, Icon, Loader, Menu, Select, Skeleton, 
 import { useEffect, useState, type ReactNode } from "react";
 import { isPosted, PostedMark } from "@/components/PostedMark";
 import { useMediaQuery } from "@/lib/useMediaQuery";
-import { api, BAND_TONE, daysAgo, PASS_REASONS, shortPay, type Job, type MailGroup, type MailItem, type MailState, type PassReason, type Today as TodayData, type TodayRow } from "../api";
+import { api, BAND_TONE, daysAgo, PASS_REASONS, shortPay, type Job, type Learned, type MailGroup, type MailItem, type MailState, type PassReason, type Today as TodayData, type TodayRow } from "../api";
 
 import { MailStrip } from "./Mail";
 import { JobSheet } from "./Jobs";
@@ -20,12 +20,13 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
   const [error, setError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [learned, setLearned] = useState<Learned | null>(null);
   // Below tablet width the six-column tables become one card per job: the whole role, the pay, the decision,
   // and nothing that needs a horizontal scroll. A QA pass at 390 px found the table unusable.
   const narrow = useMediaQuery("(max-width: 52rem)");
 
   const load = () => api.today().then(setData).catch((e: Error) => setError(e.message));
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); api.learned().then(setLearned).catch(() => setLearned(null)); }, []);
 
   const decide = async (row: TodayRow, status: "reviewing" | "passed", reason?: PassReason) => {
     setBusy(row.id);
@@ -73,6 +74,9 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               ? "Today's queue is clear. The next scan refills it."
               : `${sections.triage.length === 1 ? "One" : sections.triage.length} to decide on, best fit first. The other ${counts.unreviewed - sections.triage.length} unreviewed wait in Jobs and do not count against you. Fit is the share of the ${data.ceiling} points this criteria set can award.`}
           </p>
+          {learned && learned.ready && sections.triage.length > 0 && (
+            <p className="muted">They are here because they match your titles ({learned.titleTerms.slice(0, 3).map((t) => t.term).join(", ")}), {learned.where.requireRemote ? "your remote-only rule" : "remote scoring higher"}{learned.pay.floor ? `, and your $${Math.round(learned.pay.floor / 1000)}k floor` : ""}.</p>
+          )}
         </div>
         <Button variant="soft" size="sm" onClick={() => onNavigate("jobs")}>See all matches</Button>
       </div>

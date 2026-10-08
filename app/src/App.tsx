@@ -80,7 +80,7 @@ export function App() {
       <Toast.Provider position="bottom-right">
         <Shell page={page} onNavigate={(p) => go(p)} onSearch={(text) => go("jobs", text)} theme={theme} onToggleTheme={toggleTheme} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who}>
           <div key={page} className="page z-enter-fade">
-            {page === "onboarding" && <Onboarding onDone={() => go("overview")} />}
+            {page === "onboarding" && <Onboarding onDone={() => go("overview")} onNavigate={(p) => go(p)} />}
             {page === "today" && <Today onNavigate={go} />}
             {page === "overview" && <Overview onNavigate={go} />}
             {page === "jobs" && <Jobs initialQuery={q} />}

@@ -70,6 +70,8 @@ const routes = [
   ['GET', /^\/api\/criteria$/, () => store.getCriteria()],
   ['PUT', /^\/api\/criteria$/, async (_, __, req) => { const b = await readBody(req); return store.setCriteria(b.raw); }],
   ['GET', /^\/api\/profile\/summary$/, () => store.profileSummary()],
+  // The one-page confirmation after the interview: roles, where, pay, exclusions, proof points, what remains.
+  ['GET', /^\/api\/learned$/, () => store.learned()],
   ['GET', /^\/api\/companies$/, () => store.companies()],
   ['GET', /^\/api\/feeds$/, () => store.feeds()],
   ['GET', /^\/api\/companies\/find$/, (_, q) => store.findBoard({ slug: q.get('slug') || '', ats: q.get('ats') || '', name: q.get('name') || '' })],

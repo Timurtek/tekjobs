@@ -1114,6 +1114,36 @@ export function profileSummary() {
   return { exists: !!md, status: fm.status || '', updated: fm.updated || '', basics, summary: summaryText, targets, constraints, proofPoints, documents, attention, feeds, resumeAgeDays: resumeAge };
 }
 
+/**
+ * What TekJobs learned from the interview, as one page the person can check: the roles and the title terms that
+ * find them, where, the pay floor and stretch, what is excluded, the proof points letters will lean on, and what
+ * is still missing. Built from the profile note and the criteria each time; nothing is stored twice.
+ */
+export function learned() {
+  const s = profileSummary();
+  const c = safe(() => loadCriteria(), {}) || {};
+  const byLabel = (label) => s.constraints.find((x) => x.label === label) || { profile: '', criteria: '' };
+  const titleTerms = Object.entries(c.titleTerms || {}).sort((a, b) => b[1] - a[1]).map(([term, weight]) => ({ term, weight }));
+  const ob = onboardingStatus();
+  const remaining = [
+    ...(ob.writing || []).filter((w) => !w.done).map((w) => w.label),
+    ...s.attention.filter((a) => a.level === 'missing').map((a) => a.text),
+  ].slice(0, 8);
+  return {
+    ready: s.exists && s.status !== 'draft' && titleTerms.length > 0,
+    name: s.basics.name, location: s.basics.location, currentRole: s.basics.currentRole, summary: s.summary,
+    roles: s.targets.map((t) => ({ tier: t.tier, title: t.title, term: t.term })),
+    titleTerms: titleTerms.slice(0, 10),
+    where: { profile: byLabel('Work mode').profile, requireRemote: !!c.location?.requireRemote, metro: (c.location?.bayAreaTerms || []).slice(0, 3) },
+    pay: { floor: c.salary?.minAnnual ?? null, stretch: c.salary?.stretchAnnual ?? null, profile: byLabel('Pay floor').profile },
+    exclusions: { titles: c.titleExclude || [], companies: c.companyExclude || [], industries: byLabel('Industries to avoid').profile },
+    keywords: Object.entries(c.descTerms || {}).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k]) => k),
+    proofPoints: [...s.proofPoints].sort((a, b) => Number(b.hasNumber) - Number(a.hasNumber)).slice(0, 5).map((p) => p.text),
+    minScore: c.minScore ?? null,
+    searchReady: ob.complete, writingReady: ob.writingReady, remaining,
+  };
+}
+
 export function saveProfileNote(key, markdown) {
   const note = PROFILE_NOTES.find((n) => n.key === key);
   if (!note) throw Object.assign(new Error(`No profile note "${key}"`), { status: 404 });

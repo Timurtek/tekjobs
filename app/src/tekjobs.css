@@ -932,6 +932,40 @@
   justify-content: flex-end;
 }
 
+/* What TekJobs learned: six short blocks, label over text, reflowing by width. */
+.learned {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--spacing-5) var(--spacing-6);
+}
+.learned__item {
+  display: grid;
+  gap: var(--spacing-2);
+  align-content: start;
+  min-width: 0;
+  font-size: var(--text-sm);
+}
+.learned__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+.learned__list {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.learned__fine {
+  font-size: var(--text-xs);
+}
+.learned__warn {
+  color: var(--color-warning-soft-foreground);
+}
+
 /* Today on a narrow screen: one card per job in place of a six-column table. */
 .tcards {
   display: grid;

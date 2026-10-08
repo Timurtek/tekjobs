@@ -52,7 +52,7 @@ export const TOOLS = [
   { name: 'set_criteria', description: 'Replace the criteria JSON block. Pass the full JSON as a string; it is validated before writing.', inputSchema: { type: 'object', properties: { raw: { type: 'string' } }, required: ['raw'] } },
   { name: 'list_companies', description: 'The company watchlist rows (name, ats, slug, tier, status) with each board\'s health: state (failed, zero, stale, never, ok), last success, last attempt, last error.', inputSchema: { type: 'object', properties: {} } },
   { name: 'list_feeds', description: 'The aggregator feeds: whether each is on under the criteria\'s openSources, and how it did on the last scan.', inputSchema: { type: 'object', properties: {} } },
-  { name: 'onboarding_status', description: 'What the onboarding still needs, in two groups: `steps` for search ready (profile folder, resume, profile note, criteria, first scan; `complete` when all done) and `writing` for writing ready (resume of record note, Positioning, Voice; `writingReady` when all done). Call this first in a new setup, and once more at the end to report both.', inputSchema: { type: 'object', properties: {} } },
+  { name: 'onboarding_status', description: 'What the onboarding still needs, in two groups: `steps` for search ready (profile folder, resume, profile note, criteria, first scan; `complete` when all done) and `writing` for writing ready (resume of record note, Positioning, Voice; `writingReady` when all done). Once the profile is written it also carries `learned`: the roles and the title terms that find them, where, the pay floor and stretch, the exclusions, the proof points, and what remains. Call this first in a new setup, and once more at the end: read `learned` back to the person and ask what is wrong.', inputSchema: { type: 'object', properties: {} } },
   { name: 'onboarding_materials', description: 'Start the onboarding interview. Returns the resume text, the current profile note, the current criteria JSON, and the interview script to follow step by step. Follow the script; it ends with save_profile, set_criteria and a scan.', inputSchema: { type: 'object', properties: {} } },
   { name: 'save_profile', description: 'Write one profile note in full: Profile/Profile.md by default (markdown with the standard headings), or note=positioning for Profile/Positioning.md (which story leads, the evidence rule, what must never be claimed) or note=voice for Profile/Voice.md (writing rules and one letter they would send). The previous version is kept beside it.', inputSchema: { type: 'object', properties: { markdown: { type: 'string' }, note: { type: 'string', enum: ['profile', 'positioning', 'voice'], description: 'which note; default profile' } }, required: ['markdown'] } },
   { name: 'fetch_link', description: 'Fetch a public page the user gave you (portfolio, GitHub, personal site) as plain text, to fold into the profile. http(s) only; never use it on LinkedIn profile pages.', inputSchema: { type: 'object', properties: { url: { type: 'string' } }, required: ['url'] } },
@@ -65,7 +65,11 @@ export const TOOLS = [
 
 export async function call(name, a = {}) {
   switch (name) {
-    case 'onboarding_status': return store.onboardingStatus();
+    case 'onboarding_status': {
+      // Once the interview has written the profile, the status carries what was learned, so the client can read it back.
+      const s = store.onboardingStatus();
+      return s.steps.some((x) => x.id === 'profile' && x.done) ? { ...s, learned: store.learned() } : s;
+    }
     case 'onboarding_materials': return store.onboardingMaterials();
     case 'save_profile': return store.saveProfile(a.markdown, undefined, { note: a.note || 'profile' });
     case 'fetch_link': return store.fetchLink(a.url);
