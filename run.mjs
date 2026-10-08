@@ -203,6 +203,8 @@ const logLines = [
 if (!DRY) {
   appendLog(logLines);
   writeDashboard(summary);
+  // The day's journal is rebuilt from the record after every real run, so the log note ends with the day so far.
+  try { const { writeJournal } = await import('./scraper/journal.mjs'); writeJournal(); } catch (e) { console.log(`  journal not written: ${e.message}`); }
 }
 console.log(logLines.join('\n'));
 // The top of the list, with where each one stands. Ranking ignores status on purpose (the score is about the

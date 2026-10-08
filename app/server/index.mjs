@@ -11,6 +11,7 @@ import * as mail from './mail-check.mjs';
 import * as people from './people.mjs';
 import * as linkedin from './linkedin-import.mjs';
 import { TOOLS } from './mcp.mjs';
+import { buildJournal, renderJournal, writeJournal } from '../../scraper/journal.mjs';
 
 const PORT = Number(process.env.PORT || 8787);
 const DIST = fileURLToPath(new URL('../dist', import.meta.url));
@@ -72,6 +73,9 @@ const routes = [
   ['GET', /^\/api\/profile\/summary$/, () => store.profileSummary()],
   // The one-page confirmation after the interview: roles, where, pay, exclusions, proof points, what remains.
   ['GET', /^\/api\/learned$/, () => store.learned()],
+  // The day's journal: runs, found, decisions, mail, notes, read from the record. ?date=YYYY-MM-DD for another day.
+  ['GET', /^\/api\/journal$/, (_, q) => { const date = q.get('date') || undefined; const j = buildJournal(date); return { ...j, markdown: renderJournal(j) }; }],
+  ['POST', /^\/api\/journal$/, async (_, __, req) => { const b = await readBody(req); return writeJournal(b.date || undefined); }],
   ['GET', /^\/api\/companies$/, () => store.companies()],
   ['GET', /^\/api\/feeds$/, () => store.feeds()],
   ['GET', /^\/api\/companies\/find$/, (_, q) => store.findBoard({ slug: q.get('slug') || '', ats: q.get('ats') || '', name: q.get('name') || '' })],

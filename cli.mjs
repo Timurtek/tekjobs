@@ -46,6 +46,8 @@ const HELP = `tekjobs — a local job-search machine
   tekjobs down                           stop what \`up\` started
   tekjobs ps                             what \`up\` has running
   tekjobs board <slug> [--from ats] [--move]  where a failed board answers now; --move rewrites the watchlist row
+  tekjobs journal [YYYY-MM-DD] [--write]  the day's journal from the record (runs, found, decisions, mail); --write
+                                         puts it at the end of Logs/<date>.md, as every real scan does
   tekjobs serve                          the app + API on http://127.0.0.1:8787, in this terminal
   tekjobs mcp                            the MCP server on stdio (Claude Code, Codex, Cursor, Claude Desktop)
 
@@ -200,6 +202,13 @@ async function main() {
       if (jobsOpt.saved) console.log(`  Saved jobs: ${jobs.saved.matched} already had a note, ${jobs.saved.created} notes created at reviewing, ${jobs.saved.skipped} before ${jobs.since} or without a company`);
     }
     if (!s.dry) console.log(`  Index: ${s.indexPath}. Job notes now show who you know at each company.`);
+    return;
+  }
+  if (cmd === 'journal') {
+    const { buildJournal, renderJournal, writeJournal } = await import('./scraper/journal.mjs');
+    const date = rest.find((x) => /^\d{4}-\d{2}-\d{2}$/.test(x));
+    if (rest.includes('--write')) { const r = writeJournal(date); console.log(r.markdown); console.log(`Written to ${r.file}`); return; }
+    console.log(renderJournal(buildJournal(date)));
     return;
   }
   if (cmd === 'board') {

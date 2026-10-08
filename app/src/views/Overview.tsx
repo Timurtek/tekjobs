@@ -1,6 +1,6 @@
 import { Badge, BarChart, Button, Card, Skeleton, Table } from "@/components/ui";
 import { useEffect, useState } from "react";
-import { api, money, type Outcomes, type Summary } from "../api";
+import { api, type Journal, money, type Outcomes, type Summary } from "../api";
 import { StatCard } from "../components/StatCard";
 import type { Page } from "../components/Shell";
 
@@ -16,9 +16,11 @@ const KIND_LABEL: Record<string, string> = { "design-eng": "Design engineering",
 export function Overview({ onNavigate }: { onNavigate: (page: Page, q?: string) => void }) {
   const [s, setS] = useState<Summary | null>(null);
   const [o, setO] = useState<Outcomes | null>(null);
+  const [j, setJ] = useState<Journal | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
     api.summary().then(setS).catch((e: Error) => setError(e.message));
+    api.journal().then(setJ).catch(() => setJ(null));
     api.outcomes().then(setO).catch(() => {});
   }, []);
 
@@ -51,6 +53,26 @@ export function Overview({ onNavigate }: { onNavigate: (page: Page, q?: string) 
       </div>
 
       <div className="charts">
+        {j && (
+          <Card padding="md">
+            <div className="panel">
+              <div className="panel__head">
+                <div>
+                  <h2>Today, so far</h2>
+                  <p>The day's journal, read from the notes. Every real scan writes it to the end of <code className="mono">Logs/{j.date}.md</code>.</p>
+                </div>
+              </div>
+              {j.empty ? <p className="muted">Nothing yet today: no run, no decisions, no mail.</p> : (
+                <ul className="journal">
+                  {j.markdown.split("\n").filter((l) => l.startsWith("- ")).map((l) => {
+                    const m = l.slice(2).match(/^\*\*([^*]+)\*\*: ?(.*)$/);
+                    return <li key={l.slice(0, 40)}>{m ? <><strong>{m[1]}</strong> {m[2]}</> : l.slice(2)}</li>;
+                  })}
+                </ul>
+              )}
+            </div>
+          </Card>
+        )}
         <Card padding="none">
           <div className="panel panel--pad">
             <div className="panel__head">

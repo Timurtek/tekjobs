@@ -155,6 +155,16 @@ export interface ProfileSummary {
   resumeAgeDays: number | null;
 }
 
+/** The day's journal, read from the record: runs, what was found, decisions, mail, notes. `markdown` is the section the log note carries. */
+export interface Journal {
+  date: string; empty: boolean; markdown: string;
+  runs: { when: string; boardsOk: number; boardsTotal: number; scanned: number; newNotes: number; closed: number; dry: boolean }[];
+  found: { id: string; company: string; title: string; score: number; status: string }[];
+  moves: { id: string; company: string; title: string; from: string; to: string; reason: string; via: string }[];
+  mail: { confirmed: number; dismissed: number };
+  notes: { id: string; via: string; text: string }[];
+}
+
 /** What TekJobs learned from the interview, for the confirmation page and the Today sentence. */
 export interface Learned {
   ready: boolean;
@@ -432,6 +442,7 @@ export const api = {
   profileNotes: () => request<ProfileNotes>("/api/profile"),
   profileSummary: () => request<ProfileSummary>("/api/profile/summary"),
   learned: () => request<Learned>("/api/learned"),
+  journal: (date?: string) => request<Journal>(`/api/journal${date ? `?date=${date}` : ""}`),
   saveProfileNote: (note: string, markdown: string) => request<{ saved: string }>("/api/profile", { method: "PUT", body: JSON.stringify({ note, markdown }) }),
   snippets: () => request<Snippets>("/api/snippets"),
   saveSnippets: (items: Snippet[]) => request<Snippets>("/api/snippets", { method: "PUT", body: JSON.stringify({ items }) }),

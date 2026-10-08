@@ -932,6 +932,15 @@
   justify-content: flex-end;
 }
 
+/* The day's journal on Overview: the log's bullets, as a list. */
+.journal {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0 0 0 var(--spacing-4);
+  font-size: var(--text-sm);
+}
+
 /* LinkedIn import: the two opt-in boxes under the form row. */
 .linkedin__opts {
   display: grid;
