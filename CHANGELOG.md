@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.46.0](https://github.com/Timurtek/tekjobs/compare/v0.45.0...v0.46.0) (2026-10-08)
+
+### Features
+
+* **linkedin:** applications and saved jobs from the export become notes, on request ([8272a58](https://github.com/Timurtek/tekjobs/commit/8272a58c6c3eca51be377d1cfb8687c7eb32ef8b))
+
 ## [0.45.0](https://github.com/Timurtek/tekjobs/compare/v0.44.0...v0.45.0) (2026-10-08)
 
 ### Features
