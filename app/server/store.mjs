@@ -368,7 +368,7 @@ export function runs() {
 /** Whose search this is: the name from Profile.md's Basics, and the folder. The shell shows it so two profiles on one machine are never confused. */
 export function who() {
   const md = safe(() => fs.readFileSync(P.profile, 'utf8'), '');
-  const m = md.match(/^- \*\*Name[^*]*\*\*\s*(.+)$/m);
+  const m = md.match(/^- \*\*Name[^*]*\*\*[ \t]*(.+)$/m);
   const name = m ? m[1].trim().replace(/\*\*/g, '').replace(/\s+/g, ' ') : '';
   return { name: /^\(?the interview fills/i.test(name) ? '' : name, dir: VAULT, folder: path.basename(VAULT) };
 }
@@ -1027,7 +1027,7 @@ export function profileSummary() {
   const fmOf = (text) => { const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/); const out = {}; if (m) for (const line of m[1].split(/\r?\n/)) { const i = line.indexOf(':'); if (i > 0) out[line.slice(0, i).trim()] = line.slice(i + 1).trim(); } return out; };
   const fm = fmOf(md);
   const section = (name) => { const m = md.match(new RegExp(`^## ${name.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}[^\\n]*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm')); return m ? m[1].trim() : ''; };
-  const field = (text, label) => { const m = text.match(new RegExp(`^- \\*\\*${label}[^*]*\\*\\*\\s*(.*)$`, 'm')); return m ? m[1].trim().replace(/\*\*/g, '').replace(/\s+/g, ' ') : ''; };
+  const field = (text, label) => { const m = text.match(new RegExp(`^- \\*\\*${label}[^*]*\\*\\*[ \\t]*(.*)$`, 'm')); return m ? m[1].trim().replace(/\*\*/g, '').replace(/\s+/g, ' ') : ''; };
   const basicsText = section('Basics'), constraintsText = section('Constraints & preferences') || section('Constraints');
   const links = (field(basicsText, 'Links').match(/https?:\/\/[^\s·,)]+|[a-z0-9.-]+\.[a-z]{2,}(?:\/[^\s·,)]*)?/gi) || []).filter((x, i, arr) => arr.indexOf(x) === i);
   const portfolio = field(basicsText, 'Portfolio'); if (portfolio && !links.includes(portfolio)) links.unshift(portfolio);

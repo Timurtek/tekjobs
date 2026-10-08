@@ -139,7 +139,7 @@ export function start({ days } = {}) {
 }
 
 // ---------------- confirming ----------------
-const fieldEmpty = (id, field) => { try { return !new RegExp(`^- \\*\\*${field}:\\*\\*\\s*\\S`, 'm').test(fs.readFileSync(store.getJob(id).path, 'utf8')); } catch { return false; } };
+const fieldEmpty = (id, field) => { try { return !new RegExp(`^- \\*\\*${field}:\\*\\*[ \\t]*\\S`, 'm').test(fs.readFileSync(store.getJob(id).path, 'utf8')); } catch { return false; } };
 const line = (i) => `Calendar, ${i.start}${i.end ? ` to ${i.end.slice(-5)}` : ''} (${i.kind}): ${i.summary || i.gist}${i.with ? `, with ${i.with}` : ''}${i.location ? ` [${i.location}]` : ''}`;
 
 /** The person confirms one event, optionally choosing the note. Writes the time, the status where it applies, and a line on the note. */
@@ -154,7 +154,7 @@ export function confirm(id, { noteId } = {}) {
     if (s.action === 'deadline') { if (fieldEmpty(target, 'Deadline')) store.saveApplicationDraft(target, { field: 'Deadline', value: item.start.slice(0, 10) }); }
     else if (INTERVIEWISH.has(item.kind)) {
       // The latest confirmed interview is the one on the calendar; an earlier round the person wrote by hand gives way to it.
-      const current = (() => { try { return (fs.readFileSync(store.getJob(target).path, 'utf8').match(/^- \*\*Interview on:\*\*\s*(\S.*)$/m) || [])[1] || ''; } catch { return ''; } })();
+      const current = (() => { try { return (fs.readFileSync(store.getJob(target).path, 'utf8').match(/^- \*\*Interview on:\*\*[ \t]*(\S.*)$/m) || [])[1] || ''; } catch { return ''; } })();
       if (!current || item.start > current) store.saveApplicationDraft(target, { field: 'Interview on', value: item.start });
     }
     store.addNote(target, line(item), 'app');

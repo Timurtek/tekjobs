@@ -203,7 +203,7 @@ function appliedOnEmpty(id) {
 }
 /** Empty or absent: an older note may not carry the field at all. */
 function fieldEmpty(id, field) {
-  try { return !new RegExp(`^- \\*\\*${field}:\\*\\*\\s*\\S`, 'm').test(fs.readFileSync(store.getJob(id).path, 'utf8')); } catch { return false; }
+  try { return !new RegExp(`^- \\*\\*${field}:\\*\\*[ \\t]*\\S`, 'm').test(fs.readFileSync(store.getJob(id).path, 'utf8')); } catch { return false; }
 }
 
 /**

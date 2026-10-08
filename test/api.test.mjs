@@ -130,3 +130,15 @@ test('what TekJobs learned reads the sample in its own terms', async () => {
   assert.equal(typeof l.searchReady, 'boolean');
   assert.ok(Array.isArray(l.remaining));
 });
+
+test('an empty packet field followed by a filled one stays empty: the next line is never read as its value', async () => {
+  const job = (await get('/api/jobs')).body.rows?.[0] || (await get('/api/jobs')).body[0];
+  const id = job.id;
+  // Interview on filled, Applied on left empty, in template order: Applied on must still read as empty.
+  const saved = await send('PATCH', `/api/jobs/${encodeURIComponent(id)}`, { application: { field: 'Interview on', value: '2030-01-05 10:00' } });
+  assert.equal(saved.status, 200, JSON.stringify(saved.body));
+  const cal = (await get('/api/calendar')).body;
+  const mine = cal.events.filter((e) => e.id === id);
+  assert.ok(mine.some((e) => e.kind === 'interview' && e.date === '2030-01-05'));
+  assert.ok(!mine.some((e) => e.kind === 'applied' && e.date === '2030-01-05'), 'Applied on did not borrow the Interview on date');
+});

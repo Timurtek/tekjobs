@@ -16,6 +16,7 @@ process.env.HOME = home; process.env.USERPROFILE = home;
 process.env.TEKJOBS_PROFILE = profile;
 const { initProfile, importResume, onboardingStatus, saveProfile, onboardingMaterials } = await import('../scraper/profile.mjs');
 const { readProfileSettings } = await import('../scraper/config.mjs');
+const store = await import('../app/server/store.mjs');
 
 const read = (rel) => fs.readFileSync(path.join(profile, rel), 'utf8');
 const exists = (rel) => fs.existsSync(path.join(profile, rel));
@@ -70,4 +71,12 @@ test('with the three notes present, writing is ready while search still waits on
   assert.equal(s.writingReady, true);
   assert.equal(s.complete, false, 'search readiness is a separate contract');
   assert.equal(s.steps.find((x) => x.id === 'profile').done, false);
+});
+
+test('a starter profile names nobody: the empty Name line does not borrow the next line as a name', () => {
+  const who = store.who();
+  assert.equal(who.name, '', 'not "- Location / time zone:"');
+  const s = store.profileSummary();
+  assert.equal(s.basics.name, '');
+  assert.equal(s.basics.location, '');
 });

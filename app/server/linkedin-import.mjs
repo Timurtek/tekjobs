@@ -120,7 +120,7 @@ const sameTitle = (a, b) => { const x = titleKey(a), y = titleKey(b); return !!x
 const hash = (s) => { let h = 5381; for (const ch of String(s)) h = ((h * 33) ^ ch.charCodeAt(0)) >>> 0; return h.toString(16); };
 const noteText = (id) => { try { return fs.readFileSync(store.getJob(id).path, 'utf8'); } catch { return ''; } };
 // Empty or absent: a note written by hand or by an older version may not carry the field at all.
-const appliedOnEmpty = (id) => !/^- \*\*Applied on:\*\*\s*\S/m.test(noteText(id));
+const appliedOnEmpty = (id) => !/^- \*\*Applied on:\*\*[ \t]*\S/m.test(noteText(id));
 const noteOnce = (id, line) => { if (!noteText(id).includes(line)) store.addNote(id, line, 'linkedin-export'); };
 
 function findNote(jobs, { company, title, url }) {

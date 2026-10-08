@@ -92,8 +92,7 @@ export function renderJournal(j) {
     const kindText = Object.entries(kinds).map(([k, n]) => `${n} ${k}`).join(', ');
     out.push(`- **Mail**: ${plural(j.mail.confirmed, 'item')} confirmed${kindText ? ` (${kindText})` : ''}, ${j.mail.dismissed} dismissed.`);
   }
-  const human = j.notes.filter((n) => n.via !== 'app' || true).length;
-  if (human) out.push(`- **Notes**: ${plural(j.notes.length, 'line')} added across ${new Set(j.notes.map((n) => n.id)).size} job notes.`);
+  if (j.notes.length) out.push(`- **Notes**: ${plural(j.notes.length, 'line')} added across ${new Set(j.notes.map((n) => n.id)).size} job notes.`);
   out.push('');
   return out.join('\n');
 }

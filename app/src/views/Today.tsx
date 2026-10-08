@@ -75,7 +75,7 @@ export function Today({ onNavigate }: { onNavigate: (page: Page, q?: string) => 
               ? "Today's queue is clear. The next scan refills it."
               : `${sections.triage.length === 1 ? "One" : sections.triage.length} to decide on, best fit first. The other ${counts.unreviewed - sections.triage.length} unreviewed wait in Jobs and do not count against you. Fit is the share of the ${data.ceiling} points this criteria set can award.`}
           </p>
-          {learned && learned.ready && sections.triage.length > 0 && (
+          {learned && learned.titleTerms.length > 0 && sections.triage.length > 0 && (
             <p className="muted">They are here because they match your titles ({learned.titleTerms.slice(0, 3).map((t) => t.term).join(", ")}), {learned.where.requireRemote ? "your remote-only rule" : "remote scoring higher"}{learned.pay.floor ? `, and your $${Math.round(learned.pay.floor / 1000)}k floor` : ""}.</p>
           )}
         </div>
