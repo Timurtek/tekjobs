@@ -10,6 +10,7 @@ import * as tailored from './tailored-resume.mjs';
 import * as mail from './mail-check.mjs';
 import * as people from './people.mjs';
 import * as linkedin from './linkedin-import.mjs';
+import * as calcheck from './calendar-check.mjs';
 import { TOOLS } from './mcp.mjs';
 import { buildJournal, renderJournal, writeJournal } from '../../scraper/journal.mjs';
 
@@ -75,6 +76,11 @@ const routes = [
   ['GET', /^\/api\/learned$/, () => store.learned()],
   // The calendar: the dated lines the notes carry. The .ics feed is served outside the JSON routes below.
   ['GET', /^\/api\/calendar$/, () => store.calendar()],
+  // The Google Calendar check: read-only through the local CLI's connector; the person confirms each event.
+  ['GET', /^\/api\/calendar\/items$/, () => calcheck.items()],
+  ['POST', /^\/api\/calendar\/check$/, async (_, __, req) => calcheck.start(await readBody(req))],
+  ['POST', /^\/api\/calendar\/items\/([^/]+)\/confirm$/, async (m, _, req) => calcheck.confirm(decodeURIComponent(m[1]), await readBody(req))],
+  ['POST', /^\/api\/calendar\/items\/([^/]+)\/dismiss$/, (m) => calcheck.dismiss(decodeURIComponent(m[1]))],
   // The day's journal: runs, found, decisions, mail, notes, read from the record. ?date=YYYY-MM-DD for another day.
   ['GET', /^\/api\/journal$/, (_, q) => { const date = q.get('date') || undefined; const j = buildJournal(date); return { ...j, markdown: renderJournal(j) }; }],
   ['POST', /^\/api\/journal$/, async (_, __, req) => { const b = await readBody(req); return writeJournal(b.date || undefined); }],

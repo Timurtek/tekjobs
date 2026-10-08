@@ -11,6 +11,7 @@ import * as tailored from './tailored-resume.mjs';
 import * as mail from './mail-check.mjs';
 import * as people from './people.mjs';
 import * as linkedin from './linkedin-import.mjs';
+import * as calcheck from './calendar-check.mjs';
 
 // The version a client shows beside the server is the package's, not a constant that goes stale.
 const VERSION = (() => { try { return JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).version; } catch { return '0.0.0'; } })();
@@ -39,6 +40,8 @@ export const TOOLS = [
   { name: 'summary', description: 'Pipeline counts by status, pay band and kind; last scan; current floor, stretch and score bar.', inputSchema: { type: 'object', properties: {} } },
   { name: 'run_scan', description: 'Start a scan of every board now. It returns at once; the scan runs on its own (it survives this session ending) and takes two to three minutes. Poll scan_status. Pass dry=true to score without writing notes. Pass criteria=<preset name> to score this one run with a named criteria preset instead of the active Search Criteria (see list_criteria_presets). Pass wait=<seconds> (up to 300) to answer only when the scan has finished, for a client that cannot poll between turns; the scan keeps running if the wait ends first.', inputSchema: { type: 'object', properties: { dry: { type: 'boolean' }, criteria: { type: 'string' }, wait: { type: 'number', description: 'seconds to wait for the scan to finish, up to 300; omit to return at once' } } } },
   { name: 'mail_check', description: 'Start a read-only pass over the person\'s mailbox for application updates (confirmations, rejections, interview invitations) through the local CLI\'s Gmail connector, with only the Gmail read tools allowed. Runs in the background for a few minutes; poll mail_items. days: how far back (default: since the last check, or 21 days the first time).', inputSchema: { type: 'object', properties: { days: { type: 'number' } } } },
+  { name: 'calendar_check', description: 'Start a read-only pass over the person\'s Google Calendar for interviews, screens, recruiter calls and deadlines about jobs on their board, through the local CLI\'s Google Calendar connector with only its read tools allowed. Runs in the background for a minute or two; poll calendar_items. days: how far ahead (default 21). Nothing is ever written to the calendar.', inputSchema: { type: 'object', properties: { days: { type: 'number' } } } },
+  { name: 'calendar_items', description: 'The calendar events found so far, each matched to a job note (by role, by company, or none) with what confirming it would do: the time into the note\'s Interview on field, the note to interviewing where it is not yet. Confirming is done by the person in the app; an agent reads these and tells them what is waiting.', inputSchema: { type: 'object', properties: {} } },
   { name: 'mail_items', description: 'The application emails found so far, each matched to a job note (exact role, same company, or none) with what confirming it would do. Confirming is done by the person in the app; an agent can read these and tell them what is waiting.', inputSchema: { type: 'object', properties: {} } },
   { name: 'preview_criteria', description: 'What a proposed criteria JSON would do to the notes that exist, without saving or scanning: how many rise above or fall below the bar, who enters or leaves the top 20, the biggest movers. Covers title terms, recency and pay exactly; description, seniority and location rules need a scan.', inputSchema: { type: 'object', properties: { raw: { type: 'string' } }, required: ['raw'] } },
   { name: 'outcomes', description: 'What the search is producing: the funnel (found, reviewed, shortlisted, applied, interviewing, offer), response rate, median days from discovery to application, applications waiting without a response at 7/14/21 days with the oldest listed, and applied/response counts by source.', inputSchema: { type: 'object', properties: {} } },
@@ -97,6 +100,8 @@ export async function call(name, a = {}) {
     }
     case 'mail_check': return mail.start({ sinceDays: a.days });
     case 'mail_items': return mail.items();
+    case 'calendar_check': return calcheck.start({ days: a.days });
+    case 'calendar_items': return calcheck.items();
     case 'preview_criteria': return store.previewCriteria(a.raw);
     case 'rescore_notes': return store.rescoreNotes({ dry: !!a.dry });
     case 'outcomes': return store.outcomes();

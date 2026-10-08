@@ -158,6 +158,18 @@ export interface ProfileSummary {
 /** A dated line from a note: an interview, a follow-up, a deadline, or the day applied. */
 export interface CalendarEvent { id: string; company: string; title: string; status: Status; kind: "interview" | "follow-up" | "deadline" | "applied"; field: string; date: string; time: string; raw: string; url: string }
 export interface Calendar { today: string; events: CalendarEvent[]; upcoming: CalendarEvent[]; past: CalendarEvent[]; ics: string }
+/** One event the Google Calendar check found, matched to a note, waiting for the person. */
+export interface CalendarCheckItem {
+  id: string; company: string; role: string; kind: "interview" | "screen" | "onsite" | "offer-call" | "recruiter-call" | "deadline" | "other";
+  start: string; end: string; summary: string; gist: string; with: string; location: string; calendar: string;
+  state: "pending" | "confirmed" | "dismissed"; match: "role" | "company" | "none";
+  noteId: string; noteTitle: string; noteStatus: string; candidates: { id: string; title: string; status: string }[];
+  suggestion: { action: string; status?: string; text: string };
+}
+export interface CalendarCheckState {
+  running: boolean; startedAt: string | null; finishedAt: string | null; error: string; errorKind: string; days: number | null;
+  runner: string; lastRun: string | null; lastDays: number | null; items: CalendarCheckItem[]; pending: CalendarCheckItem[];
+}
 
 /** The day's journal, read from the record: runs, what was found, decisions, mail, notes. `markdown` is the section the log note carries. */
 export interface Journal {
@@ -448,6 +460,10 @@ export const api = {
   learned: () => request<Learned>("/api/learned"),
   journal: (date?: string) => request<Journal>(`/api/journal${date ? `?date=${date}` : ""}`),
   calendar: () => request<Calendar>("/api/calendar"),
+  calendarItems: () => request<CalendarCheckState>("/api/calendar/items"),
+  calendarCheck: (days?: number) => request<CalendarCheckState>("/api/calendar/check", { method: "POST", body: JSON.stringify({ days }) }),
+  calendarConfirm: (id: string, noteId?: string) => request<CalendarCheckState>(`/api/calendar/items/${encodeURIComponent(id)}/confirm`, { method: "POST", body: JSON.stringify({ noteId }) }),
+  calendarDismiss: (id: string) => request<CalendarCheckState>(`/api/calendar/items/${encodeURIComponent(id)}/dismiss`, { method: "POST" }),
   saveProfileNote: (note: string, markdown: string) => request<{ saved: string }>("/api/profile", { method: "PUT", body: JSON.stringify({ note, markdown }) }),
   snippets: () => request<Snippets>("/api/snippets"),
   saveSnippets: (items: Snippet[]) => request<Snippets>("/api/snippets", { method: "PUT", body: JSON.stringify({ items }) }),

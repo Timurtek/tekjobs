@@ -1,6 +1,6 @@
-import { Badge, Button, Card, CodeBlock, EmptyState, Skeleton, Table } from "@/components/ui";
+import { Badge, Button, Card, CodeBlock, EmptyState, Loader, Select, Skeleton, Table, toast } from "@/components/ui";
 import { useEffect, useState } from "react";
-import { api, type Calendar as CalendarData, type CalendarEvent } from "../api";
+import { api, type Calendar as CalendarData, type CalendarCheckItem, type CalendarCheckState, type CalendarEvent } from "../api";
 import { JobSheet } from "./Jobs";
 
 const KIND: Record<CalendarEvent["kind"], { label: string; tone: "primary" | "warning" | "danger" | "neutral" }> = {
@@ -87,6 +87,8 @@ export function Calendar() {
         </section>
       )}
 
+      <FromGoogleCalendar onChanged={load} />
+
       <section className="today__section">
         <h2 className="today__heading">In your calendar app</h2>
         <Card padding="md">
@@ -100,5 +102,100 @@ export function Calendar() {
 
       <JobSheet id={selected} onClose={() => setSelected(null)} onChanged={() => load()} />
     </>
+  );
+}
+
+const CHECK_KIND: Record<CalendarCheckItem["kind"], string> = { interview: "Interview", screen: "Screen", onsite: "Onsite", "offer-call": "Offer call", "recruiter-call": "Recruiter call", deadline: "Deadline", other: "Event" };
+
+/**
+ * The other direction: events already on the person's Google Calendar, read through the local CLI's connector
+ * with its read tools only, each matched to a note and waiting for a decision. Confirming writes the time into
+ * the note; nothing is written to the calendar.
+ */
+function FromGoogleCalendar({ onChanged }: { onChanged: () => void }) {
+  const [c, setC] = useState<CalendarCheckState | null>(null);
+  const [picks, setPicks] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState<string | null>(null);
+  const load = () => api.calendarItems().then(setC).catch(() => setC(null));
+  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (!c?.running) return;
+    const t = setInterval(() => api.calendarItems().then((s) => { setC(s); if (!s.running && s.error) toast({ title: "Calendar check failed", description: s.error, tone: "danger" }); }).catch(() => {}), 4000);
+    return () => clearInterval(t);
+  }, [c?.running]);
+  const check = async () => {
+    try { setC(await api.calendarCheck()); toast({ title: "Reading the calendar", description: "Through the local CLI, Google Calendar read tools only. A minute or two.", tone: "neutral" }); }
+    catch (e) { toast({ title: "Could not start", description: (e as Error).message, tone: "danger" }); }
+  };
+  const act = async (i: CalendarCheckItem, what: "confirm" | "dismiss") => {
+    setBusy(i.id);
+    try {
+      const chosen = i.id in picks ? picks[i.id] : i.noteId;
+      setC(what === "confirm" ? await api.calendarConfirm(i.id, chosen || undefined) : await api.calendarDismiss(i.id));
+      if (what === "confirm") { toast({ title: `${i.company}: ${i.suggestion.text}`, description: "Written to the note.", tone: "success" }); onChanged(); }
+    } catch (e) { toast({ title: "Not saved", description: (e as Error).message, tone: "danger" }); }
+    setBusy(null);
+  };
+  if (!c) return null;
+  return (
+    <section className="today__section">
+      <div className="today__section-head">
+        <h2 className="today__heading">From your Google Calendar</h2>
+        <span className="today__hint">{c.lastRun ? `last read ${c.lastRun.slice(0, 16).replace("T", " ")} UTC` : "not read yet"}</span>
+      </div>
+      <Card padding="md">
+        <div className="panel">
+          <p className="muted">Interviews and calls already on your calendar, read through the local CLI&apos;s Google Calendar connector with its read tools only, matched to your notes. You confirm each one; confirming puts the time into the note&apos;s Interview on field and moves a note that is not yet interviewing. Nothing is ever written to the calendar. Needs Claude Code with the Google Calendar connector enabled.</p>
+          <div className="form__actions form__actions--start">
+            <Button size="sm" variant="soft" tone="primary" loading={c.running} disabled={c.running} onClick={check}>{c.running ? "Reading the calendar" : "Check Google Calendar"}</Button>
+            {c.running && <Loader size="sm" />}
+            {c.error && !c.running && <span className="muted">Last check failed ({c.errorKind}): {c.error}</span>}
+          </div>
+          {c.pending.length === 0 ? (
+            <p className="muted">{c.lastRun ? "Nothing waiting: every event found has been confirmed or dismissed." : ""}</p>
+          ) : (
+            <Table aria-label="Calendar events waiting for a decision" density="md">
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeadCell>When</Table.HeadCell>
+                  <Table.HeadCell>Event</Table.HeadCell>
+                  <Table.HeadCell>Note</Table.HeadCell>
+                  <Table.HeadCell>Confirming</Table.HeadCell>
+                  <Table.HeadCell>Decide</Table.HeadCell>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {c.pending.map((i) => (
+                  <Table.Row key={i.id}>
+                    <Table.Cell><span className="num">{i.start}</span></Table.Cell>
+                    <Table.Cell>
+                      <div className="who__text">
+                        <span><Badge size="sm" tone="primary" variant="soft">{CHECK_KIND[i.kind]}</Badge> {i.company}{i.role ? ` · ${i.role}` : ""}</span>
+                        <small>{i.summary}{i.with ? ` · with ${i.with}` : ""}</small>
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell>
+                      {i.candidates.length > 1 ? (
+                        <Select size="sm" aria-label="Which note" value={(i.id in picks ? picks[i.id] : i.noteId) || "none"} onValueChange={(v) => setPicks({ ...picks, [i.id]: v === "none" ? "" : v })}>
+                          <Select.Item value="none">No note</Select.Item>
+                          {i.candidates.map((n) => <Select.Item key={n.id} value={n.id}>{n.title} ({n.status})</Select.Item>)}
+                        </Select>
+                      ) : i.noteId ? <span className="muted">{i.noteTitle} ({i.noteStatus})</span> : <span className="muted">no note at {i.company}</span>}
+                    </Table.Cell>
+                    <Table.Cell><span className="muted">{i.suggestion.text}</span></Table.Cell>
+                    <Table.Cell>
+                      <div className="today__actions">
+                        <Button size="sm" variant="soft" tone="primary" disabled={busy === i.id} onClick={() => act(i, "confirm")}>Confirm</Button>
+                        <Button size="sm" variant="ghost" disabled={busy === i.id} onClick={() => act(i, "dismiss")}>Dismiss</Button>
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          )}
+        </div>
+      </Card>
+    </section>
   );
 }

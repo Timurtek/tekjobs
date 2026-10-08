@@ -46,6 +46,8 @@ const HELP = `tekjobs — a local job-search machine
   tekjobs down                           stop what \`up\` started
   tekjobs ps                             what \`up\` has running
   tekjobs board <slug> [--from ats] [--move]  where a failed board answers now; --move rewrites the watchlist row
+  tekjobs calendar check [--days N]     read the Google Calendar, through the local CLI's connector with its read tools
+                                         only, for interviews and calls about jobs on the board; confirm each in the app
   tekjobs journal [YYYY-MM-DD] [--write]  the day's journal from the record (runs, found, decisions, mail); --write
                                          puts it at the end of Logs/<date>.md, as every real scan does
   tekjobs serve                          the app + API on http://127.0.0.1:8787, in this terminal
@@ -202,6 +204,22 @@ async function main() {
       if (jobsOpt.saved) console.log(`  Saved jobs: ${jobs.saved.matched} already had a note, ${jobs.saved.created} notes created at reviewing, ${jobs.saved.skipped} before ${jobs.since} or without a company`);
     }
     if (!s.dry) console.log(`  Index: ${s.indexPath}. Job notes now show who you know at each company.`);
+    return;
+  }
+  if (cmd === 'calendar') {
+    const cc = await import('./app/server/calendar-check.mjs');
+    if (rest[0] === 'check') {
+      const s = cc.start({ days: Number(opt('--days')) || undefined });
+      console.log(`Reading the calendar through ${s.runner}, ${s.days} days ahead, read tools only. This takes a minute or two.`);
+      while (cc.items().running) await new Promise((r) => setTimeout(r, 3000));
+      const r = cc.items();
+      if (r.error) return console.error(`Calendar check failed (${r.errorKind}): ${r.error}`);
+      console.log(`${r.pending.length} event${r.pending.length === 1 ? '' : 's'} waiting for a decision in the app's Calendar page.`);
+      for (const i of r.pending) console.log(`  ${i.start}  ${i.kind.padEnd(14)} ${i.company} — ${i.summary || i.gist}${i.noteId ? `  → ${i.noteTitle} (${i.noteStatus})` : '  → no note'}`);
+      return;
+    }
+    const r = cc.items();
+    console.log(`${r.pending.length} pending calendar event${r.pending.length === 1 ? '' : 's'}; last read ${r.lastRun || 'never'}. Run: tekjobs calendar check`);
     return;
   }
   if (cmd === 'journal') {
