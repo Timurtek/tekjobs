@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.55.0](https://github.com/Timurtek/tekjobs/compare/v0.54.0...v0.55.0) (2026-10-09)
+
+### Features
+
+* **app:** match the shell and pages to the figma frames ([55a60c8](https://github.com/Timurtek/tekjobs/commit/55a60c82d9736d90c04265a5a461c221443d2daf))
+
 ## [0.54.0](https://github.com/Timurtek/tekjobs/compare/v0.53.0...v0.54.0) (2026-10-08)
 
 ### Features
