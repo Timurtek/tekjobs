@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.55.2](https://github.com/Timurtek/tekjobs/compare/v0.55.1...v0.55.2) (2026-10-09)
+
+### Fixes
+
+* **mail:** the signed-out message quotes the CLI's error, not the settings advice before it ([eaef2d4](https://github.com/Timurtek/tekjobs/commit/eaef2d478533b19c1cc55b0e327b236a94238a12))
+
 ## [0.55.1](https://github.com/Timurtek/tekjobs/compare/v0.55.0...v0.55.1) (2026-10-09)
 
 ### Fixes
