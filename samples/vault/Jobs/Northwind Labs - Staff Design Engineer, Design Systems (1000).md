@@ -10,8 +10,8 @@ source: greenhouse
 url: "https://jobs.example.com/northwind/staff-design-engineer-design-systems"
 score: 148
 weights: 3e895160
-posted: "2026-10-05"
-found: 2026-10-06
+posted: "2026-10-06"
+found: 2026-10-07
 salary: "$215k–$265k"
 salary_max: 265000
 pay_band: floor
@@ -33,9 +33,9 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-10-06 — found by scraper (score 148). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
-- 2026-10-06 — new → **reviewing** (via app)
-- 2026-10-07 — reviewing → **applying** (via app)
+- 2026-10-07 — found by scraper (score 148). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-07 — new → **reviewing** (via app)
+- 2026-10-08 — reviewing → **applying** (via app)
 
 ## Notes
 

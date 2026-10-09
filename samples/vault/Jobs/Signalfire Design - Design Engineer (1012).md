@@ -11,8 +11,8 @@ source: lever
 url: "https://jobs.example.com/signalfire/design-engineer"
 score: 23
 weights: 3e895160
-posted: "2026-10-06"
-found: 2026-10-06
+posted: "2026-10-07"
+found: 2026-10-07
 salary: "$170k–$200k"
 salary_max: 200000
 pay_band: floor
@@ -33,8 +33,8 @@ tags: [job]
 - posted 0d ago (+25)
 
 ## Status log
-- 2026-10-06 — found by scraper (score 23). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
-- 2026-10-07 — new → **passed** (location or authorisation) (via app)
+- 2026-10-07 — found by scraper (score 23). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-08 — new → **passed** (location or authorisation) (via app)
 
 ## Notes
 

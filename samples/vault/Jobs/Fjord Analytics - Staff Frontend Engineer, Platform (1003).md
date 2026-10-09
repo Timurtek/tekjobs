@@ -10,8 +10,8 @@ source: greenhouse
 url: "https://jobs.example.com/fjord/staff-frontend-engineer-platform"
 score: 111
 weights: 3e895160
-posted: "2026-09-29"
-found: 2026-09-30
+posted: "2026-09-30"
+found: 2026-10-01
 salary: "$220k–$270k"
 salary_max: 270000
 pay_band: floor
@@ -33,10 +33,10 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-30 — found by scraper (score 111). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
-- 2026-10-01 — new → **reviewing** (via app)
-- 2026-10-02 — reviewing → **applying** (via app)
-- 2026-10-04 — applying → **applied** (via app)
+- 2026-10-01 — found by scraper (score 111). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-02 — new → **reviewing** (via app)
+- 2026-10-03 — reviewing → **applying** (via app)
+- 2026-10-05 — applying → **applied** (via app)
 
 ## Notes
 
@@ -45,9 +45,9 @@ tags: [job]
 - **Narrative:**
 - **Resume variant:**
 - **Cover letter:**
-- **Applied on:** 2026-10-04
+- **Applied on:** 2026-10-05
 - **Contact / referral:**
-- **Follow-up due:** 2026-10-11
+- **Follow-up due:** 2026-10-12
 
 ## People
 - [[People/Lee Example (Fjord Analytics)|Lee Example]] · referral · lee@example.com · submitted the internal referral

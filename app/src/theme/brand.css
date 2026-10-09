@@ -33,7 +33,7 @@
   --text-4xl: 1.875rem;
   --leading-normal: 1.45;
   --leading-tight: 1.15;
-  --tracking-caps: 0.08em;
+  --tracking-caps: 0.06em;
 
   /* Shape: small, consistent corners; flat surfaces. */
   --radius-sm: 3px;
@@ -185,7 +185,7 @@
   font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   text-transform: uppercase;
   text-decoration: none;
   line-height: 1;

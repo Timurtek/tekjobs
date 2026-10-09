@@ -112,7 +112,7 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
           </Sheet>
           <h1 className="topbar__title">{TITLES[page]}</h1>
           <form className="topbar__search" onSubmit={submit} ref={searchForm}>
-            <TextField size="sm" placeholder="Search company or role" aria-label="Search jobs" leadingIcon={<Icon.Search />} trailingIcon={<span className="num">{SEARCH_HINT}</span>} value={q} onChange={(e) => setQ(e.target.value)} />
+            <TextField size="md" placeholder="Search company or role" aria-label="Search jobs" leadingIcon={<Icon.Search />} trailingIcon={<span className="num">{SEARCH_HINT}</span>} value={q} onChange={(e) => setQ(e.target.value)} />
           </form>
           <div className="topbar__actions">
             <CopyPanel />

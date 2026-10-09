@@ -254,16 +254,16 @@
 
 .sheet-head__meta {
   margin: 0;
-  font-size: var(--text-xs);
-  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
 .sheet-head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: var(--text-4xl);
+  font-size: 34px;
   font-weight: var(--font-weight-semibold);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   line-height: var(--leading-tight);
 }
 
@@ -277,13 +277,13 @@
 .sheet-head__links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3);
+  gap: var(--spacing-6);
 }
 
 /* Match reasons: a hairline list with the points in mono on the right, and a side column of context. */
 .split {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 16rem;
+  grid-template-columns: minmax(0, 1fr) 17.75rem;
   gap: var(--spacing-8);
   align-items: start;
 }
@@ -306,32 +306,44 @@
   align-items: baseline;
   gap: var(--spacing-4);
   padding-bottom: var(--spacing-3);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
 }
 
 .reasons__fit {
-  font-size: var(--text-2xl);
+  font-size: 26px;
+  line-height: var(--leading-none);
   color: var(--color-primary);
 }
 
 .reasons__fit small {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
 }
 
 .reasons__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 3.75rem;
-  gap: var(--spacing-4);
-  padding: var(--spacing-3) 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-6);
+  align-items: start;
+  padding: var(--spacing-4) 0;
   border-top: 1px solid var(--color-border);
 }
 
+/* The signal in the criteria's own words, at 17px; what matched under it in body size. */
+.reasons__row > div:first-child {
+  display: grid;
+  gap: var(--spacing-1);
+  font-size: var(--text-xl);
+  line-height: var(--leading-normal);
+}
+
 .reasons__detail {
-  font-size: var(--text-xs);
-  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+  color: var(--color-text-subtle);
 }
 
 .reasons__pts {
+  font-size: 19px;
+  line-height: var(--leading-none);
   text-align: right;
   color: var(--color-primary);
 }
@@ -354,7 +366,7 @@
 .split__aside {
   display: grid;
   gap: var(--spacing-5);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
 }
 
 .split__aside p {
@@ -664,7 +676,6 @@
 }
 
 .today__hint {
-  margin-left: auto;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-text-faint);
@@ -674,6 +685,11 @@
   display: flex;
   align-items: baseline;
   gap: var(--spacing-3);
+}
+
+/* The decision table reads as one surface: the header row is text on the same ground as the rows. */
+.today__section .z-table__head .z-table__cell {
+  background-color: var(--color-surface);
 }
 
 /* The sidebar's footer line: what the record is, and when the scan last ran. */
@@ -739,7 +755,7 @@
 }
 
 .toolbar__filter--wide {
-  width: 22rem;
+  width: 24.375rem;
   max-width: 100%;
 }
 
@@ -863,7 +879,17 @@
 .kcard__title {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-regular);
-  line-height: 1.35;
+  line-height: var(--leading-normal);
+}
+
+/* The board as the design draws it: 284px columns, the count against the cap in mono. */
+.page .z-kanban {
+  grid-auto-columns: minmax(17.75rem, 1fr);
+}
+
+.z-kanban__head .z-badge {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-regular);
 }
 
 .kcard__meta {
@@ -1134,11 +1160,16 @@
 /* The application packet. Fields stack; the state line above them says what is still required. */
 .packet__state {
   display: grid;
-  gap: var(--spacing-1);
+  gap: var(--spacing-2);
   justify-items: start;
-  padding: var(--spacing-3);
+  padding: var(--spacing-4);
   background-color: var(--color-surface-sunken);
   border-radius: var(--radius-md);
+}
+
+.packet__state p {
+  font-size: var(--text-xl);
+  line-height: var(--leading-normal);
 }
 
 .packet__field {
@@ -1231,8 +1262,8 @@
 }
 
 .jobs--split {
-  --tj-topbar: 3.5625rem;
-  grid-template-columns: minmax(18.75rem, 23.75rem) minmax(0, 1fr);
+  --tj-topbar: 4.0625rem;
+  grid-template-columns: minmax(18.75rem, 26.375rem) minmax(0, 1fr);
   gap: 0;
   margin: calc(var(--spacing-8) * -1) calc(var(--spacing-10) * -1) calc(var(--spacing-12) * -1);
   align-items: start;
@@ -1256,7 +1287,7 @@
   container-type: inline-size;
   height: calc(100vh - var(--tj-topbar));
   overflow-y: auto;
-  padding: var(--spacing-5) var(--spacing-8) var(--spacing-12);
+  padding: var(--spacing-6) var(--spacing-8) var(--spacing-12);
 }
 
 /* The note's two-column tabs fold to one when the pane itself is narrow, whatever the window is. */
@@ -1284,13 +1315,20 @@
 
 .ctools__meta {
   justify-content: space-between;
-  font-size: var(--text-xs);
-  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
-.ctools__meta b {
+/* The shortcut hint is a mono micro-line; the count is plain text in the text colour. */
+.ctools__meta > span.num {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.ctools__meta b.num {
+  font-size: inherit;
   color: var(--color-text);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-regular);
 }
 
 /* The compact list: score, then role over company · pay · age. The open one has the lime rule. */
@@ -1301,7 +1339,7 @@
 
 .clist .clist__item {
   display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr);
+  grid-template-columns: 3rem minmax(0, 1fr);
   gap: var(--spacing-3);
   height: auto;
   padding: var(--spacing-3) var(--spacing-3);
@@ -1312,7 +1350,7 @@
 }
 
 .clist .clist__item[aria-current="true"] {
-  background-color: var(--color-surface-sunken);
+  background-color: var(--color-surface-raised);
   box-shadow: inset 3px 0 0 var(--color-primary);
 }
 
@@ -1321,6 +1359,7 @@
 }
 
 .clist__score {
+  font-size: 15px;
   font-weight: var(--font-weight-semibold);
   line-height: var(--leading-tight);
 }
@@ -1332,13 +1371,13 @@
 }
 
 .clist__role {
-  font-weight: var(--font-weight-medium);
-  line-height: var(--leading-tight);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-normal);
   color: var(--color-text);
 }
 
 .clist__meta {
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-weight: var(--font-weight-regular);
   color: var(--color-text-muted);
 }
@@ -1360,13 +1399,13 @@
 .sheet-nav {
   display: flex;
   align-items: center;
-  gap: var(--spacing-1);
+  gap: var(--spacing-2);
 }
 
 .sheet-nav__count {
   padding-left: var(--spacing-2);
-  font-size: var(--text-xs);
-  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
 .sheet-nav .sheet-nav__close {

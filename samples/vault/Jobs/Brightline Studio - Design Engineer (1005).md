@@ -10,8 +10,8 @@ source: lever
 url: "https://jobs.example.com/brightline/design-engineer"
 score: 95
 weights: 3e895160
-posted: "2026-10-07"
-found: 2026-10-07
+posted: "2026-10-08"
+found: 2026-10-08
 salary: "$160k–$195k"
 salary_max: 195000
 pay_band: stretch
@@ -32,7 +32,7 @@ tags: [job, stretch]
 - posted 0d ago (+25)
 
 ## Status log
-- 2026-10-07 — found by scraper (score 95). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-08 — found by scraper (score 95). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
 
 ## Notes
 

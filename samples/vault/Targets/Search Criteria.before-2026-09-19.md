@@ -1,6 +1,6 @@
 ---
 type: config
-updated: 2026-10-08
+updated: 2026-10-09
 ---
 # Search Criteria
 
@@ -16,7 +16,7 @@ How scoring works:
 - **location** — remote adds; with `requireRemote` on, anything not remote takes `notRemotePenalty` and drops out. Clearly non-US-only listings subtract heavily.
 - **salary** — a stated range at or above `minAnnual` adds; between `stretchAnnual` and `minAnnual` is the stretch band (small penalty, kept visible); below subtracts. No stated range is neutral.
 - **recency** — posted within 7 days adds, over 90 days subtracts.
-- **openSources** — aggregator feeds that need no company slug. Set one to `false` to drop it. `wellfound` and `builtin` read those sites' remote listing pages (no API), searched by design-engineering roles; both lose to the same job from its ATS when both turn up.
+- **openSources** — aggregator feeds that need no company slug. Set one to `false` to drop it. `wellfound` and `builtin` read those sites' remote listing pages rather than an API, and are off until you turn them on: both sites' terms discourage automated reading, so the choice is yours. When on, each loses to the same job from its ATS when both turn up.
 - **email** — job alert emails you save into the `Inbox` folder of this profile, as `.eml`. This is how the boards with no public API get in: LinkedIn, Indeed, Otta and Wellfound all send alerts, and an email in your own mailbox is your own data. Nothing contacts those sites — it reads files you put there, and the links are for you to open. Links to Greenhouse, Lever, Ashby and Workday are picked up from any sender. Rows are thin (a title, a company, usually a location), so they score below the same job from an ATS and lose to it when both turn up.
 - **adzuna** — the one source that needs a key. Set `ADZUNA_APP_ID` and `ADZUNA_APP_KEY` in the environment (free at developer.adzuna.com), turn `openSources.adzuna` on, and it searches your top `titleTerms` in each country under `adzuna.countries`. It reaches listings that never appear on a company ATS board, but its descriptions come back as snippets, so those rows score lower than the same job fetched from its ATS.
 - **usajobs** — every US federal posting. Set `USAJOBS_API_KEY` and `USAJOBS_EMAIL` (free at developer.usajobs.gov; the email is the one the key is registered to) and turn `openSources.usajobs` on. Unlike Adzuna it returns the whole description, so these rows score on equal footing, and it carries a real application deadline.
@@ -55,7 +55,7 @@ How scoring works:
     "remoteok": true, "hn": true, "email": true, "adzuna": false, "usajobs": false,
     "themuse": true, "remotive": false, "himalayas": true, "jobicy": true,
     "workingnomads": true, "arbeitnow": false, "wwr": true,
-    "wellfound": true, "builtin": true
+    "wellfound": false, "builtin": false
   },
   "adzuna": {
     "_note": "Needs ADZUNA_APP_ID and ADZUNA_APP_KEY in the environment (free at developer.adzuna.com), and openSources.adzuna set to true. Searches for your top titleTerms unless queries is set. Descriptions come back as snippets, so these rows score lower than the same job from its ATS.",

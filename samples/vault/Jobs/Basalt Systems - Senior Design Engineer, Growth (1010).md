@@ -10,8 +10,8 @@ source: ashby
 url: "https://jobs.example.com/basalt/senior-design-engineer-growth"
 score: 114
 weights: 3e895160
-posted: "2026-09-13"
-found: 2026-09-14
+posted: "2026-09-14"
+found: 2026-09-15
 salary: "$180k–$220k"
 salary_max: 220000
 pay_band: floor
@@ -33,14 +33,14 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-14 — found by scraper (score 114). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
-- 2026-09-16 — new → **reviewing** (via app)
-- 2026-09-18 — reviewing → **applying** (via app)
-- 2026-09-20 — applying → **applied** (via app)
-- 2026-10-02 — applied → **rejected** (via app)
+- 2026-09-15 — found by scraper (score 114). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-09-17 — new → **reviewing** (via app)
+- 2026-09-19 — reviewing → **applying** (via app)
+- 2026-09-21 — applying → **applied** (via app)
+- 2026-10-03 — applied → **rejected** (via app)
 
 ## Notes
-- 2026-10-02 (app): Form rejection after twelve days. No reason given.
+- 2026-10-03 (app): Form rejection after twelve days. No reason given.
 
 ## Application
 - **Narrative:**

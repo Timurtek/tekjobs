@@ -732,7 +732,7 @@ export function JobDetail({ id, onClose, onChanged, nav, inline = false }: { id:
                       </Menu.Content>
                     </Menu>
                   )}
-                  <Select size="sm" label="Status" value={job.status} onValueChange={(v) => changeStatus(v as Status)} disabled={busy}>
+                  <Select size="md" label="Status" value={job.status} onValueChange={(v) => changeStatus(v as Status)} disabled={busy}>
                     {STATUSES.map((st) => (
                       <Select.Item key={st} value={st}>{st}</Select.Item>
                     ))}
@@ -752,7 +752,7 @@ export function JobDetail({ id, onClose, onChanged, nav, inline = false }: { id:
                 </div>
               </div>
             </div>
-            <Tabs defaultValue="why" variant="line" size="sm">
+            <Tabs defaultValue="why" variant="line" size="md">
               <Tabs.List aria-label="Job note sections">
                 <Tabs.Trigger value="why">Match reasons</Tabs.Trigger>
                 <Tabs.Trigger value="description">Description</Tabs.Trigger>
@@ -874,7 +874,7 @@ function ApplicationPacket({ job, onStatus, busy }: { job: Job; onStatus: (s: St
   return (
     <div className="detail">
       <div className="packet__state">
-        <Badge tone={packet.ready ? "success" : "neutral"} variant={packet.ready ? "soft" : "outline"}>
+        <Badge size="sm" tone={packet.ready ? "primary" : "neutral"} variant={packet.ready ? "soft" : "outline"}>
           {packet.filled} of {packet.total} filled
         </Badge>
         {packet.ready ? (
@@ -886,8 +886,8 @@ function ApplicationPacket({ job, onStatus, busy }: { job: Job; onStatus: (s: St
 
       {packet.ready && job.status !== "applied" && (
         <div className="form__actions form__actions--start">
-          {job.status !== "ready" && <Button size="sm" tone="primary" variant="soft" disabled={busy} onClick={() => onStatus("ready")}>Mark ready for approval</Button>}
-          <Button size="sm" tone="primary" disabled={busy} onClick={() => { if (window.confirm(`Only mark this applied if you have actually sent it to ${job.company}. Nothing here can send an application.`)) onStatus("applied"); }}>
+          {job.status !== "ready" && <Button size="md" tone="primary" variant="soft" disabled={busy} onClick={() => onStatus("ready")}>Mark ready for approval</Button>}
+          <Button size="md" tone="primary" disabled={busy} onClick={() => { if (window.confirm(`Only mark this applied if you have actually sent it to ${job.company}. Nothing here can send an application.`)) onStatus("applied"); }}>
             I have applied
           </Button>
         </div>

@@ -1,6 +1,6 @@
 ---
 type: voice
-updated: 2026-09-18
+updated: 2026-09-19
 ---
 # Voice
 

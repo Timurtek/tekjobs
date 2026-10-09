@@ -75,7 +75,7 @@ function Num({ doc, path, label, hint, onChange, step = 1 }: { doc: Doc; path: s
   const v = get(doc, path);
   return (
     <TextField
-      size="sm"
+      size="md"
       type="number"
       step={step}
       label={label}
@@ -233,9 +233,9 @@ export function Criteria() {
         </div>
       </div>
 
-      <Card padding="md">
+      <Card padding="lg">
         <div className="toolbar">
-          <Select className="toolbar__filter toolbar__filter--wide" size="sm" label="Editing" value={editing} onValueChange={(v) => { if (dirty && !window.confirm("Discard unsaved changes?")) return; load(v); }}>
+          <Select className="toolbar__filter toolbar__filter--wide" size="md" label="Editing" value={editing} onValueChange={(v) => { if (dirty && !window.confirm("Discard unsaved changes?")) return; load(v); }}>
             <Select.Item value={ACTIVE}>Active criteria (daily scan)</Select.Item>
             {presets.map((p) => (
               <Select.Item key={p.name} value={p.name}>{p.name}{p.active ? " · same as active" : ""}</Select.Item>
@@ -243,13 +243,13 @@ export function Criteria() {
           </Select>
           <div className="toolbar__spacer" />
           <div className="toolbar__switch pager__buttons">
-            {isPreset && <Button size="sm" variant="ghost" tone="danger" disabled={busy} onClick={() => setConfirmDelete(true)}>Delete preset</Button>}
-            {isPreset && <Button size="sm" variant="soft" disabled={busy || dirty || current?.active} onClick={activate}>{current?.active ? "Is the active set" : "Make active"}</Button>}
-            <Button size="sm" variant="soft" disabled={busy || previewing} loading={previewing} onClick={previewImpact}>Preview impact</Button>
-            <Button size="sm" variant="soft" disabled={busy} onClick={() => setSaveAs(isPreset ? `${editing} copy` : "")}>Save as preset…</Button>
-            <Button size="sm" variant="soft" disabled={busy || dirty} onClick={() => runWith(true)}>Dry run with this</Button>
-            <Button size="sm" variant="soft" disabled={busy || dirty} onClick={() => runWith(false)}>Scan with this</Button>
-            <Button size="sm" tone="primary" disabled={!dirty || busy} loading={busy} onClick={save}>{isPreset ? "Save preset" : "Save to the vault"}</Button>
+            {isPreset && <Button size="md" variant="ghost" tone="danger" disabled={busy} onClick={() => setConfirmDelete(true)}>Delete preset</Button>}
+            {isPreset && <Button size="md" variant="soft" disabled={busy || dirty || current?.active} onClick={activate}>{current?.active ? "Is the active set" : "Make active"}</Button>}
+            <Button size="md" variant="soft" disabled={busy || previewing} loading={previewing} onClick={previewImpact}>Preview impact</Button>
+            <Button size="md" variant="soft" disabled={busy} onClick={() => setSaveAs(isPreset ? `${editing} copy` : "")}>Save as preset…</Button>
+            <Button size="md" variant="soft" disabled={busy || dirty} onClick={() => runWith(true)}>Dry run with this</Button>
+            <Button size="md" variant="soft" disabled={busy || dirty} onClick={() => runWith(false)}>Scan with this</Button>
+            <Button size="md" tone="primary" disabled={!dirty || busy} loading={busy} onClick={save}>{isPreset ? "Save preset" : "Save to the vault"}</Button>
           </div>
         </div>
         {isPreset && current && <p className="muted">Preset · {current.titles} title terms · updated {current.updated} · {current.file}</p>}
@@ -278,7 +278,7 @@ export function Criteria() {
       </Card>
 
       {/* What the search is for leads; how the points add up and the raw document sit behind "advanced". */}
-      <Tabs defaultValue="titles" variant="line" size="sm">
+      <Tabs defaultValue="titles" variant="line" size="md">
         <Tabs.List aria-label="Criteria editors">
           <Tabs.Trigger value="titles">Titles and terms</Tabs.Trigger>
           <Tabs.Trigger value="location">Location and pay</Tabs.Trigger>
@@ -288,7 +288,7 @@ export function Criteria() {
         </Tabs.List>
 
         <Tabs.Content value="fields">
-          <Card padding="md">
+          <Card padding="lg">
             <div className="form">
               <div className="form__row">
                 <Num doc={doc} path={["minScore"]} label="Bar (minScore)" hint="A posting needs this many points to become a note." onChange={update} />
@@ -324,7 +324,7 @@ export function Criteria() {
         </Tabs.Content>
 
         <Tabs.Content value="titles">
-          <Card padding="md">
+          <Card padding="lg">
             <div className="form">
               <div className="form__row">
                 <ListEditor label="Title terms (term: weight)" hint="The best single match in the title counts fully; each extra match adds the per-extra points. One per line." value={doc.titleTerms} weighted rows={18} onCommit={(v) => update(set(doc, ["titleTerms"], v))} />
@@ -337,7 +337,7 @@ export function Criteria() {
         </Tabs.Content>
 
         <Tabs.Content value="location">
-          <Card padding="md">
+          <Card padding="lg">
             <div className="form">
               <h3>Location</h3>
               <Switch label="Remote only" description="Anything not remote takes the penalty below, which drops it under the bar." checked={!!get(doc, ["location", "requireRemote"])} onCheckedChange={(v) => update(set(doc, ["location", "requireRemote"], v === true))} />
@@ -372,7 +372,7 @@ export function Criteria() {
         </Tabs.Content>
 
         <Tabs.Content value="sources">
-          <Card padding="md">
+          <Card padding="lg">
             <div className="form">
               <p className="muted">Aggregator feeds with no company slug. Company boards live on the Companies page. Adzuna and USAJOBS also need a free key in the environment.</p>
               <div className="form__row">
@@ -385,7 +385,7 @@ export function Criteria() {
         </Tabs.Content>
 
         <Tabs.Content value="json">
-          <Card padding="md">
+          <Card padding="lg">
             <div className="form">
               <TextArea label="Criteria JSON" description="The whole document. Apply to push it into the fields; Save to write it to the vault." font="mono" rows={28} resize="vertical" value={jsonText} onChange={(e) => setJsonText(e.target.value)} error={jsonError || undefined} />
               <div className="form__actions">

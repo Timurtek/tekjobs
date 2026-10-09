@@ -10,8 +10,8 @@ source: tekjobs
 url: "https://tekjobs.timurtek.com/jobs/example-tekjobs"
 score: 130
 weights: 3e895160
-posted: "2026-10-08"
-found: 2026-10-08
+posted: "2026-10-09"
+found: 2026-10-09
 salary: "$180k–$240k"
 salary_max: 240000
 pay_band: floor
@@ -33,7 +33,7 @@ tags: [job]
 - posted 0d ago (+25)
 
 ## Status log
-- 2026-10-08 — found by scraper (score 130). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-09 — found by scraper (score 130). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
 
 ## Notes
 

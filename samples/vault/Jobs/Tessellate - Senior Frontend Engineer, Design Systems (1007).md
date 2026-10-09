@@ -10,8 +10,8 @@ source: ashby
 url: "https://jobs.example.com/tessellate/senior-frontend-engineer-design-systems"
 score: 136
 weights: 3e895160
-posted: "2026-10-01"
-found: 2026-10-02
+posted: "2026-10-02"
+found: 2026-10-03
 salary: "$185k–$225k"
 salary_max: 225000
 pay_band: floor
@@ -33,7 +33,7 @@ tags: [job]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-10-02 — found by scraper (score 136). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-10-03 — found by scraper (score 136). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
 
 ## Notes
 

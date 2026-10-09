@@ -5,7 +5,7 @@ role: hiring-manager
 company: "Northwind Labs"
 email: ""
 links: "https://www.linkedin.com/in/sam-example"
-created: 2026-10-05
+created: 2026-10-06
 last_contact: 
 ---
 

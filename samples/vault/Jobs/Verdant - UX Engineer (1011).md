@@ -1,7 +1,7 @@
 ---
 type: job
 status: new
-listing: closed 2026-09-29
+listing: closed 2026-09-30
 company: "Verdant"
 title: "UX Engineer"
 location: "Remote (United States)"
@@ -10,8 +10,8 @@ source: greenhouse
 url: "https://jobs.example.com/verdant/ux-engineer"
 score: 77
 weights: 3e895160
-posted: "2026-09-08"
-found: 2026-09-09
+posted: "2026-09-09"
+found: 2026-09-10
 salary: "$165k–$190k"
 salary_max: 190000
 pay_band: stretch
@@ -32,7 +32,7 @@ tags: [job, stretch]
 - posted 1d ago (+25)
 
 ## Status log
-- 2026-09-09 — found by scraper (score 77). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
+- 2026-09-10 — found by scraper (score 77). Set `status:` above to `reviewing`, `applying`, `applied`, `interviewing`, `offer`, `rejected`, or `passed`.
 
 ## Notes
 
