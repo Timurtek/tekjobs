@@ -33,3 +33,11 @@ test('a missing command, an outdated one, and any other failure keep their own k
   assert.equal(f.kind, 'failed');
   assert.match(f.message, /exited with code 1: something else broke last line/);
 });
+
+test('settings advice printed before the real error is not quoted as what the CLI said', () => {
+  const err = 'Permission allow rule (C:\Users\x\.claude\settings.json): Write(~/a/**) is not matched by file permission checks — only Edit(path) rules are.\nPermission deny rule "MultiEdit" matches no known tool — check for typos.\nFailed to authenticate: OAuth session expired and could not be refreshed';
+  const e = classifyRun({ code: 1, out: '', err });
+  assert.equal(e.kind, 'auth');
+  assert.match(e.message, /It said: Failed to authenticate: OAuth session expired/);
+  assert.doesNotMatch(e.message, /Permission (allow|deny) rule/);
+});

@@ -229,7 +229,10 @@ export function runLLM(prompt, { timeoutMs = 240000, extraArgs = [] } = {}) {
  * recruiter's "401(k) match" turned a healthy morning mail check into "claude is signed out".
  */
 export function classifyRun({ code, out = '', err = '', command = 'claude' }) {
-  const tail = err.trim().split('\n').slice(-3).join(' ').slice(0, 300);
+  // Claude Code prints advice about the person's own settings file ("Permission allow rule … is not matched",
+  // "Permission deny rule … matches no known tool") before anything else; that is not what the run said.
+  const said = err.trim().split('\n').filter((l) => !/^Permission (allow|deny|ask) rule\b/i.test(l.trim()));
+  const tail = said.slice(-3).join(' ').slice(0, 300);
   if (/not recognized as an internal|command not found|ENOENT|is not recognized/i.test(err) && !out.trim()) {
     return Object.assign(new Error(`"${command}" is not installed or not on PATH. Install Claude Code, or set another CLI under "llm" in ${CONFIG_FILE}.`), { kind: 'missing' });
   }
