@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.55.1](https://github.com/Timurtek/tekjobs/compare/v0.55.0...v0.55.1) (2026-10-09)
+
+### Fixes
+
+* **app:** the fit figure on the job sheet stays on one line ([5e1a937](https://github.com/Timurtek/tekjobs/commit/5e1a937d016a616864f71ceb67446c7d9ed17157))
+
 ## [0.55.0](https://github.com/Timurtek/tekjobs/compare/v0.54.0...v0.55.0) (2026-10-09)
 
 ### Features
