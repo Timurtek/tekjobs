@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.59.0](https://github.com/Timurtek/tekjobs/compare/v0.58.0...v0.59.0) (2026-10-11)
+
+### Features
+
+* **app:** job sheet top bar on phones, text that scales to 200%, and contrast that passes ([#14](https://github.com/Timurtek/tekjobs/issues/14)) ([9dd62c1](https://github.com/Timurtek/tekjobs/commit/9dd62c1ebef9aea88e359dc4fca76667084e2da6))
+
 ## [0.58.0](https://github.com/Timurtek/tekjobs/compare/v0.57.0...v0.58.0) (2026-10-11)
 
 ### Features
