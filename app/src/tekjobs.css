@@ -1582,3 +1582,83 @@ p.panel--pad,
   list-style: none;
   font-size: var(--text-sm);
 }
+
+/* Jobs at phone width: one bar (Filters, Add by link) over the results; the views and filters live in a bottom
+   sheet, as full-width rows with each filter's editor in place. The summary keeps the count and drops the rest. */
+.jobs-phonebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.jobs-filtersheet {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.views--sheet,
+.filters--sheet {
+  display: grid;
+  gap: var(--spacing-2);
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.views--sheet .chip,
+.filters--sheet .chip {
+  display: flex;
+  width: 100%;
+}
+
+.views--sheet .chip > :first-child {
+  flex: 1;
+}
+
+.filters--sheet .filters__search {
+  width: 100%;
+}
+
+.chip--inline {
+  flex-direction: column;
+  align-items: stretch;
+  overflow: visible;
+  padding: var(--spacing-2) var(--spacing-3) var(--spacing-3);
+}
+
+.chip--inline > * + * {
+  border-left: 0;
+}
+
+/* The editor carries its own label; the row above it adds only the Remove, on the trailing edge. */
+.chip__inline-head {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chip--inline .chip__editor {
+  min-width: 0;
+}
+
+@media (max-width: 40rem) {
+  .filters__summary .filters__query {
+    display: none;
+  }
+}
+
+/* Pipeline at phone width: the chosen stage's cards, full width, one under another, each a tap target. */
+.pipeline-stage {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pipeline-stage .kcard {
+  min-height: var(--tap-min);
+  padding: var(--spacing-3) var(--spacing-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  cursor: pointer;
+}

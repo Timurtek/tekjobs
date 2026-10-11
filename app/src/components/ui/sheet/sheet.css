@@ -129,3 +129,21 @@
     transition-duration: 0ms;
   }
 }
+
+/* A bottom sheet reads as a phone sheet: rounded top corners and a grab handle (Apple HIG sheets). The handle is a
+   cue only; the close button and a tap outside dismiss it. */
+.z-sheet[data-side="bottom"] {
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+}
+
+.z-sheet[data-side="bottom"]::before {
+  content: "";
+  align-self: center;
+  flex: none;
+  width: 2.25rem;
+  height: 0.3125rem;
+  margin-top: calc(-1 * var(--spacing-3));
+  border-radius: var(--radius-full);
+  background-color: var(--color-border-strong);
+}

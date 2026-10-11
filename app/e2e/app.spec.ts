@@ -51,3 +51,13 @@ test("the API behind the app answers, and an unknown route is a JSON 404", async
   expect(nope.status()).toBe(404);
   expect((await nope.json()).error).toMatch(/no route/);
 });
+
+test("at desktop width: the sidebar and no tab bar, the Pipeline board, and the Jobs filters inline", async ({ page }) => {
+  await page.goto("/#/pipeline");
+  await expect(page.locator(".sidebar")).toBeVisible();
+  await expect(page.locator(".z-tabbar")).toHaveCount(0);
+  await expect(page.locator(".z-kanban")).toBeVisible();
+  await page.goto("/#/jobs");
+  await expect(page.locator(".main .filters")).toBeVisible();
+  await expect(page.locator(".jobs-phonebar")).toHaveCount(0);
+});
