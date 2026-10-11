@@ -12,6 +12,7 @@ import * as people from './people.mjs';
 import * as linkedin from './linkedin-import.mjs';
 import * as calcheck from './calendar-check.mjs';
 import { TOOLS } from './mcp.mjs';
+import { guardSettings, remoteRefusal } from './guard.mjs';
 import { buildJournal, renderJournal, writeJournal } from '../../scraper/journal.mjs';
 
 const PORT = Number(process.env.PORT || 8787);
@@ -20,6 +21,9 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.
 
 const json = (res, status, body) => { res.writeHead(status, { 'content-type': 'application/json; charset=utf-8' }); res.end(JSON.stringify(body)); };
 const readBody = (req) => new Promise((resolve, reject) => { let s = ''; req.on('data', (d) => { s += d; if (s.length > 5e6) reject(new Error('body too large')); }); req.on('end', () => { try { resolve(s ? JSON.parse(s) : {}); } catch (e) { reject(Object.assign(new Error('invalid JSON body'), { status: 400 })); } }); });
+
+// Proxied requests need an allowed tailnet login; see guard.mjs. Read once, at start.
+const GUARD = guardSettings();
 
 const routes = [
   ['GET', /^\/api\/summary$/, () => store.summary()],
@@ -120,6 +124,8 @@ function serveStatic(req, res, pathname) {
 }
 
 const server = http.createServer(async (req, res) => {
+  const refused = remoteRefusal(req, GUARD);
+  if (refused) return json(res, 403, { error: refused });
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   try {
     if (url.pathname === '/api/calendar.ics' && req.method === 'GET') { res.writeHead(200, { 'content-type': 'text/calendar; charset=utf-8', 'content-disposition': 'inline; filename="tekjobs.ics"', 'cache-control': 'no-store' }); return res.end(store.calendarIcs()); }
