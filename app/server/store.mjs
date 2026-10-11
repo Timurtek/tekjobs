@@ -12,6 +12,7 @@ import { loadHealth, healthState } from '../../scraper/health.mjs';
 import { readFrontmatter, LEGACY_NARRATIVE_DEFAULT } from '../../scraper/vault.mjs';
 import { parseHNHeader } from '../../scraper/sources.mjs';
 import { weightsFingerprint, titlePoints, recencyPoints, payPoints, rescoreFull } from '../../scraper/rescore.mjs';
+import { descriptionSection, demoteHeadings } from '../../scraper/note-sections.mjs';
 import { RESUME_NOTE, LEGACY_RESUME_NOTES } from '../../scraper/resume-sync.mjs';
 import { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile } from '../../scraper/profile.mjs';
 export { onboardingStatus, onboardingMaterials, importResume, saveProfile, fetchLink, initProfile };
@@ -201,7 +202,7 @@ export function getJob(id) {
   // A section runs to the next "## " heading or the true end of the note (not the end of a line: `$` is per-line under /m).
   const section = (h) => { const m = body.match(new RegExp(`^## ${h}\\s*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm')); return m ? m[1].trim() : ''; };
   // Where the note is, and a link Obsidian opens it from; `path=` works whatever the vault is called.
-  return { ...rowOf(fm), path: file, obsidianUrl: `obsidian://open?path=${encodeURIComponent(file)}`, body, sections: { why: section("Why it matched"), log: section('Status log'), notes: section(notesHeading(text)), application: section('Application'), coverLetter: section('Cover letter').replace(/^>.*\r?\n?/gm, '').trim(), description: section('Job description'), people: section('People') } };
+  return { ...rowOf(fm), path: file, obsidianUrl: `obsidian://open?path=${encodeURIComponent(file)}`, body, sections: { why: section("Why it matched"), log: section('Status log'), notes: section(notesHeading(text)), application: section('Application'), coverLetter: section('Cover letter').replace(/^>.*\r?\n?/gm, '').trim(), description: descriptionSection(body).trim(), people: section('People') } };
 }
 export function replaceFrontmatterLine(text, key, value) {
   const re = new RegExp(`^${key}: .*$`, 'm');
@@ -957,7 +958,7 @@ export async function attachPosting(id, href, { linkOnly = false } = {}) {
   text = text.replace(/^\*\*\[Open posting\]\(.*?\)\*\*.*$/m, () => `**[Open posting](${j.url || url})** · ${j.location || 'location n/a'} · ${j.remote ? 'Remote' : 'On-site/Hybrid'} · score **${scored.score}**${j.salary ? ` · ${j.salary}` : ''}`);
   text = text.replace(/^## Why it matched\s*\n[\s\S]*?(?=^## )/m, () => `## Why it matched\n${scored.reasons.map((x) => `- ${x}`).join('\n')}\n\n`);
   text = text.replace(/^(## Status log\s*\n(?:- .*\n)*)/m, (m) => `${m}- ${isoDay()} — posting attached from ${url} (score ${scored.score}; was ${(m.match(/score (-?\d+)/) || [, '?'])[1]})\n`);
-  const desc = (j.descriptionText || '').slice(0, criteria.maxDescriptionChars ?? 6000);
+  const desc = demoteHeadings((j.descriptionText || '').slice(0, criteria.maxDescriptionChars ?? 6000));
   const block = `## Job description\n> Source: ${j.source} · attached ${isoDay()}${(j.descriptionText || '').length > desc.length ? ' · truncated, open the posting for the full text' : ''}\n\n${desc}\n`;
   text = /^## Job description/m.test(text) ? text.replace(/^## Job description[\s\S]*$/m, () => block) : `${text.replace(/\n+$/, '')}\n\n${block}`;
   fs.writeFileSync(file, text);

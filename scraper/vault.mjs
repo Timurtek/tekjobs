@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { P, VAULT, localDay } from './config.mjs';
 import { weightsFingerprint } from './rescore.mjs';
+import { demoteHeadings } from './note-sections.mjs';
 
 const today = () => localDay();
 const yaml = (v) => JSON.stringify(v ?? '');
@@ -34,7 +35,7 @@ export function writeJobNote(job, scored, criteria) {
   const file = jobNotePath(job);
   // Never overwrite a note that exists: it may carry the person's status and notes. (Guards a lost or reset seen.json.)
   if (fs.existsSync(file)) return file;
-  const desc = (job.descriptionText || '').slice(0, criteria.maxDescriptionChars ?? 6000);
+  const desc = demoteHeadings((job.descriptionText || '').slice(0, criteria.maxDescriptionChars ?? 6000));
   const truncated = (job.descriptionText || '').length > desc.length;
   const posted = job.posted ? String(job.posted).slice(0, 10) : '';
   const fm = [

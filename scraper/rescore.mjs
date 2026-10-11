@@ -18,6 +18,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { P, loadCriteria, localDay } from './config.mjs';
 import { scoreJob, normalizeTitle } from './score.mjs';
+import { descriptionSection } from './note-sections.mjs';
 
 /**
  * A short fingerprint of every criteria key the scorer reads.
@@ -26,7 +27,12 @@ import { scoreJob, normalizeTitle } from './score.mjs';
  * no way to tell an already-adjusted note from an untouched one, and running the command twice would apply
  * the same delta twice — which is exactly the kind of quiet corruption this vault's never-rewrite rule
  * exists to prevent.
+ *
+ * READING is part of it because a score depends on how much of the note the scorer reads, not only on the weights.
+ * Raise it when that changes, and every note goes stale once, so the next `rescore --full` (or the app's Rescore)
+ * scores it again from the note. 2: the Job description is read to the end of the note, not to its first heading.
  */
+const READING = 2;
 export function weightsFingerprint(c = {}) {
   const relevant = {
     titleTerms: c.titleTerms, titleExclude: c.titleExclude, titleExtraPer: c.titleExtraPer,
@@ -38,7 +44,7 @@ export function weightsFingerprint(c = {}) {
   // the earlier `JSON.stringify(relevant, topLevelKeys)` dropped nearly all the nested values: a criteria
   // set with a different pay floor or different title weights hashed the same. Found 2026-09-22 when a
   // preset with a 180k floor reported itself identical to the 220k active set.)
-  const stable = JSON.stringify(sortKeys(relevant));
+  const stable = JSON.stringify(sortKeys({ ...relevant, reading: READING }));
   return crypto.createHash('sha1').update(stable).digest('hex').slice(0, 8);
 }
 const sortKeys = (v) => (Array.isArray(v) ? v.map(sortKeys) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sortKeys(v[k])])) : v);
@@ -180,7 +186,7 @@ export function rescoreFull({ dry = false, now: proposed = null } = {}) {
     if (!/^score: /m.test(text)) continue;
     seen++;
     const section = (h) => (text.match(new RegExp(`^## ${h}[ \\t]*\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, 'm')) || [, ''])[1];
-    const descRaw = section('Job description');
+    const descRaw = descriptionSection(text);
     const truncated = /^>.*truncated/m.test(descRaw);
     const description = descRaw.replace(/^>.*$/gm, '').trim();
     const stored = num(fm('score'));
