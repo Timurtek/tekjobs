@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.58.0](https://github.com/Timurtek/tekjobs/compare/v0.57.0...v0.58.0) (2026-10-11)
+
+### Features
+
+* **app:** phone Pipeline as stage tabs, and Jobs filters in a bottom sheet ([#13](https://github.com/Timurtek/tekjobs/issues/13)) ([042df09](https://github.com/Timurtek/tekjobs/commit/042df097f53ab7f72ad176285513cfc67b01c368))
+
 ## [0.57.0](https://github.com/Timurtek/tekjobs/compare/v0.56.0...v0.57.0) (2026-10-11)
 
 ### Features
