@@ -1181,6 +1181,10 @@
       "stickyHeader": {
         "type": "boolean",
         "default": false
+      },
+      "stack": {
+        "type": "boolean",
+        "default": true
       }
     },
     "className": {
@@ -2102,6 +2106,38 @@
       "default",
       "disabled",
       "invalid"
+    ]
+  },
+  {
+    "name": "TabBar",
+    "since": "0.56.0",
+    "export": {
+      "from": "@/components/ui",
+      "name": "TabBar"
+    },
+    "replaces": [],
+    "extends": "nav",
+    "props": {
+      "aria-label": {
+        "type": "string"
+      }
+    },
+    "className": {
+      "allow": [
+        "display",
+        "position"
+      ]
+    },
+    "owns": {
+      "padding": null,
+      "border": null,
+      "background-color": null,
+      "position": null,
+      "gap": null
+    },
+    "slots": [],
+    "states": [
+      "default"
     ]
   }
 ]

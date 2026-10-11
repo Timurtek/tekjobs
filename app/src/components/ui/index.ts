@@ -29,3 +29,4 @@ export * from "./loader/loader";
 export * from "./empty-state/empty-state";
 export * from "./kanban/kanban";
 export * from "./combobox/combobox";
+export * from "./tab-bar/tab-bar";

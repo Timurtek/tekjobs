@@ -1,4 +1,4 @@
-/* zengin-owned Table, forked from @zenginui/ui@0.1.0, sha b2312c5f6422 */
+/* zengin-owned Table, forked from @zenginui/ui@0.1.0, sha b2312c5f6422; stacked phone layout added by TekJobs */
 .z-table {
   width: 100%;
   overflow: auto;
@@ -70,7 +70,14 @@
   transition: background-color var(--duration-fast) var(--ease-standard);
 }
 
-.z-table__row[data-interactive]:hover .z-table__cell {
+/* Hover only where there is a pointer that hovers; on a phone a tap would leave the row lit. */
+@media (hover: hover) and (pointer: fine) {
+  .z-table__row[data-interactive]:hover .z-table__cell {
+    background-color: var(--color-surface-raised);
+  }
+}
+
+.z-table__row[data-interactive]:active .z-table__cell {
   background-color: var(--color-surface-raised);
 }
 
@@ -81,5 +88,105 @@
 @media (prefers-reduced-motion: reduce) {
   .z-table__row[data-interactive] {
     transition-duration: 0ms;
+  }
+}
+
+/*
+ * Phone (Apple HIG: at compact width a table becomes list rows, never a squeezed grid). Each row is a card: the
+ * title cell leads at full width, each other cell is its column label and its value on one line, long text sits
+ * under its label, and the whole card is the tap target. The header row stays for screen readers only.
+ */
+@media (max-width: 40rem) {
+  .z-table[data-stack] {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .z-table[data-stack] .z-table__table,
+  .z-table[data-stack] .z-table__body,
+  .z-table[data-stack] .z-table__foot {
+    display: block;
+  }
+
+  .z-table[data-stack] .z-table__head {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .z-table[data-stack] .z-table__row {
+    display: grid;
+    gap: var(--spacing-1);
+    min-height: var(--tap-min);
+    padding: var(--spacing-3) var(--spacing-4);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+  }
+
+  .z-table[data-stack] .z-table__row + .z-table__row {
+    margin-top: var(--spacing-2);
+  }
+
+  .z-table[data-stack] .z-table__cell,
+  .z-table[data-stack][data-density] .z-table__cell {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: var(--text-sm);
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  .z-table[data-stack] .z-table__cell[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    max-width: 45%;
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+    text-align: left;
+  }
+
+  .z-table[data-stack] .z-table__cell[data-stack-role="title"] {
+    order: -1;
+    justify-content: flex-start;
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-semibold);
+    text-align: left;
+  }
+
+  .z-table[data-stack] .z-table__cell[data-stack-role="full"] {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    text-align: left;
+  }
+
+  .z-table[data-stack] .z-table__cell[data-stack-role="title"]::before,
+  .z-table[data-stack] .z-table__cell:not([data-label])::before {
+    content: none;
+  }
+
+  .z-table[data-stack] .z-table__cell[data-stack-role="hidden"] {
+    display: none;
+  }
+
+  /* A message row (one cell across every column) reads as plain text. */
+  .z-table[data-stack] .z-table__cell[colspan] {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .z-table[data-stack] .z-table__row[data-selected] {
+    border-color: var(--color-primary);
   }
 }

@@ -27,19 +27,19 @@
 
 /* Size owns padding and type. */
 .z-button[data-size="sm"] {
-  min-height: 2rem;
+  min-height: var(--control-sm);
   padding: var(--spacing-1) var(--spacing-3);
   font-size: var(--text-sm);
 }
 
 .z-button[data-size="md"] {
-  min-height: 2.5rem;
+  min-height: var(--control-md);
   padding: var(--spacing-2) var(--spacing-4);
   font-size: var(--text-sm);
 }
 
 .z-button[data-size="lg"] {
-  min-height: 3rem;
+  min-height: var(--control-lg);
   padding: var(--spacing-3) var(--spacing-5);
   font-size: var(--text-base);
 }
@@ -153,5 +153,14 @@
   /* The spinner still turns: it is the only signal that something is happening. Slower, so it reads as status, not motion. */
   .z-button__spinner > svg {
     animation-duration: 1600ms;
+  }
+}
+
+/* At phone width a long label wraps inside the button instead of pushing it past the screen edge. */
+@media (max-width: 40rem) {
+  .z-button {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
   }
 }

@@ -546,11 +546,12 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
       </Dialog>
 
       <Card padding="none">
+        {/* The job list has its own phone card (tekjobs.css, .jobs-narrow), so the Table's generic stacking stays off. */}
         <div className="jobs-narrow">
         {rows === null ? (
           <div className="loading"><Skeleton lines={8} /></div>
         ) : (
-          <Table aria-label="Job matches" density="md" stickyHeader>
+          <Table aria-label="Job matches" density="md" stickyHeader stack={false}>
             <Table.Head>
               <Table.Row>
                 {head("score", "Score", { align: "end", numeric: true })}

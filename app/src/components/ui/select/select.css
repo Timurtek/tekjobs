@@ -64,17 +64,17 @@
 
 /* Size owns padding and type. */
 .z-select[data-size="sm"] .z-select__trigger {
-  min-height: 2rem;
+  min-height: var(--control-sm);
   padding: var(--spacing-1) var(--spacing-2);
   font-size: var(--text-sm);
 }
 .z-select[data-size="md"] .z-select__trigger {
-  min-height: 2.5rem;
+  min-height: var(--control-md);
   padding: var(--spacing-2) var(--spacing-3);
   font-size: var(--text-sm);
 }
 .z-select[data-size="lg"] .z-select__trigger {
-  min-height: 3rem;
+  min-height: var(--control-lg);
   padding: var(--spacing-3) var(--spacing-4);
   font-size: var(--text-base);
 }

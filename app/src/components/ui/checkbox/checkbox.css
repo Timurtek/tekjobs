@@ -3,6 +3,7 @@
   display: inline-flex;
   align-items: flex-start;
   gap: var(--spacing-2);
+  min-height: var(--tap-min);
   color: var(--color-text);
 }
 

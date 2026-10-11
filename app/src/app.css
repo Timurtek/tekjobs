@@ -250,6 +250,9 @@ body {
 /* Page padding 28px 40px 48px, sections 22px apart, as the system lays pages out. */
 .page {
   display: grid;
+  /* minmax(0, 1fr), not the default auto: a grid item is otherwise as wide as its widest content, so one wide table
+     or log line stretched the whole page (and every paragraph in it) past the screen on a phone. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-6);
   padding: var(--spacing-8) var(--spacing-10) var(--spacing-12);
 }
@@ -432,6 +435,7 @@ body {
 
 .pager__buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-2);
 }
 
@@ -523,6 +527,7 @@ body {
 
 .form__actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--spacing-2);
 }
@@ -559,4 +564,37 @@ body {
 .section-title {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
+}
+
+/* Phone width: toolbar fields and filters take the whole row instead of their desktop widths, and a long
+   unbroken string (a folder path, an email address, a thread subject) breaks rather than pushing the page wide. */
+@media (max-width: 40rem) {
+  .page {
+    overflow-wrap: anywhere;
+  }
+  .toolbar > *,
+  .toolbar__search,
+  .toolbar__filter,
+  .toolbar__filter--wide {
+    width: 100%;
+  }
+  .toolbar__spacer {
+    display: none;
+  }
+}
+
+/* Tap targets that are not components: a link that stands for a row (a person's thread) fills its row, and a
+   disclosure summary is as tall as a control. On a desktop --tap-min is 0 and nothing changes. */
+.people__threads li > a {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+
+.page summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  cursor: pointer;
 }
