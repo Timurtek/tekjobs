@@ -1,0 +1,60 @@
+# TekJobs in a container, on your Tailscale network: https://tekjobs.<your-tailnet>.ts.net
+#
+# For a machine that stays on (a NAS, a home server, a small VPS). On the laptop or desktop you work on, the lighter
+# path is deploy/tailscale: TekJobs runs natively and only Tailscale is in a container.
+#
+# Two containers. "tailscale" joins your tailnet as "tekjobs". "tekjobs" shares its network, so the server keeps
+# answering only on 127.0.0.1 and `tailscale serve` (serve.json) is the one way in. No port is published on the host,
+# and Funnel is off, so nothing here is on the public internet.
+#
+#   1. cp .env.example .env, and fill it in (it is gitignored): the Tailscale auth key, your Tailscale login,
+#      the folder your profile lives in, and your time zone.
+#   2. docker compose up -d
+#   3. First time only: docker compose exec tekjobs tekjobs init     (or `tekjobs init --sample /vault` to look around)
+#   4. Open https://tekjobs.<your-tailnet>.ts.net
+#
+# docs/docker on the site has the rest: the AI features, the daily run, updates and backups.
+name: tekjobs
+services:
+  tailscale:
+    image: tailscale/tailscale:v1.102.2
+    container_name: tekjobs-tailscale
+    hostname: tekjobs
+    restart: unless-stopped
+    environment:
+      TS_AUTHKEY: ${TS_AUTHKEY:?put a Tailscale auth key in .env}
+      TS_HOSTNAME: tekjobs
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_SERVE_CONFIG: /config/serve.json
+      # Works everywhere, including Docker Desktop, which has no /dev/net/tun for containers.
+      TS_USERSPACE: "true"
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - ./serve.json:/config/serve.json:ro
+
+  tekjobs:
+    image: ghcr.io/timurtek/tekjobs:${TEKJOBS_VERSION:-latest}
+    container_name: tekjobs
+    restart: unless-stopped
+    network_mode: service:tailscale
+    depends_on: [tailscale]
+    # The user that owns your profile folder on the host (`id -u` and `id -g`), so notes stay yours.
+    user: "${PUID:-1000}:${PGID:-1000}"
+    environment:
+      TEKJOBS_ALLOWED_LOGINS: ${TEKJOBS_ALLOWED_LOGINS:?put your Tailscale login in .env, or nobody gets in}
+      TZ: ${TZ:-UTC}
+      TEKJOBS_SCAN_TIME: ${TEKJOBS_SCAN_TIME:-07:30}
+      TEKJOBS_DAILY: ${TEKJOBS_DAILY:-scan}
+      # Optional: signs the Claude CLI in, for cover letters, tailored resumes, mail and calendar. One of the two.
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      HOME: /home/node
+    volumes:
+      - ${TEKJOBS_PROFILE_DIR:?put the folder your profile lives in in .env}:/vault
+      - tekjobs-home:/home/node/.tekjobs
+      - tekjobs-claude:/home/node/.claude
+
+volumes:
+  tailscale-state:
+  tekjobs-home:
+  tekjobs-claude:
