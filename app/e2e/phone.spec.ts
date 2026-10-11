@@ -46,3 +46,40 @@ test("a job card opens its sheet, and the section tabs stay on one line", async 
   const rows = await sheet.locator(".z-tabs__list").first().evaluate((l) => new Set([...l.children].map((c) => Math.round(c.getBoundingClientRect().top))).size);
   expect(rows, "tab rows").toBe(1);
 });
+
+test("Pipeline is one stage at a time, and a card moves through its menu", async ({ page }) => {
+  await open(page, "pipeline");
+  await expect(page.locator(".z-kanban")).toHaveCount(0);
+  const stages = page.getByRole("tablist", { name: "Pipeline stages" });
+  await expect(stages).toBeVisible();
+  const reviewing = page.getByRole("tabpanel").locator(".pipeline-stage li");
+  const before = await reviewing.count();
+  test.skip(before === 0, "the sample vault has nothing in reviewing");
+  await reviewing.first().getByRole("button", { name: /^Move / }).tap();
+  await page.getByRole("menuitem", { name: "Move to applying" }).tap();
+  await expect(reviewing).toHaveCount(before - 1);
+  await stages.getByRole("tab", { name: /Applying/ }).tap();
+  await expect(page.getByRole("tabpanel").locator(".pipeline-stage li").first()).toBeVisible();
+});
+
+test("Jobs keeps its views and filters in a sheet behind one Filters button", async ({ page }) => {
+  await open(page, "jobs");
+  await expect(page.locator(".main .views")).toHaveCount(0);
+  await expect(page.locator(".main .filters")).toHaveCount(0);
+  await page.getByRole("button", { name: /^Filters/ }).tap();
+  const sheet = page.getByRole("dialog", { name: "Views and filters" });
+  await expect(sheet.getByLabel("Search")).toBeVisible();
+  await expect(sheet.getByRole("button", { name: /^Show \d+ match/ })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).not.toBe("INPUT");
+  await sheet.getByRole("button", { name: /^Show \d+ match/ }).tap();
+  await expect(sheet).toHaveCount(0);
+});
+
+test("growing the window from phone to desktop switches the layout live", async ({ page }) => {
+  await open(page, "pipeline");
+  await expect(page.getByRole("navigation", { name: "Pages" }).getByRole("button", { name: "More" })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.locator(".z-tabbar")).toHaveCount(0);
+  await expect(page.locator(".sidebar")).toBeVisible();
+  await expect(page.locator(".z-kanban")).toBeVisible();
+});

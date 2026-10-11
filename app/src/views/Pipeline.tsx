@@ -1,5 +1,6 @@
-import { Badge, Button, Combobox, Icon, Kanban, Menu, Skeleton, toast, type KanbanMove } from "@/components/ui";
+import { Badge, Button, Combobox, Icon, Kanban, Menu, Skeleton, Tabs, toast, type KanbanMove } from "@/components/ui";
 import { useEffect, useMemo, useState } from "react";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import { isPosted, PostedMark } from "@/components/PostedMark";
 import { api, BAND_TONE, shortPay, STATUSES, type Job, type JobRow, type Status } from "../api";
 import { JobSheet } from "./Jobs";
@@ -22,6 +23,11 @@ export function Pipeline() {
   const [rows, setRows] = useState<JobRow[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [companies, setCompanies] = useState<string[]>([]);
+  // At phone width the board is one stage at a time (Apple HIG: no wide grid squeezed onto a phone): a row of
+  // stage tabs with their counts, and that stage's cards at full width. Cards move through their own menu there;
+  // dragging is a pointer and keyboard affordance for the wide board.
+  const compact = useMediaQuery("(max-width: 40rem)");
+  const [stage, setStage] = useState<Status>("reviewing");
 
   const load = () =>
     api
@@ -67,13 +73,46 @@ export function Pipeline() {
   const unreviewed = rows.filter((r) => r.status === "new").length;
   const closed = rows.filter((r) => r.status === "rejected" || r.status === "passed").length;
 
+  const renderCard = (r: JobRow) => (
+    <div className="kcard" data-posted={isPosted(r.source) || undefined} onClick={() => setSelected(r.id)}>
+      <div className="kcard__head">
+        <span className="kcard__company posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span>
+        <Menu>
+          <Menu.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={`Move ${r.title}`}
+              leadingIcon={<Icon.More />}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Menu.Trigger>
+          <Menu.Content align="end" onClick={(e) => e.stopPropagation()}>
+            {STATUSES.filter((st) => st !== r.status).map((st) => (
+              <Menu.Item key={st} onSelect={() => move(r.id, st)}>
+                Move to {st}
+              </Menu.Item>
+            ))}
+          </Menu.Content>
+        </Menu>
+      </div>
+      <span className="kcard__title">{r.title}</span>
+      <div className="kcard__meta num">
+        <span className="kcard__score">{r.score}</span>
+        {r.salaryMax > 0 && <span className={r.payBand === "floor" ? "kcard__pay kcard__pay--floor" : "kcard__pay"}>{shortPay(r.salary)}</span>}
+      </div>
+    </div>
+  );
+  const inStage = (id: Status) => cards.filter((r) => r.status === id);
+
   return (
     <>
       <div className="page__head">
         <div>
           <p>
-            Committed work only. Drag a card, or focus one and press Space to lift it, arrows to move it, Enter
-            to drop. Every move is written to the job note.
+            {compact
+              ? "Committed work only, one stage at a time. Tap a card to open it; its menu moves it to another stage. Every move is written to the job note."
+              : "Committed work only. Drag a card, or focus one and press Space to lift it, arrows to move it, Enter to drop. Every move is written to the job note."}
             {unreviewed ? ` ${unreviewed} new matches wait on Today, not here.` : ""}
             {closed ? ` ${closed} closed are not shown.` : ""}
           </p>
@@ -95,45 +134,40 @@ export function Pipeline() {
         />
       </div>
 
-      <Kanban
-        label="Job pipeline"
-        columns={COLUMNS}
-        cards={cards}
-        cardId={(r) => r.id}
-        cardColumn={(r) => r.status}
-        cardLabel={(r) => `${r.title} at ${r.company}`}
-        onMove={(m: KanbanMove) => move(m.cardId, m.to as Status)}
-        renderCard={(r) => (
-          <div className="kcard" data-posted={isPosted(r.source) || undefined} onClick={() => setSelected(r.id)}>
-            <div className="kcard__head">
-              <span className="kcard__company posted-co">{r.company}{isPosted(r.source) && <PostedMark />}</span>
-              <Menu>
-                <Menu.Trigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`Move ${r.title}`}
-                    leadingIcon={<Icon.More />}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </Menu.Trigger>
-                <Menu.Content align="end" onClick={(e) => e.stopPropagation()}>
-                  {STATUSES.filter((st) => st !== r.status).map((st) => (
-                    <Menu.Item key={st} onSelect={() => move(r.id, st)}>
-                      Move to {st}
-                    </Menu.Item>
-                  ))}
-                </Menu.Content>
-              </Menu>
-            </div>
-            <span className="kcard__title">{r.title}</span>
-            <div className="kcard__meta num">
-              <span className="kcard__score">{r.score}</span>
-              {r.salaryMax > 0 && <span className={r.payBand === "floor" ? "kcard__pay kcard__pay--floor" : "kcard__pay"}>{shortPay(r.salary)}</span>}
-            </div>
-          </div>
-        )}
-      />
+      {compact ? (
+        <Tabs value={stage} onValueChange={(v) => setStage(v as Status)} variant="pill" size="md">
+          <Tabs.List aria-label="Pipeline stages">
+            {COLUMNS.map((c) => (
+              <Tabs.Trigger key={c.id} value={c.id}>
+                {c.title}
+                <Badge tone={c.limit && inStage(c.id).length > c.limit ? "warning" : "neutral"} size="sm">{c.limit ? `${inStage(c.id).length}/${c.limit}` : inStage(c.id).length}</Badge>
+              </Tabs.Trigger>
+            ))}
+          </Tabs.List>
+          {COLUMNS.map((c) => (
+            <Tabs.Content key={c.id} value={c.id}>
+              {inStage(c.id).length ? (
+                <ul className="pipeline-stage" aria-label={c.title}>
+                  {inStage(c.id).map((r) => <li key={r.id}>{renderCard(r)}</li>)}
+                </ul>
+              ) : (
+                <p className="muted">Nothing in {c.title.toLowerCase()}.</p>
+              )}
+            </Tabs.Content>
+          ))}
+        </Tabs>
+      ) : (
+        <Kanban
+          label="Job pipeline"
+          columns={COLUMNS}
+          cards={cards}
+          cardId={(r) => r.id}
+          cardColumn={(r) => r.status}
+          cardLabel={(r) => `${r.title} at ${r.company}`}
+          onMove={(m: KanbanMove) => move(m.cardId, m.to as Status)}
+          renderCard={renderCard}
+        />
+      )}
 
       <JobSheet id={selected} onClose={() => setSelected(null)} onChanged={onChanged} />
     </>

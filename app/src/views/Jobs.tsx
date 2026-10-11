@@ -306,6 +306,10 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
   // aside); narrower ones open it in a sheet over the table. J/K or the arrows walk the list in either case,
   // across pages, and Escape closes. Keys typed into a field, or already taken by an open menu, are left alone.
   const wide = useMediaQuery("(min-width: 68.75rem)");
+  // At phone width the views and filters live in a sheet behind one Filters button, and each filter's editor sits
+  // in the sheet itself (no popovers at compact width), so the first screen is the results, not the controls.
+  const compact = useMediaQuery("(max-width: 40rem)");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const split = wide && selectedId !== null;
   const pos = rows ? rows.findIndex((r) => r.id === selectedId) : -1;
   const pending = useRef<"first" | "last" | null>(null);
@@ -358,8 +362,8 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
       case "status": return <Combobox size="sm" multiple label="Status" placeholder="All statuses" emptyMessage="No status by that name." options={statusOptions} value={f.status} onValueChange={(v) => set("status", v)} />;
       case "source": return <Combobox size="sm" multiple label="Source" placeholder="All sources" emptyMessage="No source by that name." options={sourceOptions} value={f.source} onValueChange={(v) => set("source", v)} />;
       case "company": return <Combobox size="sm" multiple label="Company" placeholder="Any company" emptyMessage="No company in the current results by that name." options={companyOptions} value={f.company} onValueChange={(v) => set("company", v)} />;
-      case "payMin": return <TextField size="sm" type="number" step={10000} label="Pay at least" description={pay ? `Top of the stated range. Stated on ${pay.stated} of ${pay.stated + pay.unstated}.` : undefined} placeholder="200000" value={f.payMin} onChange={(e) => set("payMin", e.target.value)} autoFocus />;
-      case "payMax": return <TextField size="sm" type="number" step={10000} label="Pay at most" description={pay && pay.stated ? `${money(pay.min)} to ${money(pay.max)}, median ${money(pay.median)}.` : undefined} placeholder="300000" value={f.payMax} onChange={(e) => set("payMax", e.target.value)} autoFocus />;
+      case "payMin": return <TextField size="sm" type="number" step={10000} label="Pay at least" description={pay ? `Top of the stated range. Stated on ${pay.stated} of ${pay.stated + pay.unstated}.` : undefined} placeholder="200000" value={f.payMin} onChange={(e) => set("payMin", e.target.value)} autoFocus={!compact} />;
+      case "payMax": return <TextField size="sm" type="number" step={10000} label="Pay at most" description={pay && pay.stated ? `${money(pay.min)} to ${money(pay.max)}, median ${money(pay.median)}.` : undefined} placeholder="300000" value={f.payMax} onChange={(e) => set("payMax", e.target.value)} autoFocus={!compact} />;
       case "minScore": return (
         <Select size="sm" label="Score at least" value={f.minScore || "0"} onValueChange={(v) => set("minScore", v)}>
           {["0", "45", "60", "75", "90", "100"].map((n) => (
@@ -367,7 +371,7 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
           ))}
         </Select>
       );
-      case "maxScore": return <TextField size="sm" type="number" label="Score at most" placeholder="any" value={f.maxScore} onChange={(e) => set("maxScore", e.target.value)} autoFocus />;
+      case "maxScore": return <TextField size="sm" type="number" label="Score at most" placeholder="any" value={f.maxScore} onChange={(e) => set("maxScore", e.target.value)} autoFocus={!compact} />;
       case "postedDays":
       case "foundDays": return (
         <Select size="sm" label={key === "postedDays" ? "Posted within" : "Found within"} value={f[key]} onValueChange={(v) => set(key, v)}>
@@ -412,6 +416,81 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
     try { setViews(await api.saveViews(views.filter((v) => v.name !== name))); }
     catch (e) { toast({ title: "Not removed", description: (e as Error).message, tone: "danger" }); }
   };
+
+  const addByLink = <AddByLink onAdded={(id) => { setReload((n) => n + 1); if (id) setSelectedId(id); }} onOpen={(id) => setSelectedId(id)} />;
+  const viewsBlock = (
+      <div className={compact ? "views views--sheet" : "views"}>
+        {!compact && (
+          <Tooltip content="Hide the views and filters">
+            <Button size="sm" variant="ghost" tone="neutral" aria-label="Hide the views and filters" leadingIcon={<Icon.ChevronUp />} onClick={toggleCondensed} />
+          </Tooltip>
+        )}
+        <span className="views__label">Views</span>
+        {defaults.map((v) => (
+          <div key={`d:${v.name}`} className={`chip chip--default${v.query === qs ? " chip--current" : ""}`}>
+            <Button size="sm" variant="ghost" align={compact ? "start" : "center"} tone={v.query === qs ? "primary" : "neutral"} title={`From your criteria: ${v.hint}`} onClick={() => applyView(v)}>{v.name}</Button>
+          </div>
+        ))}
+        {views.map((v) => (
+          <div key={v.name} className={`chip${v.query === qs ? " chip--current" : ""}`}>
+            <Button size="sm" variant="ghost" align={compact ? "start" : "center"} tone={v.query === qs ? "primary" : "neutral"} onClick={() => applyView(v)}>{v.name}</Button>
+            <Button size="sm" variant="ghost" tone="neutral" aria-label={`Remove the view ${v.name}`} onClick={() => removeView(v.name)}>×</Button>
+          </div>
+        ))}
+        <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.Plus />} disabled={!qs} onClick={() => setViewName("")}>Save current filters as a view</Button>
+        <div className="toolbar__spacer" />
+      </div>
+  );
+  const filtersBlock = (
+      <div className={compact ? "filters filters--sheet" : "filters"}>
+        <TextField className="filters__search" size="sm" label="Search" placeholder="company or role" value={f.q} onChange={(e) => set("q", e.target.value)} />
+        {shown.map((d) => {
+          const on = isActive(f, d.key);
+          const value = valueOf(d.key);
+          if (compact) return (
+            <div key={d.key} className={`chip chip--inline${on ? " chip--on" : ""}`}>
+              <div className="chip__inline-head">
+                <Button size="sm" variant="ghost" tone="neutral" aria-label={`Remove ${d.label}`} onClick={() => clearDim(d.key)}>Remove</Button>
+              </div>
+              <div className="chip__editor">{editorFor(d.key)}</div>
+            </div>
+          );
+          return (
+            <div key={d.key} className={`chip${on ? " chip--on" : ""}`}>
+              <Popover open={openKey === d.key} onOpenChange={(o) => setOpenKey(o ? d.key : null)} size="sm">
+                <Popover.Trigger asChild>
+                  <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<span className="chip__dot" aria-hidden="true" />}>
+                    {d.label}
+                    {value && <span className="chip__value num">{value}</span>}
+                  </Button>
+                </Popover.Trigger>
+                <Popover.Content align="start" showArrow={false}>
+                  <div className="chip__editor">{editorFor(d.key)}</div>
+                </Popover.Content>
+              </Popover>
+              <Button size="sm" variant="ghost" tone="neutral" aria-label={`Remove ${d.label}`} onClick={() => clearDim(d.key)}>×</Button>
+            </div>
+          );
+        })}
+        {addable.length > 0 && (
+          <Menu>
+            <Menu.Trigger asChild>
+              <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.Plus />} trailingIcon={<Icon.ChevronDown />}>Filter</Button>
+            </Menu.Trigger>
+            <Menu.Content align="start" onCloseAutoFocus={(e) => { if (!pendingDim.current) return; pendingDim.current = null; e.preventDefault(); }}>
+              {addable.map((d) => (
+                <Menu.Item key={d.key} onSelect={() => { pendingDim.current = d.key; addDim(d.key); }}>{d.label}</Menu.Item>
+              ))}
+            </Menu.Content>
+          </Menu>
+        )}
+        {shown.some((d) => isActive(f, d.key) && d.key !== "minScore") || f.q ? (
+          <Button size="sm" variant="ghost" tone="neutral" onClick={() => { setF({ ...DEFAULTS, band: [], status: [], source: [], company: [] }); setPage(0); }}>Clear</Button>
+        ) : null}
+        {!compact && <div className="toolbar__spacer" />}
+        {!compact && addByLink}
+      </div>
+  );
 
   return (
     <div className={split ? "jobs jobs--split" : "jobs"}>
@@ -458,76 +537,39 @@ export function Jobs({ initialQuery = "" }: { initialQuery?: string }) {
         </>
       ) : (
         <>
-      {!condensed && (<div className="views">
-        <Tooltip content="Hide the views and filters">
-          <Button size="sm" variant="ghost" tone="neutral" aria-label="Hide the views and filters" leadingIcon={<Icon.ChevronUp />} onClick={toggleCondensed} />
-        </Tooltip>
-        <span className="views__label">Views</span>
-        {defaults.map((v) => (
-          <div key={`d:${v.name}`} className={`chip chip--default${v.query === qs ? " chip--current" : ""}`}>
-            <Button size="sm" variant="ghost" tone={v.query === qs ? "primary" : "neutral"} title={`From your criteria: ${v.hint}`} onClick={() => applyView(v)}>{v.name}</Button>
-          </div>
-        ))}
-        {views.map((v) => (
-          <div key={v.name} className={`chip${v.query === qs ? " chip--current" : ""}`}>
-            <Button size="sm" variant="ghost" tone={v.query === qs ? "primary" : "neutral"} onClick={() => applyView(v)}>{v.name}</Button>
-            <Button size="sm" variant="ghost" tone="neutral" aria-label={`Remove the view ${v.name}`} onClick={() => removeView(v.name)}>×</Button>
-          </div>
-        ))}
-        <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.Plus />} disabled={!qs} onClick={() => setViewName("")}>Save current filters as a view</Button>
-        <div className="toolbar__spacer" />
-      </div>)}
+      {!compact && !condensed && viewsBlock}
+      {!compact && !condensed && filtersBlock}
 
-      {!condensed && (<div className="filters">
-        <TextField className="filters__search" size="sm" label="Search" placeholder="company or role" value={f.q} onChange={(e) => set("q", e.target.value)} />
-        {shown.map((d) => {
-          const on = isActive(f, d.key);
-          const value = valueOf(d.key);
-          return (
-            <div key={d.key} className={`chip${on ? " chip--on" : ""}`}>
-              <Popover open={openKey === d.key} onOpenChange={(o) => setOpenKey(o ? d.key : null)} size="sm">
-                <Popover.Trigger asChild>
-                  <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<span className="chip__dot" aria-hidden="true" />}>
-                    {d.label}
-                    {value && <span className="chip__value num">{value}</span>}
-                  </Button>
-                </Popover.Trigger>
-                <Popover.Content align="start" showArrow={false}>
-                  <div className="chip__editor">{editorFor(d.key)}</div>
-                </Popover.Content>
-              </Popover>
-              <Button size="sm" variant="ghost" tone="neutral" aria-label={`Remove ${d.label}`} onClick={() => clearDim(d.key)}>×</Button>
-            </div>
-          );
-        })}
-        {addable.length > 0 && (
-          <Menu>
-            <Menu.Trigger asChild>
-              <Button size="sm" variant="ghost" tone="neutral" leadingIcon={<Icon.Plus />} trailingIcon={<Icon.ChevronDown />}>Filter</Button>
-            </Menu.Trigger>
-            <Menu.Content align="start" onCloseAutoFocus={(e) => { if (!pendingDim.current) return; pendingDim.current = null; e.preventDefault(); }}>
-              {addable.map((d) => (
-                <Menu.Item key={d.key} onSelect={() => { pendingDim.current = d.key; addDim(d.key); }}>{d.label}</Menu.Item>
-              ))}
-            </Menu.Content>
-          </Menu>
-        )}
-        {shown.some((d) => isActive(f, d.key) && d.key !== "minScore") || f.q ? (
-          <Button size="sm" variant="ghost" tone="neutral" onClick={() => { setF({ ...DEFAULTS, band: [], status: [], source: [], company: [] }); setPage(0); }}>Clear</Button>
-        ) : null}
-        <div className="toolbar__spacer" />
-        <AddByLink onAdded={(id) => { setReload((n) => n + 1); if (id) setSelectedId(id); }} onOpen={(id) => setSelectedId(id)} />
-      </div>)}
+      {compact && (
+        <div className="jobs-phonebar">
+          <Sheet open={filtersOpen} onOpenChange={setFiltersOpen} side="bottom" size="lg">
+            <Sheet.Trigger asChild>
+              <Button size="md" variant="soft" tone={activeCount ? "primary" : "neutral"} leadingIcon={<Icon.Filter />}>
+                {activeCount ? `Filters · ${activeCount}` : "Filters"}
+              </Button>
+            </Sheet.Trigger>
+            <Sheet.Content>
+              <Sheet.Title>Views and filters</Sheet.Title>
+              <div className="jobs-filtersheet">
+                {viewsBlock}
+                {filtersBlock}
+              </div>
+              <Button size="md" tone="primary" onClick={() => setFiltersOpen(false)}>{`Show ${total} match${total === 1 ? "" : "es"}`}</Button>
+            </Sheet.Content>
+          </Sheet>
+          {addByLink}
+        </div>
+      )}
 
       <div className="filters__summary">
         <span>
-          {condensed && (
+          {condensed && !compact && (
             <Tooltip content={`Show the views and filters (${shown.filter((d) => isActive(f, d.key)).length + (f.q ? 1 : 0)} active)`}>
               <Button size="sm" variant="soft" tone="neutral" aria-label="Show the views and filters" leadingIcon={<Icon.ChevronDown />} onClick={toggleCondensed} />
             </Tooltip>
           )}
           <b className="num">{total}</b> of <span className="num">{allTotal ?? "…"}</span> matches
-          {pay && pay.stated > 0 && <> · pay stated on <span className="num">{pay.stated}</span>, median top of range <span className="num">{money(pay.median)}</span></>}
+          {!compact && pay && pay.stated > 0 && <> · pay stated on <span className="num">{pay.stated}</span>, median top of range <span className="num">{money(pay.median)}</span></>}
         </span>
         <span className="num filters__query">/jobs{qs ? `?${qs}` : ""}</span>
       </div>
