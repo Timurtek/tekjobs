@@ -96,6 +96,12 @@ TekJobs keeps your profile, criteria, job notes, decisions and application histo
 
 Two kinds of request do leave: the scan's reads of public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under that provider's terms. Optional sources (Adzuna, USAJOBS) call their APIs with your key. Your files remain the durable record whichever model you use.
 
+## Reach it from your phone
+
+With [Tailscale](https://tailscale.com), the same app opens on your phone at `https://tekjobs.<your-tailnet>.ts.net`: your own machine, on your own private network, never on the public internet. A request through Tailscale gets in only with a login you name in `~/.tekjobs/config.json` (`"allowedLogins": ["you@example.com"]`); the list starts empty.
+
+The short way is `tailscale serve --bg 8787` on the machine. With Docker Desktop, [`deploy/tailscale`](deploy/tailscale) runs a small Tailscale container that gives TekJobs its own name and starts with Docker, while TekJobs keeps running on the machine, where your AI command line and profile folder are. [The full guide](https://tekjobs.timurtek.com/docs/remote-access) covers both, keeping the server up, and checking it.
+
 ## Requirements
 
 - **Node 20 or newer.** The scan has one dependency (PDF reading); the app ships built.
