@@ -83,3 +83,61 @@ test("growing the window from phone to desktop switches the layout live", async 
   await expect(page.locator(".sidebar")).toBeVisible();
   await expect(page.locator(".z-kanban")).toBeVisible();
 });
+
+// Text at 200% (Apple HIG: support at least 200% enlargement; WCAG 1.4.4): the root size doubles, every rem with it.
+// Nothing may scroll sideways, and no text box may cut off its own words, except the single lines that end in an
+// ellipsis on purpose.
+async function textAt200(page: Page) {
+  await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+  await page.waitForTimeout(150);
+  return page.evaluate(() => {
+    const sheet = document.querySelector<HTMLElement>("[role=dialog]");
+    const page = document.documentElement;
+    const overflow = sheet ? sheet.scrollWidth - sheet.clientWidth : Math.max(page.scrollWidth, document.body.scrollWidth) - page.clientWidth;
+    const clipped = [...document.querySelectorAll<HTMLElement>("body *")]
+      .filter((e) => {
+        const s = getComputedStyle(e);
+        if (s.textOverflow === "ellipsis" || e.closest("[role=tablist], .z-tabbar, svg")) return false;
+        // Visually hidden on purpose (screen-reader text, a stacked table's header row).
+        const box = e.getBoundingClientRect();
+        if (box.width <= 1 || box.height <= 1 || s.clipPath !== "none" || s.clip !== "auto") return false;
+        if (!/hidden|clip/.test(s.overflowX + s.overflowY) || !e.textContent?.trim() || e.getBoundingClientRect().width === 0) return false;
+        return e.scrollWidth - e.clientWidth > 2 || e.scrollHeight - e.clientHeight > 2;
+      })
+      .map((e) => `${e.tagName.toLowerCase()}.${[...e.classList].join(".")}`);
+    return { overflow, clipped: [...new Set(clipped)].slice(0, 8) };
+  });
+}
+
+for (const name of PAGES) {
+  test(`${name} at 200% text: nothing sideways, nothing clipped`, async ({ page }) => {
+    await open(page, name);
+    const { overflow, clipped } = await textAt200(page);
+    expect(overflow, "page scrolls sideways").toBeLessThanOrEqual(0);
+    expect(clipped, "text cut off by its box").toEqual([]);
+  });
+}
+
+test("the job sheet at 200% text: nothing sideways, nothing clipped", async ({ page }) => {
+  await open(page, "jobs");
+  await page.locator(".jobs-narrow tbody tr[data-interactive]").first().tap();
+  await expect(page.getByRole("dialog").getByRole("tab", { name: "Match reasons" })).toBeVisible();
+  const { overflow, clipped } = await textAt200(page);
+  expect(overflow, "sheet scrolls sideways").toBeLessThanOrEqual(0);
+  expect(clipped, "text cut off by its box").toEqual([]);
+});
+
+test("the job sheet keeps its controls in a sticky top bar, and the name moves into it on scroll", async ({ page }) => {
+  await open(page, "jobs");
+  await page.locator(".jobs-narrow tbody tr[data-interactive]").first().tap();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet.getByRole("tab", { name: "Match reasons" })).toBeVisible();
+  expect(await sheet.evaluate((s) => s.scrollWidth - s.clientWidth), "sheet scrolls sideways").toBeLessThanOrEqual(0);
+  await expect(sheet.getByLabel("Status")).toBeInViewport();
+  await sheet.evaluate((s) => (s.scrollTop = s.scrollHeight));
+  await expect(sheet.locator(".sheet-nav__title")).toBeVisible();
+  await expect(sheet.getByRole("button", { name: "Close" })).toBeInViewport();
+  await expect(sheet.getByRole("tab", { name: "Match reasons" })).toBeInViewport();
+  await sheet.getByRole("button", { name: "Close" }).tap();
+  await expect(sheet).toHaveCount(0);
+});

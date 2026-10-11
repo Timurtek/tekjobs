@@ -93,7 +93,7 @@
   --color-on-danger: #ffffff;
 
   /* App-level extras the system names and Zengin does not: the fourth text step */
-  --color-text-faint: #6d7f75;
+  --color-text-faint: #5a6c62;
 }
 
 [data-theme="dark"] {
@@ -136,7 +136,7 @@
   --color-danger-soft-hover: #442424;
   --color-danger-soft-foreground: #ef8f8f;
   --color-on-danger: #08120c;
-  --color-text-faint: #6c8878;
+  --color-text-faint: #718d7d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -180,7 +180,7 @@
     --color-danger-soft-hover: #442424;
     --color-danger-soft-foreground: #ef8f8f;
     --color-on-danger: #08120c;
-    --color-text-faint: #6c8878;
+    --color-text-faint: #718d7d;
   }
 }
 

@@ -121,7 +121,7 @@
 .views__label {
   padding-right: var(--spacing-1);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.6875rem;
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   color: var(--color-text-faint);
@@ -222,7 +222,7 @@
 .jobs-narrow thead th,
 .jobs-narrow thead th .col {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.6875rem;
   font-weight: var(--font-weight-regular);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
@@ -285,7 +285,7 @@
 .sheet-head h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 34px;
+  font-size: 2.125rem;
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.015em;
   line-height: var(--leading-tight);
@@ -335,7 +335,7 @@
 
 .reasons__fit {
   flex-shrink: 0;
-  font-size: 26px;
+  font-size: 1.625rem;
   line-height: var(--leading-none);
   white-space: nowrap;
   color: var(--color-primary);
@@ -368,7 +368,7 @@
 }
 
 .reasons__pts {
-  font-size: 19px;
+  font-size: 1.1875rem;
   line-height: var(--leading-none);
   text-align: right;
   color: var(--color-primary);
@@ -409,7 +409,7 @@
 
 .microlabel {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.6875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-text-faint);
@@ -474,6 +474,7 @@
 /* The LinkedIn import card on the People page. */
 .linkedin {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-4);
 }
 
@@ -895,7 +896,7 @@
    in mono, the pay lime when it clears the floor. */
 .kcard__company {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.6875rem;
   font-weight: var(--font-weight-regular);
   color: var(--color-text-faint);
   text-transform: uppercase;
@@ -1063,7 +1064,7 @@
 }
 .learned__label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.6875rem;
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   color: var(--color-text-faint);
@@ -1403,7 +1404,7 @@
 }
 
 .clist__score {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: var(--font-weight-semibold);
   line-height: var(--leading-tight);
 }
@@ -1661,4 +1662,70 @@ p.panel--pad,
   border-radius: var(--radius-lg);
   background-color: var(--color-surface);
   cursor: pointer;
+}
+
+/* The job note on a phone (Apple HIG, compact width): a sticky top bar (previous, next, close) that takes the
+   role's name once the large title scrolls away, the section tabs sticky under it, and a head that stacks to the
+   screen's width instead of pushing the status and the links off its right edge. */
+.detail--compact {
+  --sheet-bar: calc(var(--control-sm) + 2 * var(--spacing-2));
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.detail--compact .sheet-nav--bar {
+  position: sticky;
+  top: calc(-1 * max(var(--spacing-6), env(safe-area-inset-top)));
+  z-index: 2;
+  min-height: var(--sheet-bar);
+  margin: calc(-1 * max(var(--spacing-6), env(safe-area-inset-top))) calc(-1 * var(--spacing-6)) 0;
+  padding: max(var(--spacing-2), env(safe-area-inset-top)) var(--spacing-4) var(--spacing-2);
+  background-color: var(--color-surface);
+  border-bottom: var(--border-width) solid transparent;
+}
+
+.detail--compact .sheet-nav--titled {
+  border-bottom-color: var(--color-border);
+}
+
+.sheet-nav__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding-left: var(--spacing-2);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.detail--compact .sheet-nav__close {
+  margin-left: auto;
+}
+
+.detail--compact .z-tabs__list {
+  position: sticky;
+  top: calc(var(--sheet-bar) - max(var(--spacing-6), env(safe-area-inset-top)));
+  z-index: 1;
+  background-color: var(--color-surface);
+}
+
+.detail--compact .sheet-head {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.detail--compact .sheet-head h2 {
+  font-size: 1.75rem;
+}
+
+.detail--compact .sheet-head__side {
+  justify-items: stretch;
+  min-width: 0;
+}
+
+.detail--compact .sheet-head__side .pager__buttons {
+  justify-content: flex-start;
+}
+
+.detail--compact .sheet-head__links {
+  gap: var(--spacing-1) var(--spacing-4);
 }

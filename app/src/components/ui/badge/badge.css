@@ -10,6 +10,14 @@
   white-space: nowrap;
 }
 
+/* Phone width: a long badge wraps inside its row instead of pushing the page sideways (large text sizes too). */
+@media (max-width: 40rem) {
+  .z-badge {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
 .z-badge[data-size="sm"] {
   padding: var(--spacing-0) var(--spacing-2);
   font-size: var(--text-xs);
