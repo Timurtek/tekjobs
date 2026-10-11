@@ -11,6 +11,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { freePort } from './free-port.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const home = fs.mkdtempSync(path.join(os.tmpdir(), 'tekjobs-isolation-'));
@@ -26,7 +27,7 @@ const own = (dir) => { try { return JSON.parse(fs.readFileSync(path.join(dir, '.
 
 async function start(profile) {
   await stop();
-  const PORT = 18900 + Math.floor(Math.random() * 200);
+  const PORT = await freePort();
   base = `http://127.0.0.1:${PORT}`;
   child = spawn(process.execPath, [path.join(ROOT, 'app', 'server', 'index.mjs')], {
     env: { ...process.env, HOME: home, USERPROFILE: home, TEKJOBS_PROFILE: profile, PORT: String(PORT) }, stdio: ['ignore', 'pipe', 'pipe'],

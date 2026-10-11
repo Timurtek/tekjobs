@@ -7,6 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { freePort } from './free-port.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const home = fs.mkdtempSync(path.join(os.tmpdir(), 'tekjobs-cli-home-'));
@@ -52,7 +53,7 @@ test('import linkedin: usage without a path, a preview that writes nothing, and 
 });
 
 test('up starts the API detached and leaves it running; ps lists it; down stops it', async () => {
-  const port = 18900 + Math.floor(Math.random() * 90);
+  const port = await freePort();
   const u = run(['up', '--port', String(port)]);
   assert.equal(u.code, 0, u.out);
   assert.match(u.out, /API up: pid \d+/);

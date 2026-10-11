@@ -7,9 +7,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { freePort } from './free-port.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const PORT = 18700 + Math.floor(Math.random() * 200);
+const PORT = await freePort();
 const base = `http://127.0.0.1:${PORT}`;
 let child, vault;
 
