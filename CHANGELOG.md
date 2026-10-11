@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.56.0](https://github.com/Timurtek/tekjobs/compare/v0.55.3...v0.56.0) (2026-10-11)
+
+### Features
+
+* **deploy:** reach TekJobs from your phone over Tailscale ([b7f4ab3](https://github.com/Timurtek/tekjobs/commit/b7f4ab3ace2951a9a8e2b59acf11b54bde78629f))
+
 ## [0.55.3](https://github.com/Timurtek/tekjobs/compare/v0.55.2...v0.55.3) (2026-10-11)
 
 ### Fixes
