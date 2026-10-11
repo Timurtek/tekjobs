@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.57.0](https://github.com/Timurtek/tekjobs/compare/v0.56.0...v0.57.0) (2026-10-11)
+
+### Features
+
+* **app:** phone layout by Apple HIG, with a bottom tab bar, tables as cards and letters to read ([95022d0](https://github.com/Timurtek/tekjobs/commit/95022d01ff189092e2d04e4504bd7c2be62a1698))
+
 ## [0.56.0](https://github.com/Timurtek/tekjobs/compare/v0.55.3...v0.56.0) (2026-10-11)
 
 ### Features
