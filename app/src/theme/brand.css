@@ -35,6 +35,14 @@
   --leading-tight: 1.15;
   --tracking-caps: 0.06em;
 
+  /* Control heights, by size. Every control (button, field, select, tab, menu row) takes its height from these,
+     and --tap-min is the floor for anything tappable that has no size of its own (checkbox and switch rows,
+     list rows, cards). Desktop density by default; the touch block below raises both. */
+  --control-sm: 2rem;
+  --control-md: 2.5rem;
+  --control-lg: 3rem;
+  --tap-min: 0px;
+
   /* Shape: small, consistent corners; flat surfaces. */
   --radius-sm: 3px;
   --radius-md: 4px;
@@ -173,6 +181,26 @@
     --color-danger-soft-foreground: #ef8f8f;
     --color-on-danger: #08120c;
     --color-text-faint: #6c8878;
+  }
+}
+
+/*
+ * Touch density (Apple HIG): on a touch screen, or at phone width, every control is at least 44px tall and body
+ * text is 16-17px. Inputs at 16px or more also keep iOS Safari from zooming in when one takes focus. The desktop
+ * system above (13px body, 32px controls) is a mouse density; this block is the same system for a finger. It is
+ * one switch: the components read these tokens and nothing else changes per screen.
+ */
+@media (pointer: coarse), (max-width: 40rem) {
+  :root {
+    --text-xs: 0.8125rem;
+    --text-sm: 1rem;
+    --text-base: 1.0625rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --control-sm: 2.75rem;
+    --control-md: 2.75rem;
+    --control-lg: 3rem;
+    --tap-min: 2.75rem;
   }
 }
 

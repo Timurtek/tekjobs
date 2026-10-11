@@ -2,6 +2,7 @@
 .z-tabs {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   color: var(--color-text);
 }
 
@@ -9,6 +10,20 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+}
+
+/* At phone width a tab list is one line that scrolls sideways (with the next tab partly showing), never three
+   wrapped rows above the content. */
+@media (max-width: 40rem) {
+  .z-tabs__list {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .z-tabs__list::-webkit-scrollbar { display: none; }
+  .z-tabs__trigger { flex: none; }
 }
 
 .z-tabs__trigger {
@@ -45,11 +60,13 @@
 
 /* Sizes. */
 .z-tabs[data-size="sm"] .z-tabs__trigger {
+  min-height: var(--control-sm);
   padding: var(--spacing-1) var(--spacing-2);
   font-size: var(--text-xs);
 }
 
 .z-tabs[data-size="md"] .z-tabs__trigger {
+  min-height: var(--control-md);
   padding: var(--spacing-2) var(--spacing-3);
   font-size: var(--text-sm);
 }

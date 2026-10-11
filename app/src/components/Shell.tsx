@@ -1,4 +1,4 @@
-import { Button, Icon, Sheet, TextField, Tooltip } from "@/components/ui";
+import { Button, Icon, Sheet, TabBar, TextField, Tooltip } from "@/components/ui";
 import { useEffect, useRef, useState, type ComponentType, type FormEvent, type ReactNode } from "react";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { BrandMark } from "./brand-mark";
@@ -61,11 +61,17 @@ export function possessive(name: string) {
   return /s$/i.test(first) ? `${first}'` : `${first}'s`;
 }
 
+/** The phone tab bar (Apple HIG: at most five, navigation only, always visible): the four pages used every day, and More. */
+const TABS: Page[] = ["today", "jobs", "pipeline", "mail"];
+
 export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboarded = true, counts = {}, lastScan = "", who = null, children }: ShellProps) {
   const [drawer, setDrawer] = useState(false);
-  // On a phone the sidebar is a horizontal strip of icons across the top: the collapsed navigation laid out in a
-  // row, tooltips below. Between phone and desktop widths it is the drawer behind the menu button.
-  const strip = useMediaQuery("(max-width: 40rem)");
+  // At phone width the navigation is a tab bar at the bottom, where a thumb reaches, with More for the rest; the
+  // top bar keeps the title, and search opens on demand. Between phone and desktop widths it is the drawer behind
+  // the menu button; on a desktop, the sidebar.
+  const compact = useMediaQuery("(max-width: 40rem)");
+  const [more, setMore] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [q, setQ] = useState("");
   const searchForm = useRef<HTMLFormElement>(null);
   useEffect(() => {
@@ -85,17 +91,24 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
   const go = (p: Page) => {
     onNavigate(p);
     setDrawer(false);
+    setMore(false);
   };
   const submit = (e: FormEvent) => {
     e.preventDefault();
     onSearch(q.trim());
+    setSearching(false);
   };
+  // The search field, opened on a phone: focus it as it appears.
+  useEffect(() => { if (compact && searching) searchForm.current?.querySelector("input")?.focus(); }, [compact, searching]);
+  const showSearch = !compact || searching;
 
   return (
-    <div className={`shell${collapsed ? " shell--collapsed" : ""}${strip ? " shell--strip" : ""}`}>
-      <aside className="sidebar" aria-label="Primary">
-        <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who} collapsed={collapsed || strip} strip={strip} onToggleCollapsed={strip ? undefined : toggleCollapsed} tipSide={strip ? "bottom" : "right"} />
-      </aside>
+    <div className={`shell${collapsed ? " shell--collapsed" : ""}${compact ? " shell--compact" : ""}`}>
+      {!compact && (
+        <aside className="sidebar" aria-label="Primary">
+          <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who} collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
+        </aside>
+      )}
 
       <div className="main">
         <header className="topbar">
@@ -111,26 +124,55 @@ export function Shell({ page, onNavigate, onSearch, theme, onToggleTheme, onboar
             </Sheet.Content>
           </Sheet>
           <h1 className="topbar__title">{TITLES[page]}</h1>
-          <form className="topbar__search" onSubmit={submit} ref={searchForm}>
-            <TextField size="md" placeholder="Search company or role" aria-label="Search jobs" leadingIcon={<Icon.Search />} trailingIcon={<span className="num">{SEARCH_HINT}</span>} value={q} onChange={(e) => setQ(e.target.value)} />
-          </form>
+          {showSearch && (
+            <form className="topbar__search" onSubmit={submit} ref={searchForm}>
+              <TextField size="md" type="search" enterKeyHint="search" placeholder="Search company or role" aria-label="Search jobs" leadingIcon={<Icon.Search />} trailingIcon={compact ? undefined : <span className="num">{SEARCH_HINT}</span>} value={q} onChange={(e) => setQ(e.target.value)} onBlur={() => { if (compact && !q) setSearching(false); }} />
+            </form>
+          )}
           <div className="topbar__actions">
+            {compact && !searching && <Button variant="ghost" size="sm" aria-label="Search jobs" leadingIcon={<Icon.Search />} onClick={() => setSearching(true)} />}
             <CopyPanel />
-            <Tooltip content={theme === "light" ? "Switch to dark" : "Switch to light"}>
-              <Button variant="ghost" size="sm" onClick={onToggleTheme} aria-label="Toggle theme" leadingIcon={theme === "light" ? <Icon.Moon /> : <Icon.Sun />} />
-            </Tooltip>
+            {!compact && (
+              <Tooltip content={theme === "light" ? "Switch to dark" : "Switch to light"}>
+                <Button variant="ghost" size="sm" onClick={onToggleTheme} aria-label="Toggle theme" leadingIcon={theme === "light" ? <Icon.Moon /> : <Icon.Sun />} />
+              </Tooltip>
+            )}
           </div>
         </header>
         {children}
       </div>
+
+      {compact && (
+        <TabBar aria-label="Pages">
+          {TABS.map((p) => {
+            const item = NAV.find((n) => n.page === p)!;
+            return <TabBar.Item key={p} icon={<item.icon />} label={item.label} current={page === p} onClick={() => go(p)} />;
+          })}
+          <Sheet open={more} onOpenChange={setMore} side="bottom" size="lg">
+            <Sheet.Trigger asChild>
+              <TabBar.Item icon={<Icon.Menu />} label="More" current={!TABS.includes(page)} />
+            </Sheet.Trigger>
+            <Sheet.Content>
+              <Sheet.Title>More</Sheet.Title>
+              <div className="more">
+                <Navigation page={page} onNavigate={go} onboarded={onboarded} counts={counts} lastScan={lastScan} who={who} collapsed={false} exclude={TABS} />
+                <Button className="more__theme" size="md" variant="ghost" tone="neutral" align="start" onClick={onToggleTheme} leadingIcon={theme === "light" ? <Icon.Moon /> : <Icon.Sun />}>
+                  {theme === "light" ? "Dark appearance" : "Light appearance"}
+                </Button>
+              </div>
+            </Sheet.Content>
+          </Sheet>
+        </TabBar>
+      )}
     </div>
   );
 }
 
-function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collapsed, strip = false, onToggleCollapsed, tipSide = "right" }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; who: ShellProps["who"]; collapsed: boolean; /** The phone strip: icons with their labels beside them, no tooltips, no counts. */ strip?: boolean; onToggleCollapsed?: () => void; tipSide?: "right" | "bottom" }) {
+function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collapsed, onToggleCollapsed, exclude = [] }: { page: Page; onNavigate: (page: Page) => void; onboarded: boolean; counts: Partial<Record<Page, number>>; lastScan: string; who: ShellProps["who"]; collapsed: boolean; onToggleCollapsed?: () => void; /** Pages the phone tab bar already shows, left out of the More sheet. */ exclude?: Page[] }) {
   const byPage = new Map(NAV.map((n) => [n.page, n]));
   // Before onboarding is done, Get started leads on its own; after, it is a System item.
-  const groups = onboarded ? GROUPS : [{ title: "Start", pages: ["onboarding"] as Page[] }, ...GROUPS.map((g) => ({ ...g, pages: g.pages.filter((p) => p !== "onboarding") }))];
+  const all = onboarded ? GROUPS : [{ title: "Start", pages: ["onboarding"] as Page[] }, ...GROUPS.map((g) => ({ ...g, pages: g.pages.filter((p) => p !== "onboarding") }))];
+  const groups = all.map((g) => ({ ...g, pages: g.pages.filter((p) => !exclude.includes(p)) })).filter((g) => g.pages.length);
   return (
     <>
       <div className="brand">
@@ -172,13 +214,13 @@ function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collap
                   leadingIcon={<item.icon />}
                   trailingIcon={!collapsed && counts[item.page] != null ? <span className="nav__count">{counts[item.page]}</span> : undefined}
                   aria-current={page === item.page ? "page" : undefined}
-                  aria-label={collapsed && !strip ? item.label : undefined}
+                  aria-label={collapsed ? item.label : undefined}
                   onClick={() => onNavigate(item.page)}
                 >
-                  {collapsed && !strip ? null : item.label}
+                  {collapsed ? null : item.label}
                 </Button>
               );
-              return collapsed && !strip ? <Tooltip key={item.page} content={counts[item.page] != null ? `${item.label} · ${counts[item.page]}` : item.label} side={tipSide}>{button}</Tooltip> : button;
+              return collapsed ? <Tooltip key={item.page} content={counts[item.page] != null ? `${item.label} · ${counts[item.page]}` : item.label} side="right">{button}</Tooltip> : button;
             })}
           </div>
         ))}

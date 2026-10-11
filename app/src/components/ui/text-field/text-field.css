@@ -43,17 +43,17 @@
 
 /* Size owns padding and type. Icon slots widen the padding on their side. */
 .z-field[data-size="sm"] .z-field__input {
-  min-height: 2rem;
+  min-height: var(--control-sm);
   padding: var(--spacing-1) var(--spacing-2);
   font-size: var(--text-sm);
 }
 .z-field[data-size="md"] .z-field__input {
-  min-height: 2.5rem;
+  min-height: var(--control-md);
   padding: var(--spacing-2) var(--spacing-3);
   font-size: var(--text-sm);
 }
 .z-field[data-size="lg"] .z-field__input {
-  min-height: 3rem;
+  min-height: var(--control-lg);
   padding: var(--spacing-3) var(--spacing-4);
   font-size: var(--text-base);
 }

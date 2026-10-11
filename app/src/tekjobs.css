@@ -32,44 +32,68 @@
 
 /* The toolbar aligns its fields on their bottom edge; the switch has no label above it, so it needs to sit on
    the same line as the field inputs. */
-/* Below tablet width the jobs table becomes a card list: the header row goes to assistive tech only and each
-   row lays its seven cells out on a small grid (score | company, role | pay, status; location and age under).
-   Cell order is the table's: score, company, role, pay, location, posted, status. */
+/* Below tablet width the jobs table becomes a card list (Apple HIG list rows): the role is the headline, the score
+   trails as the value that ranks it, company and place are the secondary line, then pay, status and age. The
+   header row goes to assistive tech only; the whole card is the tap target. The Table's own stacked layout labels
+   every cell; a job card reads without the labels, so they are dropped here. Cell order is the table's: score,
+   company, role, pay, location, posted, status. */
 @media (max-width: 52rem) {
   .jobs-narrow thead {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
-    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
     white-space: nowrap;
+  }
+  .jobs-narrow .z-table {
+    overflow: visible;
+    border: 0;
+  }
+  .jobs-narrow table,
+  .jobs-narrow tbody {
+    display: block;
   }
   .jobs-narrow tbody tr {
     display: grid;
-    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      "score company pay"
-      "score role status"
-      "score where posted";
+      "role score"
+      "company score"
+      "pay status"
+      "where posted";
     column-gap: var(--spacing-3);
     row-gap: var(--spacing-1);
+    min-height: var(--tap-min);
     padding: var(--spacing-3) var(--spacing-4);
-    border-bottom: 1px solid var(--color-border);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
   }
-  .jobs-narrow tbody td {
+  .jobs-narrow tbody tr + tr {
+    margin-top: var(--spacing-2);
+  }
+  .jobs-narrow tbody td,
+  .jobs-narrow .z-table[data-density] tbody td {
     display: block;
+    min-width: 0;
     padding: 0;
     border: 0;
-    min-width: 0;
+    background: none;
+    text-align: left;
   }
-  .jobs-narrow tbody td:nth-child(1) { grid-area: score; font-weight: var(--font-weight-semibold); }
-  .jobs-narrow tbody td:nth-child(2) { grid-area: company; font-weight: var(--font-weight-semibold); }
-  .jobs-narrow tbody td:nth-child(3) { grid-area: role; }
-  .jobs-narrow tbody td:nth-child(4) { grid-area: pay; justify-self: end; }
+  .jobs-narrow tbody td::before {
+    content: none;
+  }
+  .jobs-narrow tbody td:nth-child(1) { grid-area: score; align-self: start; justify-self: end; font-size: var(--text-xl); font-weight: var(--font-weight-semibold); }
+  .jobs-narrow tbody td:nth-child(2) { grid-area: company; color: var(--color-text-muted); }
+  .jobs-narrow tbody td:nth-child(3) { grid-area: role; font-size: var(--text-base); font-weight: var(--font-weight-semibold); }
+  .jobs-narrow tbody td:nth-child(4) { grid-area: pay; }
   .jobs-narrow tbody td:nth-child(5) { grid-area: where; }
   .jobs-narrow tbody td:nth-child(6) { grid-area: posted; justify-self: end; }
   .jobs-narrow tbody td:nth-child(7) { grid-area: status; justify-self: end; }
   .jobs-narrow tbody td[colspan] { grid-column: 1 / -1; grid-area: auto; }
+  .jobs-narrow tbody tr[data-selected] { border-color: var(--color-primary); }
   .jobs-narrow .where { max-width: none; }
 }
 
@@ -1186,6 +1210,33 @@
   gap: var(--spacing-3);
 }
 
+/* At phone width the two option fields stack; side by side they truncate their own values. */
+@media (max-width: 40rem) {
+  .letter__options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A generated document (a cover letter, a tailored resume), shown to be read: body type at the reading size, the
+   letter's own line breaks kept, and no box of its own to scroll; it flows with the sheet, so a phone scrolls one
+   thing. Selecting and copying work on it directly. */
+.draft__doc {
+  padding: var(--spacing-4) var(--spacing-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.draft__doc--markdown {
+  white-space: normal;
+}
+
 .letter__meta {
   display: flex;
   flex-wrap: wrap;
@@ -1207,15 +1258,6 @@
   align-items: flex-start;
 }
 
-/* Tailored resume preview: the note's Markdown, kept readable inside the sheet. */
-.resume-preview {
-  max-height: 60vh;
-  padding: var(--spacing-4);
-  overflow: auto;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
 
 /* A posting that came through TekJobs itself (an employer paid to post it): a lime rule down the row's left
    edge and a faint lime wash, so it reads as ours before the eye reaches the mark beside the company. */
@@ -1418,64 +1460,50 @@
   margin: 0;
 }
 
-/* Phone: the sidebar is a strip of icons across the top, sticky, scrolling sideways if it must. The brand mark
-   leads, groups are separated by a hairline, and the menu button in the top bar has nothing left to open. */
-@media (max-width: 40rem) {
-  .shell--strip .sidebar:not(.sidebar--sheet) {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--spacing-2);
-    position: sticky;
-    top: 0;
-    z-index: 6;
-    height: auto;
-    padding: var(--spacing-2) var(--spacing-3);
-    border-right: 0;
-    border-bottom: 1px solid var(--color-border);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
+/* Phone (Apple HIG, compact width): a tab bar along the bottom, where a thumb reaches, for the four pages used
+   every day and More for the rest; the top bar is the title and two buttons; nothing sits under the home
+   indicator or the notch. The drawer and the sidebar are wider-screen navigation and do not render here. */
+/* Room under the content for the tab bar, so the last row is never hidden behind it. */
+.shell--compact .main {
+  padding-bottom: calc(var(--control-lg) + var(--spacing-4) + env(safe-area-inset-bottom));
+}
 
-  .shell--strip .sidebar::-webkit-scrollbar {
-    display: none;
-  }
+/* The top bar at phone width: the title leads, the buttons trail, the search takes the row when it is open. */
+.shell--compact .topbar {
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  padding: max(var(--spacing-2), env(safe-area-inset-top)) var(--spacing-4) var(--spacing-2);
+}
 
-  .shell--strip .brand-mark {
-    gap: 0;
-    font-size: 0;
-  }
+.shell--compact .topbar__title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+}
 
-  .shell--strip .brand-mark__logo {
-    width: 28px;
-    height: 28px;
-  }
+.shell--compact .topbar__actions {
+  margin-left: auto;
+}
 
-  .shell--strip .nav {
-    display: flex;
-    gap: var(--spacing-1);
-  }
+.shell--compact .topbar__menu {
+  display: none;
+}
 
-  .shell--strip .nav__group {
-    display: flex;
-    gap: var(--spacing-1);
-  }
+/* More: the rest of the navigation as a list of full-width rows, then the appearance switch. */
+.more {
+  display: grid;
+  gap: var(--spacing-4);
+}
 
-  .shell--strip .nav__group + .nav__group {
-    margin: 0 0 0 var(--spacing-1);
-    padding-left: var(--spacing-2);
-    border-left: 1px solid var(--color-border);
-  }
+.more .nav__item,
+.more__theme {
+  width: 100%;
+}
 
-  /* Each strip item keeps its icon and its label on one line; the strip scrolls sideways, the labels do not wrap. */
-  .shell--strip .nav__item {
-    width: auto;
-    flex: none;
-  }
-
-  .shell--strip .topbar__menu {
-    display: none;
-  }
+.more .sidebar__foot {
+  display: none;
 }
 
 /* Runs: the outcome word with the kind of run under it; the problems a partial run left, behind a click. */

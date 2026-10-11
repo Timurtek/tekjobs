@@ -30,6 +30,12 @@
   outline: none;
 }
 
+/* Clear the notch and the home indicator on phones (viewport-fit=cover in index.html exposes the insets). */
+.z-sheet {
+  padding-top: max(var(--spacing-6), env(safe-area-inset-top));
+  padding-bottom: max(var(--spacing-6), env(safe-area-inset-bottom));
+}
+
 /* Side owns the edge and the motion. */
 .z-sheet[data-side="right"] { top: 0; right: 0; bottom: 0; border-left: var(--border-width) solid var(--color-border); animation-name: z-sheet-from-right; }
 .z-sheet[data-side="left"] { top: 0; left: 0; bottom: 0; border-right: var(--border-width) solid var(--color-border); animation-name: z-sheet-from-left; }
@@ -81,8 +87,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: var(--control-sm);
+  height: var(--control-sm);
   padding: 0;
   background-color: transparent;
   border: 0;
