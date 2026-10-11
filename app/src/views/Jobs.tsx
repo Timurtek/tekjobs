@@ -681,9 +681,11 @@ export function parseReasons(why: string): { label: string; detail: string; poin
 }
 
 export function JobSheet(props: { id: string | null; onClose: () => void; onChanged: (job: Job) => void; nav?: SheetNav }) {
+  // On a phone the close button lives in the note's own sticky top bar, so it is still there after scrolling.
+  const compact = useMediaQuery("(max-width: 40rem)");
   return (
     <Sheet open={props.id !== null} onOpenChange={(open) => !open && props.onClose()} side="right" size="lg">
-      <Sheet.Content>
+      <Sheet.Content showClose={!compact}>
         <JobDetail {...props} />
       </Sheet.Content>
     </Sheet>
@@ -695,6 +697,18 @@ export function JobDetail({ id, onClose, onChanged, nav, inline = false }: { id:
   const [job, setJob] = useState<Job | null>(null);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  // Phone (Apple HIG, compact width): the large title scrolls away and its name moves into a sticky top bar that
+  // holds previous, next and close; the section tabs stick under it, so a long note never strands the controls.
+  const compact = useMediaQuery("(max-width: 40rem)");
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [titleGone, setTitleGone] = useState(false);
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!compact || !el) return setTitleGone(false);
+    const io = new IntersectionObserver(([e]) => e && setTitleGone(!e.isIntersecting && e.boundingClientRect.top < 64), { rootMargin: "-64px 0px 0px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [compact, job?.id]);
   useEffect(() => {
     setJob(null);
     if (id) api.job(id).then(setJob).catch((e: Error) => toast({ title: "Could not open the note", description: e.message, tone: "danger" }));
@@ -733,23 +747,29 @@ export function JobDetail({ id, onClose, onChanged, nav, inline = false }: { id:
     setBusy(false);
   };
 
-  const navRow = nav && (
-    <div className="sheet-nav">
-      <Tooltip content="Previous (K)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Previous job" leadingIcon={<Icon.ChevronUp />} disabled={nav.pos <= 0} onClick={nav.prev} /></Tooltip>
-      <Tooltip content="Next (J)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Next job" leadingIcon={<Icon.ChevronDown />} disabled={nav.pos < 0 ? nav.total === 0 : nav.pos >= nav.total - 1} onClick={nav.next} /></Tooltip>
-      <span className="sheet-nav__count num">{nav.pos >= 0 ? `${nav.pos + 1} of ${nav.total}` : "not in this view"}</span>
-      {inline && <Tooltip content="Close (Esc)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Close" leadingIcon={<Icon.Close />} onClick={onClose} className="sheet-nav__close" /></Tooltip>}
+  const closeButton = <Button size="sm" variant="ghost" tone="neutral" aria-label="Close" leadingIcon={<Icon.Close />} onClick={inline ? onClose : undefined} className="sheet-nav__close" />;
+  const navRow = (nav || compact) && (
+    <div className={compact ? `sheet-nav sheet-nav--bar${titleGone ? " sheet-nav--titled" : ""}` : "sheet-nav"}>
+      {nav && <>
+        <Tooltip content="Previous (K)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Previous job" leadingIcon={<Icon.ChevronUp />} disabled={nav.pos <= 0} onClick={nav.prev} /></Tooltip>
+        <Tooltip content="Next (J)"><Button size="sm" variant="ghost" tone="neutral" aria-label="Next job" leadingIcon={<Icon.ChevronDown />} disabled={nav.pos < 0 ? nav.total === 0 : nav.pos >= nav.total - 1} onClick={nav.next} /></Tooltip>
+      </>}
+      {compact && titleGone && job
+        ? <span className="sheet-nav__title" aria-hidden="true">{job.title}</span>
+        : nav && <span className="sheet-nav__count num">{nav.pos >= 0 ? `${nav.pos + 1} of ${nav.total}` : "not in this view"}</span>}
+      {inline && <Tooltip content="Close (Esc)">{closeButton}</Tooltip>}
+      {!inline && compact && <Sheet.Close asChild>{closeButton}</Sheet.Close>}
     </div>
   );
   return (
     <>
         {!job ? (
-          <div className="detail">{navRow}<Skeleton lines={6} /></div>
+          <div className={compact ? "detail detail--compact" : "detail"}>{navRow}<Skeleton lines={6} /></div>
         ) : (
-          <div className="detail">
+          <div className={compact ? "detail detail--compact" : "detail"}>
             {navRow}
             <div className="sheet-head">
-              <div className="sheet-head__main">
+              <div className="sheet-head__main" ref={titleRef}>
                 <p className="sheet-head__meta">{job.company} · {job.location || "location n/a"} · {isPosted(job.source) ? "posted on TekJobs" : job.source} · found {daysAgo(job.found) || job.found}</p>
                 {inline ? <h2 className="sheet-head__title">{job.title}</h2> : <Sheet.Title>{job.title}</Sheet.Title>}
                 <div className="chips">

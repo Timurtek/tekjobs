@@ -75,7 +75,7 @@ body {
 .nav__group-title {
   padding: 0 var(--spacing-3);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 0.6875rem;
   font-weight: var(--font-weight-regular);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
@@ -303,6 +303,7 @@ body {
 
 .stat {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--spacing-2);
 }
 
@@ -597,4 +598,11 @@ body {
   align-items: center;
   min-height: var(--tap-min);
   cursor: pointer;
+}
+
+/* A link inside running text reads like a link in a rendered note, never the browser's default blue (which is
+   1.9:1 on the dark surface). Links that are components (buttons, rows) carry a class and are left alone. */
+p > a:not([class]) {
+  color: var(--color-primary);
+  text-underline-offset: 0.15em;
 }
