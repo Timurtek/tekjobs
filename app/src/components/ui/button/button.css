@@ -155,3 +155,12 @@
     animation-duration: 1600ms;
   }
 }
+
+/* At phone width a long label wraps inside the button instead of pushing it past the screen edge. */
+@media (max-width: 40rem) {
+  .z-button {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+}

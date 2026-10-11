@@ -435,6 +435,7 @@ body {
 
 .pager__buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-2);
 }
 
@@ -563,4 +564,37 @@ body {
 .section-title {
   font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
+}
+
+/* Phone width: toolbar fields and filters take the whole row instead of their desktop widths, and a long
+   unbroken string (a folder path, an email address, a thread subject) breaks rather than pushing the page wide. */
+@media (max-width: 40rem) {
+  .page {
+    overflow-wrap: anywhere;
+  }
+  .toolbar > *,
+  .toolbar__search,
+  .toolbar__filter,
+  .toolbar__filter--wide {
+    width: 100%;
+  }
+  .toolbar__spacer {
+    display: none;
+  }
+}
+
+/* Tap targets that are not components: a link that stands for a row (a person's thread) fills its row, and a
+   disclosure summary is as tall as a control. On a desktop --tap-min is 0 and nothing changes. */
+.people__threads li > a {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+
+.page summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  cursor: pointer;
 }
