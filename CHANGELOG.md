@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.55.3](https://github.com/Timurtek/tekjobs/compare/v0.55.2...v0.55.3) (2026-10-11)
+
+### Fixes
+
+* **notes:** read the whole job description, not up to its first heading ([83f1d09](https://github.com/Timurtek/tekjobs/commit/83f1d0991f440c9698001cec46377e37c3d751b1))
+
 ## [0.55.2](https://github.com/Timurtek/tekjobs/compare/v0.55.1...v0.55.2) (2026-10-09)
 
 ### Fixes
