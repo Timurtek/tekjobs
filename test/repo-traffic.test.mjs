@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import http from 'node:http';
 import { spawn } from 'node:child_process';
@@ -11,12 +10,13 @@ import { freePort } from './free-port.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SCRIPT = path.join(ROOT, 'tools', 'repo-traffic.mjs');
 
-// One local server stands in for both GitHub and npm, and records what it was asked.
+// One local server stands in for GitHub, and records what it was asked. A path prefix picks a scenario: `/fail`
+// answers 503, `/bad-*` answers 200 with a body GitHub would never send.
 let server;
 let base;
 const seen = [];
 const routes = {
-  '/repos/Timurtek/tekjobs': { stargazers_count: 42, forks_count: 7, subscribers_count: 3 },
+  '/repos/Timurtek/tekjobs': { stargazers_count: 42, forks_count: 7 },
   // A full first page, so the script has to ask for the second.
   '/repos/Timurtek/tekjobs/releases?per_page=100&page=1': [
     { tag_name: 'v0.59.0', assets: [{ download_count: 5 }, { download_count: 2 }] },
@@ -24,9 +24,12 @@ const routes = {
   ],
   '/repos/Timurtek/tekjobs/releases?per_page=100&page=2': [{ tag_name: 'v0.0.100', assets: [{ download_count: 4 }] }],
   '/repos/Timurtek/tekjobs/traffic/clones': { count: 30, uniques: 11 },
-  '/repos/Timurtek/tekjobs/traffic/views': { count: 200, uniques: 64 },
-  '/downloads/point/last-week/%40timurtekb%2Ftekjobs': { downloads: 120 },
-  '/downloads/point/last-month/%40timurtekb%2Ftekjobs': { downloads: 480 },
+};
+const malformed = {
+  '/bad-stars': { '/repos/Timurtek/tekjobs': { stargazers_count: '42', forks_count: 7 } },
+  '/bad-releases': { '/repos/Timurtek/tekjobs/releases?per_page=100&page=1': { message: 'not a list' } },
+  '/bad-downloads': { '/repos/Timurtek/tekjobs/releases?per_page=100&page=1': [{ assets: [{ download_count: -1 }] }] },
+  '/bad-clones': { '/repos/Timurtek/tekjobs/traffic/clones': { count: 30, uniques: null } },
 };
 
 test.before(async () => {
@@ -36,7 +39,9 @@ test.before(async () => {
     seen.push({ url: req.url, auth: req.headers.authorization || '' });
     if (req.url.includes('/traffic/') && !req.headers.authorization) { res.writeHead(401).end('{}'); return; }
     if (req.url.startsWith('/fail')) { res.writeHead(503).end('{}'); return; }
-    const body = routes[req.url];
+    const scenario = Object.keys(malformed).find((p) => req.url.startsWith(p + '/'));
+    const url = scenario ? req.url.slice(scenario.length) : req.url;
+    const body = (scenario && malformed[scenario][url]) || routes[url];
     if (!body) { res.writeHead(404).end('{}'); return; }
     res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(body));
   });
@@ -44,13 +49,10 @@ test.before(async () => {
 });
 test.after(() => server.close());
 
-// The real entry point, as `npm run traffic` runs it. Async spawn: the server above lives in this process.
-function run(args, env = {}) {
+const ENV = (env) => ({ ...process.env, GITHUB_TOKEN: '', TEKJOBS_GITHUB_API: base, ...env });
+
+function collect(child) {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, [SCRIPT, ...args], {
-      cwd: ROOT,
-      env: { ...process.env, GITHUB_TOKEN: '', TEKJOBS_GITHUB_API: base, TEKJOBS_NPM_API: base, ...env },
-    });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (d) => { stdout += d; });
@@ -59,16 +61,27 @@ function run(args, env = {}) {
   });
 }
 
-test('without a token it reads every public counter, says clones and views were not read, and sends no auth', async () => {
+// The real entry point. Async spawn: the server above lives in this process.
+const run = (args, env = {}) => collect(spawn(process.execPath, [SCRIPT, ...args], { cwd: ROOT, env: ENV(env) }));
+
+test('npm run traffic runs the script: the package wiring the docs give is the one that works', async () => {
+  // One command string through the shell, so npm resolves the same way it does for a person (npm.cmd on Windows).
+  const r = await collect(spawn('npm run traffic -- --json', { cwd: ROOT, env: ENV({}), shell: true }));
+  assert.equal(r.status, 0, r.stderr);
+  const t = JSON.parse(r.stdout.slice(r.stdout.indexOf('{')));
+  assert.equal(t.stars, 42);
+  assert.equal(t.release_downloads, 11);
+});
+
+test('without a token it reads stars, forks and release downloads, says clones were not read, and sends no auth', async () => {
   seen.length = 0;
   const r = await run([]);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /^---\ntype: "metric"\n/);
   assert.match(r.stdout, /^stars: 42$/m);
   assert.match(r.stdout, /^forks: 7$/m);
+  assert.match(r.stdout, /^releases: 101$/m);
   assert.match(r.stdout, /^release_downloads: 11$/m);
-  assert.match(r.stdout, /^npm_downloads_week: 120$/m);
-  assert.match(r.stdout, /^npm_downloads_month: 480$/m);
   assert.match(r.stdout, /^clones_14d: null$/m);
   assert.match(r.stdout, /\| Clones, last 14 days \| not read \|/);
   assert.match(r.stdout, /set GITHUB_TOKEN/);
@@ -76,39 +89,23 @@ test('without a token it reads every public counter, says clones and views were 
   assert.ok(seen.every((s) => s.auth === ''), 'sent an authorization header with no token');
 });
 
-test('with GITHUB_TOKEN it reads clones and views from the traffic API, with the token', async () => {
+test('with GITHUB_TOKEN it reads clones from the traffic API, sending the token only there', async () => {
   seen.length = 0;
   const r = await run(['--json'], { GITHUB_TOKEN: 'test-token' });
   assert.equal(r.status, 0, r.stderr);
   const t = JSON.parse(r.stdout);
   assert.deepEqual(t.clones_14d, { count: 30, uniques: 11 });
-  assert.deepEqual(t.views_14d, { count: 200, uniques: 64 });
   assert.equal(t.stars, 42);
+  assert.equal(t.forks, 7);
   assert.equal(t.releases, 101);
   assert.equal(t.release_downloads, 11);
   assert.deepEqual(t.notes, []);
+  // Only the four counters Tek named, and nothing else.
+  assert.deepEqual(Object.keys(t).sort(), ['clones_14d', 'forks', 'notes', 'read', 'release_downloads', 'releases', 'repo', 'stars']);
   const traffic = seen.filter((s) => s.url.includes('/traffic/'));
-  assert.equal(traffic.length, 2);
-  assert.ok(traffic.every((s) => s.auth === 'Bearer test-token'));
-  // The token goes only to GitHub's traffic endpoints, never to npm.
-  assert.ok(seen.filter((s) => s.url.startsWith('/downloads/')).every((s) => s.auth === ''));
-});
-
-test('--out writes the same text it prints, as a note a vault can read', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tj-traffic-'));
-  const file = path.join(dir, 'Metrics', 'TekJobs repo traffic.md');
-  const r = await run(['--out', file]);
-  assert.equal(r.status, 0, r.stderr);
-  assert.equal(fs.readFileSync(file, 'utf8'), r.stdout);
-  fs.rmSync(dir, { recursive: true, force: true });
-});
-
-test('--out with no path stops before reading anything', async () => {
-  seen.length = 0;
-  const r = await run(['--out']);
-  assert.equal(r.status, 2);
-  assert.match(r.stderr, /--out needs a file path/);
-  assert.equal(seen.length, 0);
+  assert.equal(traffic.length, 1);
+  assert.equal(traffic[0].auth, 'Bearer test-token');
+  assert.ok(seen.filter((s) => !s.url.includes('/traffic/')).every((s) => s.auth === ''), 'the token went to a public endpoint');
 });
 
 test('a counter that cannot be read fails the run and names the URL and status', async () => {
@@ -116,6 +113,43 @@ test('a counter that cannot be read fails the run and names the URL and status',
   assert.equal(r.status, 1);
   assert.match(r.stderr, /Could not read the repo traffic: .*\/fail\/repos\/Timurtek\/tekjobs answered 503/);
   assert.equal(r.stdout, '');
+});
+
+for (const [scenario, expected, env] of [
+  ['/bad-stars', /\/bad-stars\/repos\/Timurtek\/tekjobs gave stargazers_count = "42", not a count/, {}],
+  ['/bad-releases', /releases\?per_page=100&page=1 did not answer with a list of releases/, {}],
+  ['/bad-downloads', /release 0 asset 0 download_count = -1, not a count/, {}],
+  ['/bad-clones', /traffic\/clones gave uniques = null, not a count/, { GITHUB_TOKEN: 'test-token' }],
+]) {
+  test(`a malformed answer from GitHub (${scenario.slice(1)}) fails the run by endpoint and field, printing no number`, async () => {
+    const r = await run([], { TEKJOBS_GITHUB_API: base + scenario, ...env });
+    assert.equal(r.status, 1, r.stdout);
+    assert.match(r.stderr, expected);
+    assert.equal(r.stdout, '');
+  });
+}
+
+test('there is no --out: the script writes nothing, it only prints', () => {
+  const src = fs.readFileSync(SCRIPT, 'utf8');
+  assert.ok(!/node:fs|writeFile|--out/.test(src), 'tools/repo-traffic.mjs writes files again');
+});
+
+// docs/analytics.md is the packet's contract: the one number with its target, how to read it, what GA4 measures and
+// where, every repo counter, and the privacy promise. Each of these must stay.
+test('docs/analytics.md keeps the one number, its target, the GA4 inventory, the repo counters and the privacy section', () => {
+  const doc = fs.readFileSync(path.join(ROOT, 'docs', 'analytics.md'), 'utf8');
+  const need = {
+    'the one number': /## The one number[\s\S]*found_interviews/,
+    'its target': /\*\*Target: 2 interviews per month\*\*/,
+    'how to count it': /→ \*\*interviewing\*\*[\s\S]*added_by:/,
+    'the GA4 events': /`page_view`[\s\S]*`session_start`/,
+    'where GA4 is read': /G-DX8B8DCTGF[\s\S]*Reports → Engagement → Pages and screens/,
+    'the GA4 evidence': /docs\/evidence\/ga4-page-view-tekjobs\.json/,
+    'every repo counter': /`stars`[\s\S]*`forks`[\s\S]*`release_downloads`[\s\S]*`clones_14d`/,
+    'the privacy section': /## Privacy[\s\S]*The software sends nothing/,
+  };
+  const missing = Object.entries(need).filter(([, re]) => !re.test(doc)).map(([k]) => k);
+  assert.deepEqual(missing, [], `docs/analytics.md lost: ${missing.join(', ')}`);
 });
 
 // The measurement above exists so the software does not have to be instrumented. This keeps it that way.

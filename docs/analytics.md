@@ -2,15 +2,17 @@
 
 TekJobs promises "There is no telemetry" (README, the site's landing page, the privacy policy). So the software
 itself sends nothing, and it never will without Tek changing that promise in public first. Everything below is
-counted somewhere else: on the marketing site, on GitHub and on npm, and in Tek's own job pipeline.
+counted somewhere else: on the marketing site, on GitHub, and in Tek's own job pipeline.
 
 `test/repo-traffic.test.mjs` keeps the promise honest: it fails if the CLI, the scraper or the app (server or
 UI) depends on or names an analytics service, or if the README stops saying "There is no telemetry."
 
 ## The one number
 
-**Interviews per month from matches TekJobs found.** This is the venture's goal (`found_interviews`). Its target
-is Tek's and lives in the venture's goals in ORG Brain, not here.
+**Interviews per month from matches TekJobs found.** This is the venture's goal (`found_interviews`).
+
+**Target: 2 interviews per month** (Tek's venture goal in ORG Brain, as of 2026-10-13). The goal is the source:
+if Tek changes it there, change it here.
 
 How to read it, from Tek's pipeline (the job notes in his TekJobs vault, `Jobs/`):
 
@@ -38,37 +40,43 @@ Telemetry does not feed this number. It comes from files Tek owns.
 Read it in GA4: property for measurement id `G-DX8B8DCTGF`, Reports → Engagement → Pages and screens, and
 Acquisition → Traffic acquisition for where visitors came from. Preview and local builds send nothing.
 
+Proof that it fires: `docs/evidence/ga4-page-view-tekjobs.json` and its screenshot
+`docs/evidence/ga4-page-view-tekjobs.png`. On 2026-10-14 a fresh Chromium loaded https://tekjobs.timurtek.com/
+(200), the page loaded `gtag/js?id=G-DX8B8DCTGF`, and it sent one hit to `www.google-analytics.com/g/collect` with
+`tid=G-DX8B8DCTGF` and `en=page_view`. The hit was intercepted and answered locally, so the check itself was not
+counted. This proves the site sends the event; seeing it arrive needs access to the GA4 property (Realtime report).
+
 There is no custom sign-in or purchase event. Adding one changes the site, and this packet leaves the site as it
 is (Tek, 2026-10-13).
 
-## The repo and the package: `npm run traffic`
+## The repo: `npm run traffic`
 
-`tools/repo-traffic.mjs` reads public counters and prints them as a vault note, with frontmatter that ORG Brain
-can read and a table for a person. `--json` prints JSON instead. `--out <file>` also writes the output to a file.
+`tools/repo-traffic.mjs` reads the four GitHub counters Tek named (2026-10-13) and prints them as a vault note,
+with frontmatter that ORG Brain can read and a table for a person. `--json` prints JSON instead. It only prints;
+to keep a copy, redirect the output where you want it.
 
 ```
 npm run traffic
-npm run traffic -- --out "D:/path/to/vault/Metrics/TekJobs repo traffic.md"
-GITHUB_TOKEN=<token with push access> npm run traffic   # adds clones and views
+npm run traffic -- --json
+GITHUB_TOKEN=<token with push access> npm run traffic   # adds clones
 ```
 
 | counter | source | what it proves |
 | --- | --- | --- |
 | `stars` | GitHub repo | people found the repo and wanted to keep it |
 | `forks` | GitHub repo | people took a copy to run or change |
-| `watchers` | GitHub repo | people want to hear about changes |
 | `releases`, `release_downloads` | GitHub releases, every page | releases shipped; asset downloads (TekJobs ships through npm, so this is expected to stay near 0) |
-| `clones_14d`, `views_14d` (and `_unique`) | GitHub traffic API, last 14 days; **needs `GITHUB_TOKEN`** | people cloned or browsed the repo: the north star's "a stranger clones it" |
-| `npm_downloads_week`, `npm_downloads_month` | api.npmjs.org | installs of `@timurtekb/tekjobs`. This counts downloads, not people: CI, mirrors and bots are in it too, so read the trend, not the absolute number |
+| `clones_14d` (and `clones_14d_unique`) | GitHub traffic API, last 14 days; **needs `GITHUB_TOKEN`** | people cloned the repo: the north star's "a stranger clones it" |
 
-Without `GITHUB_TOKEN`, clones and views are reported as `null` with a line saying why, and everything else is
-still read. The token is only sent to GitHub's traffic endpoints. GitHub keeps traffic for 14 days only, so a
-weekly run is what keeps a history.
+Without `GITHUB_TOKEN`, clones are reported as `null` with a line saying why, and everything else is still read.
+The token is only sent to GitHub's traffic endpoint. GitHub keeps traffic for 14 days only, so a weekly run is
+what keeps a history. Every answer from GitHub is checked before it is counted: a missing or malformed field fails
+the run with the endpoint and the field, rather than printing a wrong number.
 
 ## Privacy
 
 - The software sends nothing, so it has no events to carry personal data.
 - GA4 on the site holds a random id per browser, as the privacy policy says. No names, emails or free text go
   into it.
-- The repo and npm counters are aggregate counts. The one number is read from Tek's own notes and leaves his
+- The repo counters are aggregate counts. The one number is read from Tek's own notes and leaves his
   machine only as a count.
