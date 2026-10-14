@@ -29,6 +29,7 @@ const malformed = {
   '/bad-stars': { '/repos/Timurtek/tekjobs': { stargazers_count: '42', forks_count: 7 } },
   '/bad-releases': { '/repos/Timurtek/tekjobs/releases?per_page=100&page=1': { message: 'not a list' } },
   '/bad-downloads': { '/repos/Timurtek/tekjobs/releases?per_page=100&page=1': [{ assets: [{ download_count: -1 }] }] },
+  '/no-assets': { '/repos/Timurtek/tekjobs/releases?per_page=100&page=1': [{ tag_name: 'v0.59.0', assets: [] }, { tag_name: 'v0.58.0' }] },
   '/bad-clones': { '/repos/Timurtek/tekjobs/traffic/clones': { count: 30, uniques: null } },
 };
 
@@ -119,6 +120,7 @@ for (const [scenario, expected, env] of [
   ['/bad-stars', /\/bad-stars\/repos\/Timurtek\/tekjobs gave stargazers_count = "42", not a count/, {}],
   ['/bad-releases', /releases\?per_page=100&page=1 did not answer with a list of releases/, {}],
   ['/bad-downloads', /release 0 asset 0 download_count = -1, not a count/, {}],
+  ['/no-assets', /\/no-assets\/repos\/Timurtek\/tekjobs\/releases\?per_page=100&page=1 gave release 1 assets = undefined, not a list/, {}],
   ['/bad-clones', /traffic\/clones gave uniques = null, not a count/, { GITHUB_TOKEN: 'test-token' }],
 ]) {
   test(`a malformed answer from GitHub (${scenario.slice(1)}) fails the run by endpoint and field, printing no number`, async () => {

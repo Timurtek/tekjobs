@@ -53,8 +53,9 @@ export async function repoTraffic({ token = process.env.GITHUB_TOKEN, now = new 
     const batch = await gh(p);
     if (!Array.isArray(batch)) throw new Error(`${url(p)} did not answer with a list of releases`);
     for (const [i, r] of batch.entries()) {
-      const assets = object(r, url(p)).assets ?? [];
-      if (!Array.isArray(assets)) throw new Error(`${url(p)} gave release ${i} assets that are not a list`);
+      // GitHub always sends `assets`, empty when a release has none, so a missing list is a broken answer, not zero.
+      const assets = object(r, url(p)).assets;
+      if (!Array.isArray(assets)) throw new Error(`${url(p)} gave release ${i} assets = ${JSON.stringify(assets)}, not a list`);
       for (const [j, a] of assets.entries()) {
         releaseDownloads += count(object(a, url(p)).download_count, url(p), `release ${i} asset ${j} download_count`);
       }
