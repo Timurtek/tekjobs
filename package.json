@@ -24,6 +24,7 @@
     "mcp": "node app/server/mcp.mjs",
     "sample": "node tools/make-sample-vault.mjs",
     "counts": "node tools/counts.mjs",
+    "traffic": "node tools/repo-traffic.mjs",
     "screens": "node tools/screens.mjs"
   },
   "dependencies": {
