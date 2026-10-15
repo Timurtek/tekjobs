@@ -63,7 +63,7 @@ export function sitemapFor(siteUrl: string, { docs, legal, jobs }: { docs: Page[
 
 /**
  * JSON for a `<script type="application/ld+json">`. `<` is escaped so text from a posting or a doc can never
- * close the script tag; JSON parsers read `<` as the same character.
+ * close the script tag; a JSON parser reads the escape back as `<`.
  */
 export function jsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
