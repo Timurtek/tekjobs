@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DocBody } from "@/components/DocBody";
 import { allDocs, getDoc } from "@/lib/docs";
-import { REPO } from "@/content";
+import { DISCUSSIONS, REPO } from "@/content";
 
 export function generateStaticParams() {
   return allDocs().map((d) => ({ slug: d.slug }));
@@ -40,6 +40,9 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
             {doc.summary && <p className="lead">{doc.summary}</p>}
           </header>
           <DocBody text={doc.body} />
+          <p className="docs__ask">
+            Stuck, or have an idea? <a href={DISCUSSIONS} target="_blank" rel="noreferrer">Ideas and questions</a> on GitHub Discussions.
+          </p>
           <footer className="docs__foot">
             <span>{prev ? <a href={`/docs/${prev.slug}`}>← {prev.title}</a> : null}</span>
             <a href={`${REPO}/edit/main/site/content/docs/${slug}.md`} target="_blank" rel="noreferrer">Edit this page</a>
