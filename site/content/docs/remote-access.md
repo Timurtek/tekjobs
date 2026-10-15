@@ -6,7 +6,7 @@ summary: Your own machine, on your own Tailscale network, at https://tekjobs.you
 
 TekJobs runs on your machine and answers only on `127.0.0.1`. With [Tailscale](https://tailscale.com), the private network that joins your own devices, you can open the same app from your phone: read Today on the bus, move a job to interviewing right after the call, pull an answer from the copy panel while you fill in a form. The notes never leave your machine. Your phone reaches the server on it.
 
-It works while the machine is on. Leave it running, and the 07:30 scan and your phone read the same notes.
+It works while the machine is on. Leave it running, and the 07:30 scan and your phone read the same notes. If your laptop sleeps and you have a machine that stays on, [run it in Docker](/docs/docker) there instead.
 
 ## What stays private
 

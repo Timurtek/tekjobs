@@ -102,6 +102,10 @@ With [Tailscale](https://tailscale.com), the same app opens on your phone at `ht
 
 The short way is `tailscale serve --bg 8787` on the machine. With Docker Desktop, [`deploy/tailscale`](deploy/tailscale) runs a small Tailscale container that gives TekJobs its own name and starts with Docker, while TekJobs keeps running on the machine, where your AI command line and profile folder are. [The full guide](https://tekjobs.timurtek.com/docs/remote-access) covers both, keeping the server up, and checking it.
 
+## Run it in Docker
+
+On a machine that stays on, such as a NAS, a home server or a small VPS, TekJobs can run in a container, so the daily scan and your phone do not depend on your laptop being awake. [`deploy/docker`](deploy/docker) has a compose file with two containers: TekJobs, and Tailscale as its only way in. No port is opened, your profile folder is mounted from the host, and the image `ghcr.io/timurtek/tekjobs` is published for amd64 and arm64 with every release. Scanning and the app work out of the box. Cover letters, tailored resumes, mail and calendar need the Claude CLI in the image signed in with a token. [The guide](https://tekjobs.timurtek.com/docs/docker) walks through it.
+
 ## Requirements
 
 - **Node 20 or newer.** The scan has one dependency (PDF reading); the app ships built.

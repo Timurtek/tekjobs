@@ -1,0 +1,18 @@
+# The image is built from source; nothing local, private or generated goes into the build context.
+**/node_modules
+**/dist
+**/.next
+**/.env
+**/.env.*
+.git
+.github
+.husky
+data
+site
+tools
+test
+app/e2e
+app/test-results
+app/playwright-report
+samples/vault/.tekjobs
+*.log
