@@ -44,7 +44,9 @@ Proof that it fires: `docs/evidence/ga4-page-view-tekjobs.json` and its screensh
 `docs/evidence/ga4-page-view-tekjobs.png`. On 2026-10-14 a fresh Chromium loaded https://tekjobs.timurtek.com/
 (200), the page loaded `gtag/js?id=G-DX8B8DCTGF`, and it sent one hit to `www.google-analytics.com/g/collect` with
 `tid=G-DX8B8DCTGF` and `en=page_view`. The hit was intercepted and answered locally, so the check itself was not
-counted. This proves the site sends the event; seeing it arrive needs access to the GA4 property (Realtime report).
+counted. This proves the site sends the event, and it is the evidence for this packet (Tek, 2026-10-14). Seeing it
+arrive in the GA4 Realtime report is Tek's own check: it needs access to the property, so it is unverifiable from
+here (Measurement policy), not a failure.
 
 There is no custom sign-in or purchase event. Adding one changes the site, and this packet leaves the site as it
 is (Tek, 2026-10-13).
