@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-10-14T14:11:46.857Z",
+  "url": "https://tekjobs.timurtek.com/",
+  "status": 200,
+  "gtag_script": [
+    "https://www.googletagmanager.com/gtag/js?id=G-DX8B8DCTGF"
+  ],
+  "ga4_hits": [
+    {
+      "host": "www.google-analytics.com",
+      "path": "/g/collect",
+      "tid": "G-DX8B8DCTGF",
+      "events": [
+        "page_view"
+      ],
+      "dl": "https://tekjobs.timurtek.com/"
+    }
+  ],
+  "page_view_sent": true,
+  "measurement_ids": [
+    "G-DX8B8DCTGF"
+  ],
+  "console_errors": [],
+  "note": "Every GA4 hit was intercepted and answered locally with 204; none reached Google Analytics.",
+  "screenshot": "docs/evidence/ga4-page-view-tekjobs.png"
+}
