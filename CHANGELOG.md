@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.60.0](https://github.com/Timurtek/tekjobs/compare/v0.59.0...v0.60.0) (2026-10-15)
+
+### Features
+
+* **deploy:** run TekJobs in Docker on a machine that stays on ([#15](https://github.com/Timurtek/tekjobs/issues/15)) ([2739e88](https://github.com/Timurtek/tekjobs/commit/2739e88e7bd0ad353ebfd1f3002f15e5bd1ee336))
+
 ## [0.59.0](https://github.com/Timurtek/tekjobs/compare/v0.58.0...v0.59.0) (2026-10-11)
 
 ### Features
