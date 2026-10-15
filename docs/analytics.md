@@ -6,6 +6,8 @@ counted somewhere else: on the marketing site, on GitHub, and in Tek's own job p
 
 `test/repo-traffic.test.mjs` keeps the promise honest: it fails if the CLI, the scraper or the app (server or
 UI) depends on or names an analytics service, or if the README stops saying "There is no telemetry."
+`test/no-telemetry.test.mjs` adds the network: every file in the shipped software that can open a connection is
+on a list with the reason it does, and a new one fails the test until it is added there and documented.
 
 ## The one number
 
@@ -48,8 +50,55 @@ counted. This proves the site sends the event, and it is the evidence for this p
 arrive in the GA4 Realtime report is Tek's own check: it needs access to the property, so it is unverifiable from
 here (Measurement policy), not a failure.
 
-There is no custom sign-in or purchase event. Adding one changes the site, and this packet leaves the site as it
-is (Tek, 2026-10-13).
+GA4 has no custom sign-in or purchase event (Tek, 2026-10-13). The open-source funnel is PostHog's, below.
+
+## The marketing site: PostHog and the open-source funnel
+
+Does anyone use the open source, and how far do they get? `site/` sends PostHog the steps from a visit to an
+install, on production deployments only and only when `NEXT_PUBLIC_POSTHOG_KEY` is set in Vercel
+(`site/src/lib/flags.ts`). Without the key nothing loads and nothing is sent. The client is
+`site/src/lib/analytics.ts` (no SDK, no dependency: one POST per event to PostHog's capture endpoint), wired into
+every page by `site/src/components/Analytics.tsx`; `test/site-analytics.test.mjs` drives it.
+
+| event | fires when | properties |
+| --- | --- | --- |
+| `$pageview` | every page, client-side navigations included | — |
+| `docs_viewed` | a page under `/docs/` | `doc`: the page's slug |
+| `install_copied` | the Copy button on a code block holding the install command (`@timurtekb/tekjobs` with `npx`, `npm`, `pnpm`, `yarn` or `bunx`) | — |
+| `github_clicked` | a link to the repo, other than its releases or Discussions | `url` |
+| `release_clicked` | a link to the repo's releases, or to the npm package | `target`: `github` or `npm`; `url` |
+| `discussions_clicked` | a link to GitHub Discussions (the footer, every docs page) | `url` |
+
+Every event carries `app: "TekJobs site"`, `$current_url` and `$pathname` (no query string, no hash),
+`$referrer` (the referring site's origin only) and `$process_person_profile: false`. The `distinct_id` is a random
+id in the tab's `sessionStorage`: no cookie, gone when the tab closes. Do Not Track or Global Privacy Control turns
+it all off. There is no autocapture, no session recording and nothing from a form.
+
+### The funnel
+
+1. **Visited**: `$pageview`.
+2. **Read the docs**: `docs_viewed`.
+3. **Copied the install**: `install_copied`.
+4. **Went to the code**: `github_clicked` or `release_clicked`.
+5. **Cloned or installed**, outside the site: `clones_14d` and `release_downloads` from `npm run traffic` (below),
+   and `stars` as the "liked it" signal. Discussions (`discussions_clicked`, then the threads themselves) is where
+   people say so in words.
+
+Steps 1 to 4 are one PostHog funnel; step 5 is GitHub's, read beside it, because a clone is not tied to a site
+visitor and should not be.
+
+Read it in PostHog: Product analytics → New insight → Funnels; steps `$pageview`, `docs_viewed`, `install_copied`,
+and `github_clicked` or `release_clicked` as one step; filter `app = TekJobs site`; conversion window one day. The
+id lasts one tab, so the funnel counts journeys within a visit; someone who comes back tomorrow starts again.
+
+### The open source's one number for this stage
+
+**Install intents per 14 days = `install_copied` events in the last 14 days (PostHog, Trends, filter
+`app = TekJobs site`) + `clones_14d.count` (`GITHUB_TOKEN=... npm run traffic`, the same day).** Fourteen days
+because that is the only window GitHub keeps clones for, so both halves cover the same stretch. Read it weekly;
+the vault note `npm run traffic` prints is the record of the clone half. It counts intents, not working installs:
+the software reports nothing back, by design, so a finished install is only ever seen when someone says so in
+Discussions or an issue. No target is set here; that is Tek's.
 
 ## The repo: `npm run traffic`
 
@@ -80,5 +129,13 @@ the run with the endpoint and the field, rather than printing a wrong number.
 - The software sends nothing, so it has no events to carry personal data.
 - GA4 on the site holds a random id per browser, as the privacy policy says. No names, emails or free text go
   into it.
+- PostHog on the site holds a random id per tab, keeps no person profile, and gets page paths and link targets
+  only; the privacy policy names it. Do Not Track and Global Privacy Control switch it off.
+
+## Feedback: GitHub Discussions
+
+People who use it, or want to, ask and suggest in GitHub Discussions on the repo (categories Ideas, Q&A, Show and
+tell), linked as "Ideas and questions" from the README, every docs page, the site footer and the app's sidebar
+footer. The app's link only opens the browser when clicked; the app sends nothing.
 - The repo counters are aggregate counts. The one number is read from Tek's own notes and leaves his
   machine only as a count.

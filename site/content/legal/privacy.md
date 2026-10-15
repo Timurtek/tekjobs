@@ -2,14 +2,14 @@
 title: Privacy Policy
 order: 2
 summary: What tekjobs.timurtek.com collects, why, who processes it, and what the TekJobs software does not send anywhere.
-updated: 2026-10-07
+updated: 2026-10-15
 ---
 
 This policy covers **tekjobs.timurtek.com** and the accounts and job-posting service on it, operated by **Timurtek LLC**, Everett, Washington, USA (hello@timurtek.com). It also says, because people ask, what the TekJobs software does with your data: nothing that leaves your computer.
 
 ## The Software, on your computer
 
-TekJobs, the software in the repository, runs locally. Your profile, resume, criteria, job notes, mail state and settings live in a folder on your machine. The software does not send them to us or to anyone. It makes requests to public job boards to read postings (with a user agent that names the project and, if you set one, your contact address); it runs the coding CLI you installed and signed in to, under that vendor's terms, for the letters and resumes it drafts; and if you turn on the mail check, that CLI reads your mailbox through the Gmail connector you attached to it, with only read tools allowed. We have no account, no telemetry and no server behind the software. What the Software sends to a job board, an LLM vendor or an employer is sent by you, from your machine.
+TekJobs, the software in the repository, runs locally. Your profile, resume, criteria, job notes, mail state and settings live in a folder on your machine. The software does not send them to us or to anyone. It makes requests to public job boards to read postings (with a user agent that names the project and, if you set one, your contact address); it runs the coding CLI you installed and signed in to, under that vendor's terms, for the letters and resumes it drafts; and if you turn on the mail check, that CLI reads your mailbox through the Gmail connector you attached to it, with only read tools allowed. The app's page loads its typefaces from Google Fonts, so Google sees your browser ask for them. We have no account, no telemetry and no server behind the software. What the Software sends to a job board, an LLM vendor or an employer is sent by you, from your machine.
 
 ## The Site: what we collect
 
@@ -21,7 +21,11 @@ TekJobs, the software in the repository, runs locally. Your profile, resume, cri
 
 **Server logs.** Our host, Vercel, keeps standard request logs (IP address, user agent, path, time) for a short period for security and debugging.
 
-**Analytics.** The Site uses Google Analytics 4 to count visits and see which pages are read: page views, the referring site, approximate location from the IP address (Google does not store the address itself), browser and device type. It runs only on the public site at tekjobs.timurtek.com, not in preview builds and never in the TekJobs software on your computer. We do not send it your account email, your postings, or anything you type. Google processes this data under [its privacy policy](https://policies.google.com/privacy); its [browser add-on](https://tools.google.com/dlpage/gaoptout) opts you out everywhere, and a browser that blocks the `googletagmanager.com` script has the same effect here. We do not run advertising trackers.
+**Analytics.** The Site uses Google Analytics 4 to count visits and see which pages are read: page views, the referring site, approximate location from the IP address (Google does not store the address itself), browser and device type. It runs only on the public site at tekjobs.timurtek.com, not in preview builds and never in the TekJobs software on your computer. We do not send it your account email, your postings, or anything you type. Google processes this data under [its privacy policy](https://policies.google.com/privacy); its [browser add-on](https://tools.google.com/dlpage/gaoptout) opts you out everywhere, and a browser that blocks the `googletagmanager.com` script has the same effect here.
+
+The Site also uses **PostHog** to count how people find their way to the open-source project: page views, which docs are read, and clicks on the copy button of the install command and on the links to GitHub, its releases, npm and GitHub Discussions. Each event carries the page's address without its query string, the referring site without its path, and a random id kept in your browser's session storage, which is gone when you close the tab. PostHog sets no cookies here, keeps no profile of you, records no session and reads nothing you type; we do not send it your account email, your postings, or anything you type. If your browser sends Do Not Track or Global Privacy Control, nothing is sent to PostHog at all. Like Google Analytics it runs only on the public site, never in preview builds. PostHog processes this data under [its privacy policy](https://posthog.com/privacy). We do not run advertising trackers.
+
+**The TekJobs software sends nothing.** Neither analytics service, nor any other, is in the software you install: the app, the command line and the MCP server have no analytics, no telemetry and no crash reporting, and a test in the repository fails if one is added. The links to GitHub Discussions in the app open in your browser only when you click them.
 
 **What we do not collect.** The Site collects no consumer health data in the sense of Washington's My Health My Data Act, no precise location, and nothing about job seekers: it has no view of who reads or applies to a posting. The Site is operated from and directed at the United States.
 
@@ -37,7 +41,8 @@ To provide the account and the posting you bought (performance of a contract); t
 - **Stripe**: payments, under Stripe's privacy policy.
 - **Vercel**: hosting and request logs, in the United States.
 - **Google Analytics**: visit counts and page views on the Site, in the United States.
-- **GitHub**: the repository and its issues, if you interact with them.
+- **PostHog**: page views and the clicks listed above on the Site, in the United States.
+- **GitHub**: the repository, its issues and its Discussions, if you interact with them.
 
 Each processes data under its own terms and security programme. Data is stored in the United States; if you are elsewhere, using the Site means it is transferred there.
 
