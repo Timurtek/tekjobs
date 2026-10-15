@@ -3,9 +3,14 @@ import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { POSTING } from "@/content";
 import { authConfigured, purchasesOpen } from "@/lib/flags";
+import { pageMeta } from "@/lib/seo";
 import { currentIdentity } from "@/server/auth";
 
-export const metadata: Metadata = { title: "Post a job" };
+export const metadata: Metadata = pageMeta({
+  title: "Post a job",
+  description: `Post a job to people who run their own search: ${POSTING.price} for ${POSTING.term}. Every TekJobs user's morning scan reads it and scores it against their own criteria; they apply to you directly.`,
+  path: "/post-a-job",
+});
 export const dynamic = "force-dynamic";
 
 /**

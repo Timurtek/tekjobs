@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DocBody } from "@/components/DocBody";
 import { allDocs, getDoc } from "@/lib/docs";
-import { REPO } from "@/content";
+import { appUrl } from "@/lib/flags";
+import { articleLd, jsonLd, pageMeta } from "@/lib/seo";
+import { AUTHOR, REPO } from "@/content";
 
 export function generateStaticParams() {
   return allDocs().map((d) => ({ slug: d.slug }));
@@ -10,7 +12,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const doc = getDoc((await params).slug);
-  return { title: doc ? doc.title : "Docs", description: doc?.summary };
+  if (!doc) return { title: "Docs" };
+  return pageMeta({ title: doc.title, description: doc.summary, path: `/docs/${doc.slug}`, type: "article" });
 }
 
 export default async function DocPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -40,6 +43,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
             {doc.summary && <p className="lead">{doc.summary}</p>}
           </header>
           <DocBody text={doc.body} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(articleLd({ siteUrl: appUrl, path: `/docs/${slug}`, title: doc.title, description: doc.summary, author: AUTHOR })) }} />
           <footer className="docs__foot">
             <span>{prev ? <a href={`/docs/${prev.slug}`}>← {prev.title}</a> : null}</span>
             <a href={`${REPO}/edit/main/site/content/docs/${slug}.md`} target="_blank" rel="noreferrer">Edit this page</a>

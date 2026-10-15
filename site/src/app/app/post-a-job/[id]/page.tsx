@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { PostingForm } from "@/components/postings/PostingForm";
 import { purchasesOpen } from "@/lib/flags";
+import { PRIVATE } from "@/lib/seo";
 import { currentIdentity } from "@/server/auth";
 import { getPosting } from "@/server/postings";
 
-export const metadata: Metadata = { title: "Edit posting" };
+export const metadata: Metadata = { title: "Edit posting", ...PRIVATE };
 export const dynamic = "force-dynamic";
 
 export default async function EditPostingPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ canceled?: string }> }) {

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { POSTING } from "@/content";
+import { pageMeta } from "@/lib/seo";
 import { whereOf } from "@/lib/where";
 import { livePostings } from "@/server/postings";
 
-export const metadata: Metadata = { title: "Jobs", description: "Every job posted on TekJobs and live today. The same postings every TekJobs user's morning scan reads." };
+export const metadata: Metadata = pageMeta({ title: "Jobs", description: "Every job posted on TekJobs and live today. The same postings every TekJobs user's morning scan reads.", path: "/jobs" });
 export const dynamic = "force-dynamic";
 
 const money = (n: number) => `$${Math.round(n / 1000)}k`;
