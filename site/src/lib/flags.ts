@@ -15,3 +15,12 @@ export const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://tekjobs.timurt
  * the page), so it lives here rather than in the environment. Empty string means the tag is not rendered.
  */
 export const analyticsId = process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ? "G-DX8B8DCTGF" : "";
+
+/**
+ * PostHog for the open-source funnel (lib/analytics.ts), on the same terms: production deployments only, and only
+ * when the project key is set in Vercel. Empty key means nothing loads and nothing is sent.
+ */
+export const posthog = {
+  key: process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ? process.env.NEXT_PUBLIC_POSTHOG_KEY || "" : "",
+  host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+};
