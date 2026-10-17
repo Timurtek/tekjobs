@@ -821,6 +821,11 @@ body {
   font-size: var(--text-sm);
 }
 
+.docs__ask {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
 .doc {
   font-size: var(--text-base);
   line-height: var(--leading-normal);

@@ -233,6 +233,7 @@ function Navigation({ page, onNavigate, onboarded, counts, lastScan, who, collap
             <br /><span className="num">v{__APP_VERSION__}</span>
             <br />by <a className="sidebar__legal" href="https://www.timurtek.com" target="_blank" rel="noreferrer">timurtek.com</a>
             <br /><a className="sidebar__legal" href="https://tekjobs.timurtek.com/legal/terms" target="_blank" rel="noreferrer">Terms</a> · <a className="sidebar__legal" href="https://tekjobs.timurtek.com/legal/privacy" target="_blank" rel="noreferrer">Privacy</a>
+            <br /><a className="sidebar__legal" href="https://github.com/Timurtek/tekjobs/discussions" target="_blank" rel="noreferrer">Ideas and questions</a>
           </div>
         </div>
       )}

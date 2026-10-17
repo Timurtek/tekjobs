@@ -6,7 +6,10 @@
 import counts from "./counts.json";
 
 export const REPO = "https://github.com/Timurtek/tekjobs";
-export const NPM = "https://www.npmjs.com/package/@timurtekb/tekjobs";
+/** Where people ask and suggest: GitHub Discussions (Ideas, Q&A, Show and tell). */
+export const DISCUSSIONS = `${REPO}/discussions`;
+export const RELEASES = `${REPO}/releases`;
+export const NPM ="https://www.npmjs.com/package/@timurtekb/tekjobs";
 export const PACKAGE = "@timurtekb/tekjobs";
 export const AUTHOR = "https://www.timurtek.com";
 export const ZENGIN = "https://zengin.timurtek.com";
