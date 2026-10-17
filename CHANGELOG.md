@@ -2,6 +2,12 @@
 
 Every release, newest first. Written by semantic-release from the commit messages.
 
+## [0.61.0](https://github.com/Timurtek/tekjobs/compare/v0.60.0...v0.61.0) (2026-10-17)
+
+### Features
+
+* **tjob-siteph-001:** PostHog and the open-source funnel on the TekJobs site, and GitHub Discussions for feedback ([#17](https://github.com/Timurtek/tekjobs/issues/17)) ([3c3115d](https://github.com/Timurtek/tekjobs/commit/3c3115d0754161f01e84697769b8a5a9b38aa434))
+
 ## [0.60.0](https://github.com/Timurtek/tekjobs/compare/v0.59.0...v0.60.0) (2026-10-15)
 
 ### Features
