@@ -3,7 +3,7 @@ import { Toast, Tooltip } from "@/components/ui";
 import { useEffect, useState, type ReactNode } from "react";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { Nav } from "@/sections/Nav";
-import { AUTHOR, REPO, ZENGIN } from "@/content";
+import { AUTHOR, DISCUSSIONS, RELEASES, REPO, ZENGIN } from "@/content";
 
 type Theme = "light" | "dark";
 
@@ -41,6 +41,8 @@ export function SiteFrame({ children }: { children: ReactNode }) {
                   <a href="/legal/privacy">Privacy</a>
                   <a href="/legal/refunds">Refunds</a>
                   <a href={REPO} target="_blank" rel="noreferrer">GitHub</a>
+                  <a href={RELEASES} target="_blank" rel="noreferrer">Releases</a>
+                  <a href={DISCUSSIONS} target="_blank" rel="noreferrer">Ideas and questions</a>
                   <a href={ZENGIN} target="_blank" rel="noreferrer">built on Zengin</a>
                   <a href={AUTHOR} target="_blank" rel="noreferrer">timurtek.com</a>
                 </span>

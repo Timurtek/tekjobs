@@ -10,7 +10,7 @@
 
 A local career memory for you and your AI. TekJobs scans hundreds of public company job boards every morning, scores each posting against criteria you control, and saves the results as readable markdown files on your machine. Connect it to Claude Code, Codex, Cursor or Claude Desktop over MCP and your agent can weigh roles, prepare truthful application material and track the search, without ever making the final submission.
 
-[Website](https://tekjobs.timurtek.com) · [Getting started](https://tekjobs.timurtek.com/docs/getting-started) · [Connect your AI client](https://tekjobs.timurtek.com/docs/ai-clients) · [npm](https://www.npmjs.com/package/@timurtekb/tekjobs) · [Releases](https://github.com/Timurtek/tekjobs/releases)
+[Website](https://tekjobs.timurtek.com) · [Getting started](https://tekjobs.timurtek.com/docs/getting-started) · [Connect your AI client](https://tekjobs.timurtek.com/docs/ai-clients) · [npm](https://www.npmjs.com/package/@timurtekb/tekjobs) · [Releases](https://github.com/Timurtek/tekjobs/releases) · [Ideas and questions](https://github.com/Timurtek/tekjobs/discussions)
 
 [![The TekJobs showreel: the morning scan, the cut to the few that fit, every point written down, the Today list, the pipeline, your AI over MCP, and the submit button it leaves to you](site/public/showreel/tekjobs-showreel-readme.jpg)](https://tekjobs.timurtek.com/#showreel)
 
@@ -94,7 +94,7 @@ The archive is read in place and never copied. Into your profile folder, and now
 
 TekJobs keeps your profile, criteria, job notes, decisions and application history in files on your machine. It has no account and keeps no hosted copy of those records. There is no telemetry.
 
-Two kinds of request do leave: the scan's reads of public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under that provider's terms. Optional sources (Adzuna, USAJOBS) call their APIs with your key. Your files remain the durable record whichever model you use.
+Two kinds of request do leave: the scan's reads of public job boards, and whatever context you choose to send to the AI provider you connect, which processes it under that provider's terms. Optional sources (Adzuna, USAJOBS) call their APIs with your key. The app's page also loads its typefaces from Google Fonts, which sees your browser ask for the fonts (its address and user agent) and nothing from your files. Your files remain the durable record whichever model you use.
 
 ## Reach it from your phone
 
@@ -221,6 +221,8 @@ tools/                     board discovery scripts, the sample-vault builder, th
 The package on npm is [`@timurtekb/tekjobs`](https://www.npmjs.com/package/@timurtekb/tekjobs) (the bare name was too close to an existing package for npm's liking); every release that changes the scan, the CLI or the app is published there by the release workflow, and `npx @timurtekb/tekjobs` runs the latest. Versions come from the commit messages, by [semantic-release](https://semantic-release.gitbook.io/) on every push to `main` (`.github/workflows/release.yml`): tests, the app's type check and `zengin check` run first; then `feat:` commits make a minor release and `fix:` and `perf:` a patch. The project is at 0.x on purpose, so a `BREAKING CHANGE:` footer or a `!` after the type also bumps the minor (the `releaseRules` line in `release.config.cjs`); delete that line when 1.0 is earned and breaking changes become majors. The release bumps `package.json`, writes `CHANGELOG.md`, tags `vX.Y.Z`, publishes the notes on GitHub and publishes the package to npm through [Trusted Publishing](https://docs.npmjs.com/trusted-publishers), so no npm token exists anywhere; the repository variable `NPM_PUBLISH` switches that last step on. Commit messages are checked locally by commitlint through a husky hook (`npm install` at the root sets it up), in the [Conventional Commits](https://www.conventionalcommits.org/) shape: `type(scope): summary`, scope optional, and a prose body is welcome. The app's sidebar footer shows the running version.
 
 ## Contributing
+
+Questions, ideas and what you built with it go in [Ideas and questions](https://github.com/Timurtek/tekjobs/discussions) (GitHub Discussions: Ideas, Q&A, Show and tell); bugs go in issues. The software sends nothing back, so this is the only way we hear how it went.
 
 The two things that compound are data files: the board registry (`scraper/starter/companies-table.md`, platform + slug per company) and, soon, criteria presets per role. Pull requests to either are the most useful contribution. [CONTRIBUTING.md](CONTRIBUTING.md) has the mechanics (three installs, the design-system check, the commit format); [SECURITY.md](SECURITY.md) says where to report a vulnerability, and what counts as one.
 

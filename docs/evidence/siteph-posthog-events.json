@@ -1,0 +1,17 @@
+{
+  "what": "The PostHog calls the TekJobs site makes, captured in a browser (playwright-cli, its own session) on 2026-10-15 against a production build of this branch (`next build` with NEXT_PUBLIC_VERCEL_ENV=production, NEXT_PUBLIC_POSTHOG_KEY=phc_test, NEXT_PUBLIC_POSTHOG_HOST=https://ph.invalid). Every call to the host was intercepted and answered locally, so nothing reached PostHog. Clicks, in order: the landing page's install Copy button, 'On npm', then on /docs/getting-started the 'Ideas and questions' link, the footer's Releases and GitHub links. Console errors: none.",
+  "endpoint": "https://ph.invalid/i/v0/e/",
+  "console_errors": [],
+  "events": [
+    { "event": "$pageview", "properties": { "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/", "$pathname": "/", "$referrer": "$direct", "$process_person_profile": false } },
+    { "event": "install_copied", "properties": { "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/", "$pathname": "/", "$referrer": "$direct", "$process_person_profile": false } },
+    { "event": "release_clicked", "properties": { "target": "npm", "url": "https://www.npmjs.com/package/@timurtekb/tekjobs", "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/", "$pathname": "/", "$referrer": "$direct", "$process_person_profile": false } },
+    { "event": "$pageview", "properties": { "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/docs/getting-started", "$pathname": "/docs/getting-started", "$referrer": "$direct", "$process_person_profile": false } },
+    { "event": "docs_viewed", "properties": { "doc": "getting-started", "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/docs/getting-started", "$pathname": "/docs/getting-started", "$referrer": "$direct", "$process_person_profile": false } },
+    { "event": "discussions_clicked", "properties": { "url": "https://github.com/Timurtek/tekjobs/discussions", "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/docs/getting-started", "$pathname": "/docs/getting-started", "$referrer": "$direct", "$process_person_profile": false } },
+    { "event": "release_clicked", "properties": { "target": "github", "url": "https://github.com/Timurtek/tekjobs/releases", "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/docs/getting-started", "$pathname": "/docs/getting-started", "$referrer": "$direct", "$process_person_profile": false } },
+    { "event": "github_clicked", "properties": { "url": "https://github.com/Timurtek/tekjobs", "app": "TekJobs site", "$current_url": "http://127.0.0.1:3917/docs/getting-started", "$pathname": "/docs/getting-started", "$referrer": "$direct", "$process_person_profile": false } }
+  ],
+  "distinct_id": "one random UUID for all eight events (sessionStorage, per tab)",
+  "api_key": "phc_test on every event"
+}

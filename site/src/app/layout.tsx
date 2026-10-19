@@ -3,6 +3,7 @@ import "@/theme/brand.css";
 import "@/site.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Analytics } from "@/components/Analytics";
 import { GoogleTag } from "@/components/GoogleTag";
 import { SiteFrame } from "@/components/SiteFrame";
 import { appUrl } from "@/lib/flags";
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <SiteFrame>{children}</SiteFrame>
         <GoogleTag />
+        <Analytics />
       </body>
     </html>
   );
