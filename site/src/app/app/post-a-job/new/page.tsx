@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { PostingForm } from "@/components/postings/PostingForm";
 import { purchasesOpen } from "@/lib/flags";
+import { PRIVATE } from "@/lib/seo";
 import { currentIdentity } from "@/server/auth";
 
-export const metadata: Metadata = { title: "New posting" };
+export const metadata: Metadata = { title: "New posting", ...PRIVATE };
 export const dynamic = "force-dynamic";
 
 export default async function NewPostingPage() {

@@ -3,10 +3,11 @@ import { redirect } from "next/navigation";
 import { PostingsEmpty } from "@/components/postings/PostingsEmpty";
 import { PostingsTable } from "@/components/postings/PostingsTable";
 import { POSTING } from "@/content";
+import { PRIVATE } from "@/lib/seo";
 import { currentIdentity } from "@/server/auth";
 import { listPostings } from "@/server/postings";
 
-export const metadata: Metadata = { title: "Your postings" };
+export const metadata: Metadata = { title: "Your postings", ...PRIVATE };
 export const dynamic = "force-dynamic";
 
 /** The employer's postings: the table, or, with none yet, the empty state that says what a posting is and where to write one. */

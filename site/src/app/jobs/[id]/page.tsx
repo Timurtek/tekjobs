@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DocBody } from "@/components/DocBody";
 import { ApplyButton } from "@/components/postings/ApplyButton";
 import { appUrl } from "@/lib/flags";
+import { jsonLd, pageMeta } from "@/lib/seo";
 import { whereOf } from "@/lib/where";
 import { getPosting, type Posting } from "@/server/postings";
 
@@ -14,7 +15,7 @@ const isLive = (p: Posting | null): p is Posting => !!p && p.status === "live" &
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const p = await getPosting((await params).id).catch(() => null);
   if (!isLive(p)) return { title: "Job not found" };
-  return { title: `${p.title} at ${p.company}`, description: `${money(p.salaryMin)}–${money(p.salaryMax)} · ${p.workplace === "remote" ? `Remote (${p.regions.join(", ")})` : p.location}` };
+  return pageMeta({ title: `${p.title} at ${p.company}`, description: `${money(p.salaryMin)}–${money(p.salaryMax)} · ${p.workplace === "remote" ? `Remote (${p.regions.join(", ")})` : p.location}`, path: `/jobs/${p.id}` });
 }
 
 /**
@@ -26,7 +27,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
   const p = await getPosting(id).catch(() => null);
   if (!isLive(p)) notFound();
   const where = whereOf(p);
-  const jsonLd = {
+  const posting = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: p.title,
@@ -73,7 +74,7 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
             <p className="muted pcard__note">Run your own search? This posting is already in your morning scan as source <span className="mono">tekjobs</span>.</p>
           </div>
         </aside>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(posting) }} />
       </div>
     </section>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DocBody } from "@/components/DocBody";
 import { allLegal, getLegal } from "@/lib/docs";
+import { pageMeta } from "@/lib/seo";
 
 export function generateStaticParams() {
   return allLegal().map((d) => ({ slug: d.slug }));
@@ -9,7 +10,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const doc = getLegal((await params).slug);
-  return { title: doc ? doc.title : "Legal", description: doc?.summary };
+  if (!doc) return { title: "Legal" };
+  return pageMeta({ title: doc.title, description: doc.summary, path: `/legal/${doc.slug}` });
 }
 
 /** Terms, privacy, refunds: the same reading layout as the docs, with the other two a click away and the date they last changed. */
